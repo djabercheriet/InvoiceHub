@@ -56,8 +56,14 @@ export default function AdminDashboard() {
         .eq('id', user.id)
         .single()
 
+      // Check if user is super admin by role, metadata, or email
+      const isSuperAdmin =
+        profile?.role === 'super_admin' ||
+        user.user_metadata?.role === 'super_admin' ||
+        user.email === process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL
+
       // If not super admin, redirect to regular dashboard
-      if (profile?.role !== 'super_admin' && user.user_metadata?.role !== 'super_admin') {
+      if (!isSuperAdmin) {
         router.push('/dashboard')
       }
     }
