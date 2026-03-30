@@ -10,6 +10,13 @@ import {
   LogOut,
 } from "lucide-react";
 
+async function handleSignOut() {
+  "use server";
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/auth/login");
+}
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -24,13 +31,6 @@ export default async function DashboardLayout({
   if (!user) {
     redirect("/auth/login");
   }
-
-  const handleSignOut = async () => {
-    "use server";
-    const supabase = await createClient();
-    await supabase.auth.signOut();
-    redirect("/auth/login");
-  };
 
   return (
     <div className="flex h-screen bg-background">

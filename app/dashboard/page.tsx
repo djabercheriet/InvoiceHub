@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   LineChart,
@@ -20,11 +21,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-export default async function DashboardPage() {
-  const supabase = await createClient();
-
-  // Fetch data from Supabase (will implement after schema is set up)
-  // For now, we'll use mock data
+export default function DashboardPage() {
+  // Mock data
   const mockKPIs = {
     totalRevenue: 45250.50,
     revenueChange: 12.5,
