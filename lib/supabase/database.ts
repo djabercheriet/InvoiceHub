@@ -581,3 +581,163 @@ export async function getCompanyStats(companyId: string) {
     return { data: null, error }
   }
 }
+
+// ============================================
+// SUBSCRIPTIONS
+// ============================================
+
+export async function getSubscriptionPlans() {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('subscription_plans')
+      .select('*')
+      .eq('is_active', true)
+      .order('monthly_price', { ascending: true })
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error) {
+    console.error('Error fetching subscription plans:', error)
+    return { data: null, error }
+  }
+}
+
+export async function getCompanySubscription(companyId: string) {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select(`
+        id,
+        status,
+        subscription_type,
+        current_period_start,
+        current_period_end,
+        is_trial_active,
+        trial_end_date,
+        plan:plan_id (
+          id,
+          name,
+          description,
+          monthly_price,
+          yearly_price,
+          max_invoices,
+          max_customers,
+          max_products,
+          max_users,
+          features
+        )
+      `)
+      .eq('company_id', companyId)
+      .single()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error) {
+    console.error('Error fetching subscription:', error)
+    return { data: null, error }
+  }
+}
+
+export async function createSubscription(
+  companyId: string,
+  planId: string,
+  type: 'monthly' | 'yearly' = 'monthly'
+) {
+  try {
+    const supabase = await createClient()
+    
+    // Calculate dates
+    const startDate = new Date()
+    const endDate = new Date()
+    if (type === 'monthly') {
+      endDate.setMonth(endDate.getMonth() + 1)
+    } else {
+      endDate.setFullYear(endDate.getFullYear() + 1)
+    }
+
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .insert({
+        company_id: companyId,
+        plan_id: planId,
+        subscription_type: type,
+        current_period_start: startDate.toISOString().split('T')[0],
+        current_period_end: endDate.toISOString().split('T')[0],
+        status: 'trial',
+        is_trial_active: true,
+        trial_start_date: startDate.toISOString().split('T')[0],
+        trial_end_date: new Date(startDate.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error) {
+    console.error('Error creating subscription:', error)
+    return { data: null, error }
+  }
+}
+
+export async function upgradeSubscription(
+  subscriptionId: string,
+  newPlanId: string
+) {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .update({
+        plan_id: newPlanId,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', subscriptionId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error) {
+    console.error('Error upgrading subscription:', error)
+    return { data: null, error }
+  }
+}
+
+export async function cancelSubscription(subscriptionId: string) {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .update({
+        status: 'canceled',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', subscriptionId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error) {
+    console.error('Error canceling subscription:', error)
+    return { data: null, error }
+  }
+}
+
+export async function getSubscriptionUsage(subscriptionId: string) {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('subscription_usage')
+      .select('*')
+      .eq('subscription_id', subscriptionId)
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error) {
+    console.error('Error fetching subscription usage:', error)
+    return { data: null, error }
+  }
+}
