@@ -16,7 +16,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
       {/* Navigation */}
       <nav className="border-b border-slate-700 bg-slate-900/50 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -85,7 +85,7 @@ export default async function Home() {
               "Support for multiple currencies and languages",
             ].map((feature, i) => (
               <div key={i} className="flex gap-4">
-                <Check className="w-6 h-6 text-green-400 flex-shrink-0" />
+                <Check className="w-6 h-6 text-green-400 shrink-0" />
                 <span className="text-slate-300">{feature}</span>
               </div>
             ))}
@@ -108,12 +108,12 @@ export default async function Home() {
               <ul className="space-y-3 mb-8">
                 {features.map((f, i) => (
                   <li key={i} className="flex gap-2 text-slate-300">
-                    <Check className="w-5 h-5 text-green-400 flex-shrink-0" />
+                    <Check className="w-5 h-5 text-green-400 shrink-0" />
                     {f}
                   </li>
                 ))}
               </ul>
-              <Button className="w-full" variant={plan === "Professional" ? "default" : "outline"}>
+              <Button asChild className="w-full" variant={plan === "Professional" ? "default" : "outline"}>
                 Get Started
               </Button>
             </div>

@@ -16,3 +16,19 @@ next.user-config.*
 node_modules
 .next/
 .DS_Store
+
+# Unsecure files
+*.log
+*.backup
+*.bak
+*.tmp
+*.temp
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.sql
+*.sqlite
+*.db
+*.env
