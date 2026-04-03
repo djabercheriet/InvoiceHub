@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter as FontSans } from "next/font/google"
 import { Analytics } from '@vercel/analytics/next'
-import './globals.css'
+import '../globals.css'
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from '@/components/theme-provider'
 
@@ -33,13 +33,30 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+import { locales } from '@/i18n/config';
+
+export default async function RootLayout({
   children,
+  params
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
+  params: Promise<{locale: string}>;
 }>) {
+
+  const { locale } = await params;
+
+  if (!locales.includes(locale as any)) {
+    notFound();
+  }
+
+  const messages = await getMessages();
+  const dir = locale === 'ar' ? 'rtl' : 'ltr';
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} dir={dir} suppressHydrationWarning>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -47,14 +64,16 @@ export default function RootLayout({
         )}
         suppressHydrationWarning
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </NextIntlClientProvider>
         <Analytics />
       </body>
     </html>

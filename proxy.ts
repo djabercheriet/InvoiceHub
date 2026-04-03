@@ -1,8 +1,20 @@
 import { updateSession } from '@/lib/supabase/middleware'
 import { type NextRequest } from 'next/server'
+import createMiddleware from 'next-intl/middleware'
+import { locales, defaultLocale } from '@/i18n/config'
+
+const intlMiddleware = createMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: 'as-needed'
+})
 
 export async function proxy(request: NextRequest) {
-  return await updateSession(request)
+  // First, run the next-intl middleware to handle localization
+  const intlResponse = intlMiddleware(request)
+  
+  // Then, pass this response to the Supabase middleware to handle auth
+  return await updateSession(request, intlResponse)
 }
 
 export const config = {
@@ -15,6 +27,6 @@ export const config = {
      * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

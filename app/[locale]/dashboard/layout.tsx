@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 async function handleSignOut() {
   "use server";
@@ -107,6 +108,11 @@ export default async function DashboardLayout({
           <div className="flex items-center justify-between px-3">
             <span className="text-xs text-muted-foreground uppercase font-bold">Theme</span>
             <ThemeToggle />
+          </div>
+
+          <div className="flex items-center justify-between px-3">
+            <span className="text-xs text-muted-foreground uppercase font-bold">Language</span>
+            <LanguageSwitcher />
           </div>
           
           <form action={handleSignOut}>

@@ -1,0 +1,18 @@
+{
+  "Navigation": {
+    "dashboard": "لوحة القيادة",
+    "inventory": "المخزون",
+    "invoices": "الفواتير",
+    "customers": "العملاء",
+    "settings": "الإعدادات",
+    "admin": "لوحة الإدارة",
+    "signOut": "تسجيل الخروج"
+  },
+  "Dashboard": {
+    "title": "لوحة القيادة",
+    "totalRevenue": "إجمالي الإيرادات",
+    "totalInvoices": "إجمالي الفواتير",
+    "lowStock": "المنتجات منخفضة المخزون",
+    "activeCustomers": "العملاء النشطون"
+  }
+}

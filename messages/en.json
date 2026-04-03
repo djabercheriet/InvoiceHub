@@ -1,0 +1,18 @@
+{
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "inventory": "Inventory",
+    "invoices": "Invoices",
+    "customers": "Customers",
+    "settings": "Settings",
+    "admin": "Admin Console",
+    "signOut": "Sign Out"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "totalRevenue": "Total Revenue",
+    "totalInvoices": "Total Invoices",
+    "lowStock": "Low Stock Items",
+    "activeCustomers": "Active Customers"
+  }
+}

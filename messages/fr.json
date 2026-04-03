@@ -1,0 +1,18 @@
+{
+  "Navigation": {
+    "dashboard": "Tableau de Bord",
+    "inventory": "Inventaire",
+    "invoices": "Factures",
+    "customers": "Clients",
+    "settings": "Paramètres",
+    "admin": "Console Admin",
+    "signOut": "Se Déconnecter"
+  },
+  "Dashboard": {
+    "title": "Tableau de Bord",
+    "totalRevenue": "Revenu Total",
+    "totalInvoices": "Total des Factures",
+    "lowStock": "Articles en Rupture",
+    "activeCustomers": "Clients Actifs"
+  }
+}

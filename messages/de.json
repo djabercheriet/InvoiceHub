@@ -1,0 +1,18 @@
+{
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "inventory": "Inventar",
+    "invoices": "Rechnungen",
+    "customers": "Kunden",
+    "settings": "Einstellungen",
+    "admin": "Admin-Konsole",
+    "signOut": "Abmelden"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "totalRevenue": "Gesamtumsatz",
+    "totalInvoices": "Gesamte Rechnungen",
+    "lowStock": "Artikel mit geringem Bestand",
+    "activeCustomers": "Aktive Kunden"
+  }
+}
