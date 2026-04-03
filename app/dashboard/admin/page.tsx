@@ -17,7 +17,7 @@ import {
   Pie,
   Cell,
 } from 'recharts'
-import { TrendingUp, Users, Package, DollarSign, AlertCircle } from 'lucide-react'
+import { TrendingUp, Users, Package, DollarSign, AlertCircle, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useAuthUser } from '@/hooks/use-auth-user'
@@ -137,60 +137,73 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          System overview and company management
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Admin Console</h1>
+          <p className="text-muted-foreground mt-1">
+            Global system insights and organization management.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/20">
+          <ShieldCheck className="w-3 h-3 inline mr-1" /> System Administrator
+        </div>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
+        <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Companies</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Total Companies</CardTitle>
+            <div className="p-2 bg-slate-500/10 rounded-full">
+              <Users className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalStats.totalCompanies}</div>
-            <p className="text-xs text-muted-foreground mt-1">Active organizations</p>
+            <div className="text-2xl font-bold tracking-tight">{totalStats.totalCompanies}</div>
+            <p className="text-xs text-muted-foreground mt-1 font-medium">Registered organizations</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Global Revenue</CardTitle>
+            <div className="p-2 bg-emerald-500/10 rounded-full">
+              <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold tracking-tight">
               ${totalStats.totalRevenue.toLocaleString('en-US', {
                 minimumFractionDigits: 0,
               })}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">All companies combined</p>
+            <p className="text-xs text-muted-foreground mt-1 font-medium">Total processed funds</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Paid Subscriptions</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Upgraded Tiers</CardTitle>
+            <div className="p-2 bg-purple-500/10 rounded-full">
+              <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalStats.activeSubscriptions}</div>
-            <p className="text-xs text-muted-foreground mt-1">Upgraded plans</p>
+            <div className="text-2xl font-bold tracking-tight">{totalStats.activeSubscriptions}</div>
+            <p className="text-xs text-muted-foreground mt-1 font-medium">Premium subscriptions</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/50 shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Free Plans</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Infrastructure</CardTitle>
+            <div className="p-2 bg-blue-500/10 rounded-full">
+              <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalStats.trialUsers}</div>
-            <p className="text-xs text-muted-foreground mt-1">Basic plan users</p>
+            <div className="text-2xl font-bold tracking-tight">Healthy</div>
+            <p className="text-xs text-muted-foreground mt-1 font-medium">System services online</p>
           </CardContent>
         </Card>
       </div>
@@ -204,40 +217,39 @@ export default function AdminDashboard() {
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4">Company Name</th>
-                  <th className="text-left py-3 px-4">Plan</th>
-                  <th className="text-right py-3 px-4">Customers</th>
-                  <th className="text-right py-3 px-4">Invoices</th>
-                  <th className="text-right py-3 px-4">Revenue</th>
-                  <th className="text-right py-3 px-4">Products</th>
+              <thead className="bg-muted/40 backdrop-blur-sm">
+                <tr className="border-b border-border/50">
+                  <th className="text-left py-4 px-6 font-bold uppercase tracking-tighter text-muted-foreground italic">Company Name</th>
+                  <th className="text-left py-4 px-6 font-bold uppercase tracking-tighter text-muted-foreground italic">Plan</th>
+                  <th className="text-right py-4 px-6 font-bold uppercase tracking-tighter text-muted-foreground italic">Customers</th>
+                  <th className="text-right py-4 px-6 font-bold uppercase tracking-tighter text-muted-foreground italic">Invoices</th>
+                  <th className="text-right py-4 px-6 font-bold uppercase tracking-tighter text-muted-foreground italic">Revenue</th>
                 </tr>
               </thead>
               <tbody>
                 {companies.map((company) => (
-                  <tr key={company.id} className="border-b hover:bg-muted/50">
-                    <td className="py-3 px-4 font-medium">{company.name}</td>
-                    <td className="py-3 px-4">
+                  <tr key={company.id} className="border-b border-border/50 hover:bg-accent/40 transition-colors group">
+                    <td className="py-4 px-6 font-bold tracking-tight">{company.name}</td>
+                    <td className="py-4 px-6">
                       <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${company.plan === 'Free'
-                            ? 'bg-gray-100 text-gray-800'
+                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                          company.plan === 'Free'
+                            ? 'bg-muted text-muted-foreground border-border/50'
                             : company.plan === 'Pro'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-purple-100 text-purple-800'
-                          }`}
+                            ? 'bg-blue-500/10 text-blue-600 border-blue-500/20'
+                            : 'bg-purple-500/10 text-purple-600 border-purple-500/20'
+                        }`}
                       >
                         {company.plan}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-right">{company.customers}</td>
-                    <td className="py-3 px-4 text-right">{company.invoices}</td>
-                    <td className="py-3 px-4 text-right">
+                    <td className="py-4 px-6 text-right font-medium opacity-80 group-hover:opacity-100">{company.customers}</td>
+                    <td className="py-4 px-6 text-right font-medium opacity-80 group-hover:opacity-100">{company.invoices}</td>
+                    <td className="py-4 px-6 text-right font-black tracking-tight self-center">
                       ${company.revenue.toLocaleString('en-US', {
                         minimumFractionDigits: 0,
                       })}
                     </td>
-                    <td className="py-3 px-4 text-right">{company.products}</td>
                   </tr>
                 ))}
               </tbody>

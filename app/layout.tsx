@@ -3,6 +3,7 @@ import { Inter as FontSans } from "next/font/google"
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { cn } from "@/lib/utils"
+import { ThemeProvider } from '@/components/theme-provider'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -46,7 +47,14 @@ export default function RootLayout({
         )}
         suppressHydrationWarning
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>
