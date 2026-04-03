@@ -182,50 +182,51 @@ export default function SubscriptionPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Subscription & Billing</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage your subscription plan and view your usage limits
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight">Subscription & Billing</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage your subscription tier and track workspace usage.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20 uppercase tracking-widest">
+          Secure Billing
+        </div>
       </div>
 
       {/* Current Plan Status */}
       {subscription && (
-        <Card className="border-2 border-blue-200 bg-blue-50">
+        <Card className="border-primary/20 bg-primary/5 shadow-none overflow-hidden relative group">
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+            <Zap className="w-32 h-32 text-primary" />
+          </div>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between relative z-10">
               <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-blue-600" />
-                  Current Plan: {currentPlan?.name}
+                <CardTitle className="flex items-center gap-2 text-primary font-black text-xl">
+                  <Zap className="w-5 h-5 fill-primary" />
+                  {currentPlan?.name} Tier
                 </CardTitle>
-                <CardDescription className="mt-2">
+                <CardDescription className="mt-1 font-medium italic">
                   {subscription.status === 'trial' && (
-                    <>
-                      Your trial expires on{' '}
-                      {new Date(
-                        subscription.trial_end_date
-                      ).toLocaleDateString()}
-                    </>
+                    <span className="text-amber-600">
+                      Trial period ends {new Date(subscription.trial_end_date).toLocaleDateString()}
+                    </span>
                   )}
                   {subscription.status === 'active' && (
-                    <>
-                      Renews on{' '}
-                      {new Date(
-                        subscription.current_period_end
-                      ).toLocaleDateString()}{' '}
-                      ({subscription.subscription_type})
-                    </>
+                    <span className="text-muted-foreground">
+                      Next billing cycle: {new Date(subscription.current_period_end).toLocaleDateString()} ({subscription.subscription_type})
+                    </span>
                   )}
                 </CardDescription>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold">
+                <p className="text-3xl font-black tracking-tighter">
                   {subscription.subscription_type === 'monthly'
                     ? `$${currentPlan?.monthly_price}`
                     : `$${currentPlan?.yearly_price}`}
-                  <span className="text-sm text-muted-foreground">
-                    /{subscription.subscription_type === 'monthly' ? 'month' : 'year'}
+                  <span className="text-xs text-muted-foreground font-medium lowercase tracking-normal">
+                    /{subscription.subscription_type === 'monthly' ? 'mo' : 'yr'}
                   </span>
                 </p>
               </div>
@@ -236,58 +237,40 @@ export default function SubscriptionPage() {
 
       {/* Usage Section */}
       {currentPlan && (
-        <Card>
+        <Card className="border-border/50 shadow-sm">
           <CardHeader>
-            <CardTitle>Usage & Limits</CardTitle>
-            <CardDescription>Your current usage against plan limits</CardDescription>
+            <CardTitle className="text-base font-bold">Workspace Resources</CardTitle>
+            <CardDescription>Real-time consumption vs plan allocations</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
               {[
-                {
-                  name: 'Invoices',
-                  key: 'invoices',
-                  limit: currentPlan.max_invoices,
-                },
-                {
-                  name: 'Customers',
-                  key: 'customers',
-                  limit: currentPlan.max_customers,
-                },
-                {
-                  name: 'Products',
-                  key: 'products',
-                  limit: currentPlan.max_products,
-                },
+                { name: 'Invoices', key: 'invoices', limit: currentPlan.max_invoices },
+                { name: 'Customers', key: 'customers', limit: currentPlan.max_customers },
+                { name: 'Products', key: 'products', limit: currentPlan.max_products },
                 { name: 'Users', key: 'users', limit: currentPlan.max_users },
               ].map((item) => {
                 const current = usageMap[item.key] || 0
                 const limit = item.limit || 0
                 const unlimited = limit === 0
-                const percentage = unlimited ? 100 : (current / limit) * 100
+                const percentage = unlimited ? 0 : (current / limit) * 100
 
                 return (
-                  <div key={item.key}>
-                    <div className="flex justify-between items-center mb-2">
-                      <label className="font-medium">{item.name}</label>
-                      <span className="text-sm text-muted-foreground">
-                        {current} {unlimited ? '/ Unlimited' : `/ ${limit}`}
+                  <div key={item.key} className="space-y-2">
+                    <div className="flex justify-between items-end">
+                      <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">{item.name}</label>
+                      <span className="text-xs font-bold font-mono">
+                        {current} <span className="text-muted-foreground font-medium">/ {unlimited ? '∞' : limit}</span>
                       </span>
                     </div>
-                    {!unlimited && (
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full transition-all ${
-                            percentage > 90
-                              ? 'bg-red-500'
-                              : percentage > 70
-                              ? 'bg-orange-500'
-                              : 'bg-green-500'
-                          }`}
-                          style={{ width: `${Math.min(percentage, 100)}%` }}
-                        />
-                      </div>
-                    )}
+                    <div className="h-1.5 w-full bg-accent rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-1000 ease-out ${
+                          percentage > 90 ? 'bg-destructive' : percentage > 70 ? 'bg-amber-500' : 'bg-primary'
+                        }`}
+                        style={{ width: `${unlimited ? 0 : Math.min(percentage, 100)}%` }}
+                      />
+                    </div>
                   </div>
                 )
               })}
@@ -297,115 +280,96 @@ export default function SubscriptionPage() {
       )}
 
       {/* Available Plans */}
-      <div>
-        <h2 className="text-2xl font-bold mb-6">Choose Your Plan</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-black tracking-tight">Expand Your Scalability</h2>
+          <p className="text-muted-foreground">Professional features to accelerate your business operations.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan) => {
             const isCurrentPlan = currentPlan?.id === plan.id
+            const isPro = plan.name === 'Pro'
 
             return (
               <Card
                 key={plan.id}
-                className={`relative ${
-                  isCurrentPlan ? 'ring-2 ring-blue-500 border-blue-500' : ''
-                }`}
+                className={`relative flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+                  isCurrentPlan ? 'border-primary ring-1 ring-primary shadow-lg' : 'border-border/50'
+                } ${isPro && !isCurrentPlan ? 'scale-105 z-10 border-indigo-500/50 shadow-indigo-500/5' : ''}`}
               >
                 {isCurrentPlan && (
-                  <div className="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-bl-lg rounded-tr-lg text-sm font-medium">
-                    Current Plan
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+                    Active Tier
+                  </div>
+                )}
+                {isPro && !isCurrentPlan && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+                    Recommended
                   </div>
                 )}
 
-                <CardHeader>
-                  <CardTitle>{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
+                <CardHeader className="text-center pt-10">
+                  <CardTitle className="text-2xl font-black tracking-tighter">{plan.name}</CardTitle>
+                  <CardDescription className="text-xs font-medium px-4">{plan.description}</CardDescription>
                 </CardHeader>
 
-                <CardContent className="space-y-6">
-                  {/* Pricing */}
-                  <div>
-                    <div className="text-3xl font-bold">
+                <CardContent className="space-y-8 flex-1">
+                  <div className="text-center">
+                    <div className="text-4xl font-black tracking-tighter">
                       ${plan.monthly_price}
-                      <span className="text-sm text-muted-foreground">/month</span>
-                    </div>
-                    {plan.yearly_price && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        or ${plan.yearly_price}/year
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Limits */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-600" />
-                      <span className="text-sm">
-                        {plan.max_invoices === 0
-                          ? 'Unlimited'
-                          : plan.max_invoices}{' '}
-                        invoices
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-600" />
-                      <span className="text-sm">
-                        {plan.max_customers === 0
-                          ? 'Unlimited'
-                          : plan.max_customers}{' '}
-                        customers
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-600" />
-                      <span className="text-sm">
-                        {plan.max_products === 0
-                          ? 'Unlimited'
-                          : plan.max_products}{' '}
-                        products
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-600" />
-                      <span className="text-sm">
-                        Up to {plan.max_users} users
-                      </span>
+                      <span className="text-xs font-medium text-muted-foreground tracking-normal block mt-1">per workspace / mo</span>
                     </div>
                   </div>
 
-                  {/* Features */}
-                  <div className="space-y-2">
-                    {Object.entries(plan.features || {}).map(
-                      ([feature, enabled]) =>
-                        enabled && (
-                          <div key={feature} className="flex items-center gap-2 text-sm">
-                            <Check className="w-4 h-4 text-green-600" />
-                            <span className="capitalize">
-                              {feature
-                                .replace(/_/g, ' ')
-                                .replace(/\b\w/g, (l) =>
-                                  l.toUpperCase()
-                                )}
-                            </span>
+                  <div className="space-y-4 py-4 border-y border-border/50">
+                    <div className="space-y-3">
+                      {[
+                        { label: 'Invoices', value: plan.max_invoices },
+                        { label: 'Customers', value: plan.max_customers },
+                        { label: 'Products', value: plan.max_products },
+                        { label: 'Platform Users', value: plan.max_users },
+                      ].map((limit) => (
+                        <div key={limit.label} className="flex items-center gap-3">
+                          <div className="p-1 bg-emerald-500/10 rounded-full">
+                            <Check className="w-3 h-3 text-emerald-600" />
                           </div>
-                        )
-                    )}
+                          <p className="text-xs font-bold">
+                            {limit.value === 0 ? 'Unlimited' : limit.value} <span className="text-muted-foreground font-medium">{limit.label}</span>
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-3 pt-3 border-t border-border/50">
+                      {Object.entries(plan.features || {}).map(
+                        ([feature, enabled]) =>
+                          enabled && (
+                            <div key={feature} className="flex items-center gap-3">
+                              <div className="p-1 bg-blue-500/10 rounded-full">
+                                <Check className="w-3 h-3 text-blue-600" />
+                              </div>
+                              <p className="text-xs font-medium text-foreground italic capitalize">
+                                {feature.replace(/_/g, ' ')}
+                              </p>
+                            </div>
+                          )
+                      )}
+                    </div>
                   </div>
 
-                  {/* Button */}
                   {isCurrentPlan ? (
-                    <Button className="w-full" disabled>
-                      Current Plan
+                    <Button className="w-full h-12 bg-muted text-muted-foreground font-black uppercase tracking-widest" disabled>
+                      Your Current Plan
                     </Button>
                   ) : (
                     <Button
-                      className="w-full"
+                      className={`w-full h-12 font-black uppercase tracking-widest transition-all ${
+                        isPro ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/20 shadow-lg' : 'bg-primary hover:bg-primary/90'
+                      }`}
                       onClick={() => handleUpgrade(plan.id)}
                       disabled={upgrading}
-                      variant={
-                        plan.monthly_price > 0 ? 'default' : 'outline'
-                      }
                     >
-                      {upgrading ? 'Upgrading...' : 'Choose Plan'}
+                      {upgrading ? 'Processing...' : `Upgrade to ${plan.name}`}
                     </Button>
                   )}
                 </CardContent>

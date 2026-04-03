@@ -320,19 +320,29 @@ export default function DashboardPage() {
         </Card>
 
         {/* Invoices Trend */}
-        <Card>
+        <Card className="border-border/50 shadow-sm overflow-hidden">
           <CardHeader>
-            <CardTitle>Invoices Trend</CardTitle>
-            <CardDescription>Invoice volume over the last 6 months</CardDescription>
+            <CardTitle className="text-base font-bold">Invoices Trend</CardTitle>
+            <CardDescription>Monthly volume and generation velocity</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={invoiceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="invoices" fill="#10b981" name="Invoices" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
+                  cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
+                />
+                <Bar 
+                  dataKey="invoices" 
+                  fill="#10b981" 
+                  name="Invoices" 
+                  radius={[4, 4, 0, 0]}
+                  barSize={40}
+                  animationDuration={1500}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -341,33 +351,38 @@ export default function DashboardPage() {
 
       {/* Low Stock Alerts */}
       {lowStockProducts.length > 0 && (
-        <Card>
+        <Card className="border-amber-500/20 bg-amber-500/5 shadow-none overflow-hidden">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-orange-600" />
-              Low Stock Alerts
+            <CardTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold">
+              <AlertCircle className="w-5 h-5" />
+              Inventory Attention Required
             </CardTitle>
-            <CardDescription>Products that need restocking</CardDescription>
+            <CardDescription className="text-amber-600/70">Critical stock thresholds breached for the following items</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {lowStockProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200"
+                  className="flex items-center justify-between p-4 bg-card border border-amber-500/10 rounded-xl group hover:border-amber-500/30 transition-all duration-300"
                 >
                   <div className="flex items-center gap-3">
-                    <AlertCircle className="w-5 h-5 text-orange-600" />
+                    <div className="p-2 bg-amber-500/10 rounded-lg group-hover:scale-110 transition-transform">
+                      <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    </div>
                     <div>
-                      <p className="font-medium text-sm">{product.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {product.quantity} / {product.min_stock_level} units
+                      <p className="font-bold text-sm tracking-tight">{product.name}</p>
+                      <p className="text-[10px] uppercase font-black text-muted-foreground">
+                        Critical: <span className="text-amber-600">{product.quantity}</span> / {product.min_stock_level} Unit
                       </p>
                     </div>
                   </div>
-                  <button className="text-xs px-3 py-1 bg-orange-600 text-white rounded hover:bg-orange-700 transition">
-                    Update
-                  </button>
+                  <Link
+                    href={`/dashboard/inventory?search=${product.name}`}
+                    className="text-[10px] px-3 py-1.5 bg-amber-600 text-white font-black rounded uppercase hover:bg-amber-700 transition"
+                  >
+                    Restock
+                  </Link>
                 </div>
               ))}
             </div>

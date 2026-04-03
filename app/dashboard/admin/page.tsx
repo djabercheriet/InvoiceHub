@@ -261,12 +261,12 @@ export default function AdminDashboard() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Plan Distribution */}
-        <Card>
+        <Card className="border-border/50 shadow-sm overflow-hidden">
           <CardHeader>
-            <CardTitle>Subscription Plan Distribution</CardTitle>
-            <CardDescription>Companies by plan type</CardDescription>
+            <CardTitle className="text-base font-bold">Subscription Plan Distribution</CardTitle>
+            <CardDescription>Company footprint across available tiers</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -278,47 +278,67 @@ export default function AdminDashboard() {
                   ).map(([name, value]) => ({ name, value }))}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  label={({ name, value }) => `${name}: ${value}`}
+                  innerRadius={60}
                   outerRadius={100}
-                  fill="#8884d8"
+                  paddingAngle={5}
                   dataKey="value"
+                  animationDuration={1500}
                 >
-                  <Cell fill="#94a3b8" /> {/* Free - Gray */}
-                  <Cell fill="#3b82f6" /> {/* Pro - Blue */}
-                  <Cell fill="#a855f7" /> {/* Enterprise - Purple */}
+                  <Cell fill="hsl(var(--muted))" /> {/* Free */}
+                  <Cell fill="#3b82f6" /> {/* Pro */}
+                  <Cell fill="#a855f7" /> {/* Enterprise */}
                 </Pie>
-                <Tooltip />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', fontSize: '10px' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
         {/* Revenue by Company */}
-        <Card>
+        <Card className="border-border/50 shadow-sm overflow-hidden">
           <CardHeader>
-            <CardTitle>Top Companies by Revenue</CardTitle>
-            <CardDescription>Best performing companies</CardDescription>
+            <CardTitle className="text-base font-bold">Top Companies by Revenue</CardTitle>
+            <CardDescription>Highest processing organizations</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart
                 data={companies
                   .sort((a, b) => b.revenue - a.revenue)
                   .slice(0, 10)}
+                layout="vertical"
+                margin={{ left: 20 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="name"
-                  angle={-45}
-                  textAnchor="end"
-                  height={100}
-                  interval={0}
-                  tick={{ fontSize: 12 }}
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
+                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fontSize: 10, fill: 'hsl(var(--foreground))', fontWeight: 'bold' }} 
+                  width={80}
                 />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="revenue" fill="#3b82f6" />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', fontSize: '10px' }}
+                  cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
+                />
+                <Bar 
+                  dataKey="revenue" 
+                  fill="url(#adminRevGradient)" 
+                  radius={[0, 4, 4, 0]}
+                  barSize={12}
+                  animationDuration={1500}
+                >
+                  <defs>
+                    <linearGradient id="adminRevGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#6366f1" />
+                      <stop offset="100%" stopColor="#a855f7" />
+                    </linearGradient>
+                  </defs>
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
