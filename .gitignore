@@ -11,6 +11,11 @@ next.user-config.*
 .env*.local
 .env.continue
 .env
+.agent/
+.agents/
+_agent/
+_agents/
+.gemini/
 
 # Common ignores
 node_modules
@@ -28,7 +33,15 @@ node_modules
 *.7z
 *.tar
 *.gz
+# Database files
 *.sql
 *.sqlite
 *.db
-*.env
+
+# Build artifacts and temp
+out/
+build/
+dist/
+.cache/
+.turbo/
+.vercel
