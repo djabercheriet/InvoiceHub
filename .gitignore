@@ -21,6 +21,7 @@ _agents/
 node_modules
 .next/
 .DS_Store
+.agent/
 
 # Unsecure files
 *.log
