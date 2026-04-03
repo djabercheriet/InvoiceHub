@@ -44,32 +44,7 @@ export default function AdminDashboard() {
     trialUsers: 0,
   })
 
-  useEffect(() => {
-    // Check if user is super admin
-    const checkAccess = async () => {
-      if (!user) return
-
-      const supabase = await createClient()
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      // Check if user is super admin by role, metadata, or email
-      const isSuperAdmin =
-        profile?.role === 'super_admin' ||
-        user.user_metadata?.role === 'super_admin' ||
-        user.email === process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL
-
-      // If not super admin, redirect to regular dashboard
-      if (!isSuperAdmin) {
-        router.push('/dashboard')
-      }
-    }
-
-    checkAccess()
-  }, [user, router])
+  // Access control is handled server-side in the admin/layout.tsx
 
   useEffect(() => {
     const fetchData = async () => {

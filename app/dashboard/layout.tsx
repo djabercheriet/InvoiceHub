@@ -8,6 +8,7 @@ import {
   Users,
   Settings,
   LogOut,
+  ShieldCheck,
 } from "lucide-react";
 
 async function handleSignOut() {
@@ -31,6 +32,8 @@ export default async function DashboardLayout({
   if (!user) {
     redirect("/auth/login");
   }
+
+  const isSuperAdmin = user.email === process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
 
   return (
     <div className="flex h-screen bg-background">
@@ -81,6 +84,16 @@ export default async function DashboardLayout({
             <Settings className="w-5 h-5" />
             <span>Settings</span>
           </Link>
+
+          {isSuperAdmin && (
+            <Link
+              href="/dashboard/admin"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-900/50 hover:bg-indigo-800 transition-colors border border-indigo-700/50 mt-4"
+            >
+              <ShieldCheck className="w-5 h-5 text-indigo-400" />
+              <span className="text-indigo-200">Admin Panel</span>
+            </Link>
+          )}
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-800 w-64">
