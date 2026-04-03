@@ -1,240 +1,128 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Bell, Lock, Building2, Save } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+const settingsSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(2, "Company name is required"),
+  email: z.string().email("Valid email required"),
+  // Since address/phone etc. are not strictly in standard missing_logic.sql, we'll store them safely if they exist, or ignore for now.
+  // Assuming the user runs standard Supabase migrations. We'll stick to what we know exists: Name & Email.
+});
 
 export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
-  const [companySettings, setCompanySettings] = useState({
-    companyName: "My Business",
-    email: "contact@mybusiness.com",
-    phone: "+1-555-0100",
-    address: "123 Business St",
-    city: "New York",
-    country: "United States",
-    currency: "USD",
-    taxRate: "10",
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  const form = useForm<z.infer<typeof settingsSchema>>({
+    resolver: zodResolver(settingsSchema),
+    defaultValues: { name: "", email: "" },
   });
 
-  const [notificationSettings, setNotificationSettings] = useState({
-    invoiceReminders: true,
-    lowStockAlerts: true,
-    paymentNotifications: true,
-    weeklyReport: false,
-  });
+  useEffect(() => {
+    async function loadCompany() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: companies } = await supabase.from('companies').select('*').eq('user_id', user.id).single();
+      if (companies) {
+        form.reset({
+          id: companies.id,
+          name: companies.name,
+          email: companies.email,
+        });
+      }
+      setLoading(false);
+    }
+    loadCompany();
+  }, [form, supabase]);
 
-  const handleCompanyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCompanySettings((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleNotificationChange = (key: string) => {
-    setNotificationSettings((prev) => ({
-      ...prev,
-      [key]: !prev[key as keyof typeof prev],
-    }));
-  };
-
-  const handleSave = async () => {
+  const onSubmit = async (values: z.infer<typeof settingsSchema>) => {
     setIsSaving(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    alert("Settings saved successfully!");
+    try {
+      if (!values.id) throw new Error("No company found to update.");
+      const { error } = await supabase.from("companies").update({
+        name: values.name,
+        email: values.email
+      }).eq("id", values.id);
+      
+      if (error) throw error;
+      toast.success("Settings saved successfully!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save settings");
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (loading) return <div className="p-8">Loading settings...</div>;
 
   return (
-    <div className="space-y-8 max-w-4xl">
-      {/* Header */}
+    <div className="space-y-8 max-w-4xl animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Settings</h1>
         <p className="text-muted-foreground mt-2">Manage your account and business preferences</p>
       </div>
 
-      {/* Company Settings */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Building2 className="w-5 h-5" />
+            <Building2 className="w-5 h-5 text-primary" />
             <div>
               <CardTitle>Company Information</CardTitle>
-              <CardDescription>Update your business details</CardDescription>
+              <CardDescription>Update your business details stored in the database</CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Company Name</label>
-              <Input
-                name="companyName"
-                value={companySettings.companyName}
-                onChange={handleCompanyChange}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
-              <Input
-                name="email"
-                type="email"
-                value={companySettings.email}
-                onChange={handleCompanyChange}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Phone</label>
-              <Input
-                name="phone"
-                value={companySettings.phone}
-                onChange={handleCompanyChange}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Currency</label>
-              <select
-                name="currency"
-                value={companySettings.currency}
-                onChange={(e) =>
-                  setCompanySettings((prev) => ({
-                    ...prev,
-                    currency: e.target.value,
-                  }))
-                }
-                className="w-full px-3 py-2 border border-input rounded-md text-sm"
-              >
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="AED">AED (د.إ)</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Tax Rate (%)</label>
-              <Input
-                name="taxRate"
-                type="number"
-                step="0.01"
-                value={companySettings.taxRate}
-                onChange={handleCompanyChange}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Address</label>
-            <Input
-              name="address"
-              value={companySettings.address}
-              onChange={handleCompanyChange}
-              placeholder="Street address"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">City</label>
-              <Input
-                name="city"
-                value={companySettings.city}
-                onChange={handleCompanyChange}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Country</label>
-              <Input
-                name="country"
-                value={companySettings.country}
-                onChange={handleCompanyChange}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Notification Settings */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5" />
-            <div>
-              <CardTitle>Notifications</CardTitle>
-              <CardDescription>Choose what alerts you&apos;d like to receive</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {[
-            {
-              key: "invoiceReminders",
-              label: "Invoice Reminders",
-              description: "Get notified about unpaid invoices",
-            },
-            {
-              key: "lowStockAlerts",
-              label: "Low Stock Alerts",
-              description: "Receive alerts when products are low in stock",
-            },
-            {
-              key: "paymentNotifications",
-              label: "Payment Notifications",
-              description: "Get notified when payments are received",
-            },
-            {
-              key: "weeklyReport",
-              label: "Weekly Report",
-              description: "Receive a weekly summary of your business",
-            },
-          ].map((setting) => (
-            <div key={setting.key} className="flex items-center justify-between p-3 border rounded-lg">
-              <div>
-                <p className="font-medium text-sm">{setting.label}</p>
-                <p className="text-xs text-muted-foreground">{setting.description}</p>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={form.control} name="name" render={({ field }) => (
+                  <FormItem><FormLabel>Company Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="email" render={({ field }) => (
+                  <FormItem><FormLabel>Billing Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
               </div>
-              <input
-                type="checkbox"
-                checked={notificationSettings[setting.key as keyof typeof notificationSettings]}
-                onChange={() => handleNotificationChange(setting.key)}
-                className="w-5 h-5 rounded border-input"
-              />
-            </div>
-          ))}
+              <div className="flex justify-end pt-4 border-t border-border mt-6">
+                <Button type="submit" disabled={isSaving} className="gap-2">
+                  <Save className="w-4 h-4" /> {isSaving ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
-      {/* Security Settings */}
-      <Card>
+      {/* Static Mock sections for UI aesthetics until extended DB schema is confirmed */}
+      <Card className="opacity-70 pointer-events-none grayscale">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Lock className="w-5 h-5" />
+            <Bell className="w-5 h-5 text-muted-foreground" />
             <div>
-              <CardTitle>Security</CardTitle>
-              <CardDescription>Manage your account security</CardDescription>
+              <CardTitle>Notifications (Coming Soon)</CardTitle>
+              <CardDescription>Notification preferences require additional database setup</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button variant="outline" className="w-full">
-            Change Password
-          </Button>
-          <Button variant="outline" className="w-full">
-            Enable Two-Factor Authentication
-          </Button>
+          <div className="flex items-center justify-between p-3 border rounded-lg">
+            <div><p className="font-medium text-sm">Invoice Reminders</p></div>
+            <input type="checkbox" checked={true} readOnly className="w-5 h-5 rounded border-input" />
+          </div>
         </CardContent>
       </Card>
-
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={isSaving} className="gap-2">
-          <Save className="w-4 h-4" />
-          {isSaving ? "Saving..." : "Save Changes"}
-        </Button>
-      </div>
     </div>
   );
 }

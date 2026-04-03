@@ -9,10 +9,74 @@
     "signOut": "Sign Out"
   },
   "Dashboard": {
-    "title": "Dashboard",
+    "title": "Workspace Intelligence",
+    "description": "Real-time business performance & resource tracking.",
     "totalRevenue": "Total Revenue",
     "totalInvoices": "Total Invoices",
-    "lowStock": "Low Stock Items",
-    "activeCustomers": "Active Customers"
+    "lowStock": "Critical Inventory Conflict",
+    "activeCustomers": "Active Stakeholders",
+    "revenueTrend": "Revenue Dynamics",
+    "invoicesTrend": "Invoices Pulse",
+    "recentActivity": "Audit Trail",
+    "noActivity": "No recent activity pulse detected.",
+    "activities": {
+      "invoiceCreated": "Invoice Generated",
+      "customerAdded": "New Client Registered",
+      "productUpdated": "Product Stock Adjusted"
+    },
+    "planStatus": "Infrastructure Plan",
+    "activeTier": "Active Infrastructure",
+    "upgradeScale": "Management Console"
+  },
+  "Subscription": {
+    "title": "Subscription & Billing",
+    "description": "Manage your subscription tier and track workspace usage.",
+    "secureBilling": "Secure Billing",
+    "activeTier": "Active Tier",
+    "trialEnds": "Trial period ends {date}",
+    "nextBilling": "Next billing cycle: {date} ({type})",
+    "resources": "Workspace Resources",
+    "resourceSubtitle": "Real-time consumption vs plan allocations",
+    "expandScalability": "Expand Your Scalability",
+    "professionalFeatures": "Professional features to accelerate your business operations.",
+    "recommended": "Recommended",
+    "upgradeTo": "Upgrade to {plan}",
+    "currentPlan": "Your Current Plan"
+  },
+  "Admin": {
+    "title": "Global Platform Settings",
+    "description": "Manage the underlying infrastructure and system defaults.",
+    "systemConfig": "System Configuration",
+    "backendSubtitle": "Backend and API endpoints",
+    "security": "Platform Security",
+    "securitySubtitle": "Global authentication and isolation",
+    "testConnection": "Test Connection",
+    "saveConfig": "Save All Configuration"
+  },
+  "Inventory": {
+    "title": "Inventory Management",
+    "description": "Manage your products and stock levels.",
+    "newProduct": "New Product",
+    "search": "Search by product name or SKU...",
+    "tableName": "Product Name",
+    "tableSku": "SKU",
+    "tableCategory": "Category",
+    "tableQuantity": "Quantity",
+    "tablePrice": "Unit Price",
+    "tableStatus": "Status"
+  },
+  "Invoices": {
+    "title": "Invoices",
+    "description": "Generate and manage professional invoices.",
+    "newInvoice": "New Invoice"
+  },
+  "Common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "success": "Action completed successfully",
+    "error": "An error occurred"
   }
 }
