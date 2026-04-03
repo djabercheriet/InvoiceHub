@@ -33,6 +33,7 @@ export const metadata: Metadata = {
   },
 }
 
+import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -72,6 +73,7 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <Toaster position="top-right" />
           </ThemeProvider>
         </NextIntlClientProvider>
         <Analytics />
