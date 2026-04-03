@@ -57,6 +57,7 @@ export default function DashboardPage() {
   })
   const [invoiceData, setInvoiceData] = useState<Invoice[]>([])
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([])
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string>('Free Plan')
   const [loadingData, setLoadingData] = useState(true)
 
   useEffect(() => {
@@ -66,10 +67,10 @@ export default function DashboardPage() {
       try {
         const supabase = await createClient()
 
-        // Get company from profile
+        // Get company and subscription plan
         const { data: profile } = await supabase
           .from('profiles')
-          .select('company_id')
+          .select('company_id, company:companies(id, subscriptions(plan:subscription_plans(name)))')
           .eq('id', user.id)
           .single()
 
@@ -79,12 +80,18 @@ export default function DashboardPage() {
         }
 
         const companyId = profile.company_id
+        
+        // Extract plan name safely from the deep join
+        // @ts-ignore - dynamic join structure
+        const planName = profile.company?.subscriptions?.[0]?.plan?.name || 'Free'
+        setSubscriptionPlan(`${planName} Plan`)
 
         // Fetch stats
         const { data: invoices } = await supabase
           .from('invoices')
-          .select('total, status')
+          .select('total, status, issue_date')
           .eq('company_id', companyId)
+          .order('issue_date', { ascending: true })
 
         const { count: customerCount } = await supabase
           .from('customers')
@@ -128,16 +135,34 @@ export default function DashboardPage() {
           setLowStockProducts(filtered)
         }
 
-        // Generate mock invoice trend data (last 6 months)
-        const mockTrendData: Invoice[] = [
-          { month: 'Jan', invoices: 24, revenue: 2400 },
-          { month: 'Feb', invoices: 32, revenue: 3200 },
-          { month: 'Mar', invoices: 28, revenue: 2800 },
-          { month: 'Apr', invoices: 41, revenue: 4100 },
-          { month: 'May', invoices: 37, revenue: 3700 },
-          { month: 'Jun', invoices: 44, revenue: 4400 },
-        ]
-        setInvoiceData(mockTrendData)
+        // Generate REAL invoice trend data (last 6 months)
+        if (invoices) {
+          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+          const trendMap: Record<string, { invoices: number; revenue: number }> = {}
+          
+          // Seed last 6 months
+          for (let i = 5; i >= 0; i--) {
+            const d = new Date()
+            d.setMonth(d.getMonth() - i)
+            const m = months[d.getMonth()]
+            trendMap[m] = { invoices: 0, revenue: 0 }
+          }
+
+          invoices.forEach((inv: any) => {
+            const date = new Date(inv.issue_date)
+            const m = months[date.getMonth()]
+            if (trendMap[m]) {
+              trendMap[m].invoices += 1
+              trendMap[m].revenue += (inv.total || 0)
+            }
+          })
+
+          const trendData = Object.entries(trendMap).map(([month, data]) => ({
+            month,
+            ...data
+          }))
+          setInvoiceData(trendData)
+        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error)
       } finally {
@@ -329,7 +354,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Current Plan</p>
-              <p className="text-lg font-semibold">Free Plan</p>
+              <p className="text-lg font-semibold">{subscriptionPlan}</p>
             </div>
             <a
               href="/dashboard/subscription"

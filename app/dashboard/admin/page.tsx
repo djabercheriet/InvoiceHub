@@ -63,6 +63,7 @@ export default function AdminDashboard() {
 
         // Fetch stats for each company
         const companiesStats: CompanyStats[] = []
+        const planCounts: Record<string, number> = {}
 
         for (const company of allCompanies) {
           const { count: customersCount } = await supabase
@@ -81,16 +82,14 @@ export default function AdminDashboard() {
             .eq('company_id', company.id)
             .eq('is_active', true)
 
-          const { data: subscription } = await supabase
+          const { data: subscriptionData } = await supabase
             .from('subscriptions')
-            .select('plan_id!inner(name)')
+            .select('plan:subscription_plans(name)')
             .eq('company_id', company.id)
-            .single()
+            .maybeSingle()
 
-          const planName =
-            typeof subscription?.plan_id === 'object' && subscription.plan_id !== null
-              ? (subscription.plan_id as { name?: string }).name
-              : undefined
+          const planName = (subscriptionData?.plan as any)?.name || 'Free'
+          planCounts[planName] = (planCounts[planName] || 0) + 1
 
           const revenue = invoices?.reduce((sum, inv) => sum + (inv.total || 0), 0) || 0
 
@@ -101,7 +100,7 @@ export default function AdminDashboard() {
             invoices: invoices?.length || 0,
             revenue,
             products: productsCount || 0,
-            plan: planName || 'Free',
+            plan: planName,
           })
         }
 
@@ -221,13 +220,12 @@ export default function AdminDashboard() {
                     <td className="py-3 px-4 font-medium">{company.name}</td>
                     <td className="py-3 px-4">
                       <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          company.plan === 'Free'
+                        className={`px-2 py-1 rounded text-xs font-medium ${company.plan === 'Free'
                             ? 'bg-gray-100 text-gray-800'
                             : company.plan === 'Pro'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-purple-100 text-purple-800'
-                        }`}
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-purple-100 text-purple-800'
+                          }`}
                       >
                         {company.plan}
                       </span>
@@ -260,16 +258,12 @@ export default function AdminDashboard() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={[
-                    {
-                      name: 'Free',
-                      value: totalStats.trialUsers,
-                    },
-                    {
-                      name: 'Paid',
-                      value: totalStats.activeSubscriptions,
-                    },
-                  ]}
+                  data={Object.entries(
+                    companies.reduce((acc: Record<string, number>, c) => {
+                      acc[c.plan] = (acc[c.plan] || 0) + 1
+                      return acc
+                    }, {})
+                  ).map(([name, value]) => ({ name, value }))}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -278,8 +272,9 @@ export default function AdminDashboard() {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  <Cell fill="#ef4444" />
-                  <Cell fill="#10b981" />
+                  <Cell fill="#94a3b8" /> {/* Free - Gray */}
+                  <Cell fill="#3b82f6" /> {/* Pro - Blue */}
+                  <Cell fill="#a855f7" /> {/* Enterprise - Purple */}
                 </Pie>
                 <Tooltip />
               </PieChart>
