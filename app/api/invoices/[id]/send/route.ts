@@ -7,11 +7,11 @@ import React from 'react';
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { id } = params;
+    const { id } = await params;
 
     // 1. Fetch full invoice manifest
     const { data: invoice, error: invErr } = await supabase
