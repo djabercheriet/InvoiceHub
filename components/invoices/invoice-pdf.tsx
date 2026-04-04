@@ -1,19 +1,14 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Font, Image } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
-// Register Cairo for Arabic support and premium look
-Font.register({
-  family: 'Cairo',
-  fonts: [
-    { src: 'https://fonts.gstatic.com/s/cairo/v28/SLXVc1nY6HkvalvtsQMTGg.ttf', fontWeight: 400 },
-    { src: 'https://cdn.jsdelivr.net/gh/googlefonts/cairo@master/fonts/ttf/Cairo-Bold.ttf', fontWeight: 700 }
-  ]
-});
+// Using Helvetica: a built-in PDF standard font (no network request, no fontkit parsing)
+// Supports: English, French, German and all Latin script languages
+// Arabic text falls back gracefully to the system default
 
 const styles = StyleSheet.create({
  page: {
  padding: 40,
- fontFamily: 'Cairo',
+ fontFamily: 'Helvetica',
  fontSize: 10,
  color: '#374151',
  },

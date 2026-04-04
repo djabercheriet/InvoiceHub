@@ -1,13 +1,15 @@
 import type { Metadata } from 'next'
-import { Inter as FontSans } from "next/font/google"
+import { Inter } from "next/font/google"
 import { Analytics } from '@vercel/analytics/next'
 import '../globals.css'
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from '@/components/theme-provider'
 
-const fontSans = FontSans({
-  subsets: ["latin"],
+const inter = Inter({
+  subsets: ["latin", "latin-ext"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   variable: "--font-sans",
+  display: "swap",
 })
 
 export const metadata: Metadata = {
@@ -61,7 +63,7 @@ export default async function RootLayout({
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          inter.variable
         )}
         suppressHydrationWarning
       >
