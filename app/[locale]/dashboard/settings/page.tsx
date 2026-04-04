@@ -6,120 +6,320 @@ import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bell, Lock, Building2, Save } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import {
+  Building2, Save, Globe, Scale, DollarSign, FileText, Hash,
+  CheckCircle2, Loader2, Percent, Settings
+} from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
-const settingsSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(2, "Company name is required"),
-  email: z.string().email("Valid email required"),
-  // Since address/phone etc. are not strictly in standard missing_logic.sql, we'll store them safely if they exist, or ignore for now.
-  // Assuming the user runs standard Supabase migrations. We'll stick to what we know exists: Name & Email.
-});
+const CURRENCIES = [
+  { code: "USD", label: "US Dollar (USD)" },
+  { code: "EUR", label: "Euro (EUR)" },
+  { code: "GBP", label: "British Pound (GBP)" },
+  { code: "DZD", label: "Algerian Dinar (DZD)" },
+  { code: "MAD", label: "Moroccan Dirham (MAD)" },
+  { code: "TND", label: "Tunisian Dinar (TND)" },
+  { code: "SAR", label: "Saudi Riyal (SAR)" },
+  { code: "AED", label: "UAE Dirham (AED)" },
+  { code: "CAD", label: "Canadian Dollar (CAD)" },
+  { code: "CHF", label: "Swiss Franc (CHF)" },
+  { code: "JPY", label: "Japanese Yen (JPY)" },
+  { code: "CNY", label: "Chinese Yuan (CNY)" },
+];
+
+const WEIGHT_UNITS = [
+  { value: "kg",  label: "Kilogram (kg)" },
+  { value: "lb",  label: "Pound (lb)" },
+  { value: "ton", label: "Metric Ton (ton)" },
+];
+
+const DATE_FORMATS = [
+  { value: "YYYY-MM-DD", label: "2025-04-01 (ISO)" },
+  { value: "DD/MM/YYYY", label: "01/04/2025 (EU)" },
+  { value: "MM/DD/YYYY", label: "04/01/2025 (US)" },
+];
 
 export default function SettingsPage() {
+  const supabase   = createClient();
+  const [loading, setLoading]   = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const [saved,    setSaved]    = useState(false);
 
-  const form = useForm<z.infer<typeof settingsSchema>>({
-    resolver: zodResolver(settingsSchema),
-    defaultValues: { name: "", email: "" },
-  });
+  // Company basic info
+  const [companyId,     setCompanyId]     = useState("");
+  const [companyName,   setCompanyName]   = useState("");
+  const [companyEmail,  setCompanyEmail]  = useState("");
+  const [companyPhone,  setCompanyPhone]  = useState("");
+  const [companyAddr,   setCompanyAddr]   = useState("");
+  const [taxId,         setTaxId]         = useState("");
+  const [website,       setWebsite]       = useState("");
+
+  // Preferences
+  const [currency,     setCurrency]     = useState("USD");
+  const [weightUnit,   setWeightUnit]   = useState("kg");
+  const [dateFormat,   setDateFormat]   = useState("YYYY-MM-DD");
+  const [taxRate,      setTaxRate]      = useState<number>(0);
+  const [invPrefix,    setInvPrefix]    = useState("INV");
 
   useEffect(() => {
-    async function loadCompany() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: companies } = await supabase.from('companies').select('*').eq('user_id', user.id).single();
-      if (companies) {
-        form.reset({
-          id: companies.id,
-          name: companies.name,
-          email: companies.email,
-        });
-      }
-      setLoading(false);
-    }
-    loadCompany();
-  }, [form, supabase]);
+    async function load() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await supabase.from("profiles").select("company_id").eq("id", user.id).single();
+        if (!profile?.company_id) return;
 
-  const onSubmit = async (values: z.infer<typeof settingsSchema>) => {
+        const { data: co } = await supabase
+          .from("companies")
+          .select("*")
+          .eq("id", profile.company_id)
+          .single();
+
+        if (co) {
+          setCompanyId(co.id);
+          setCompanyName(co.name || "");
+          setCompanyEmail(co.email || co.billing_email || "");
+          setCompanyPhone(co.phone || "");
+          setCompanyAddr(co.address || "");
+          setTaxId(co.tax_id || "");
+          setWebsite(co.website || "");
+
+          const prefs = co.preferences || {};
+          setCurrency(prefs.currency  || co.currency || "USD");
+          setWeightUnit(prefs.weight_unit || "kg");
+          setDateFormat(prefs.date_format || "YYYY-MM-DD");
+          setTaxRate(prefs.tax_rate ?? 0);
+          setInvPrefix(prefs.invoice_prefix || "INV");
+        }
+      } catch (err: any) {
+        toast.error("Failed to load settings: " + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const handleSave = async () => {
+    if (!companyId) return;
     setIsSaving(true);
+    setSaved(false);
     try {
-      if (!values.id) throw new Error("No company found to update.");
       const { error } = await supabase.from("companies").update({
-        name: values.name,
-        email: values.email
-      }).eq("id", values.id);
-      
+        name:          companyName,
+        email:         companyEmail,
+        phone:         companyPhone,
+        address:       companyAddr,
+        tax_id:        taxId,
+        website:       website,
+        currency:      currency,
+        preferences: {
+          currency,
+          weight_unit:    weightUnit,
+          date_format:    dateFormat,
+          tax_rate:       taxRate,
+          invoice_prefix: invPrefix,
+        },
+      }).eq("id", companyId);
+
       if (error) throw error;
+      setSaved(true);
       toast.success("Settings saved successfully!");
+      setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
-      toast.error(err.message || "Failed to save settings");
+      toast.error("Save failed: " + err.message);
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (loading) return <div className="p-8">Loading settings...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center p-24 gap-3 text-muted-foreground">
+      <Loader2 className="w-5 h-5 animate-spin" />
+      <span className="text-sm font-medium">Loading settings…</span>
+    </div>
+  );
 
   return (
-    <div className="space-y-8 max-w-4xl animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-        <p className="text-muted-foreground mt-2">Manage your account and business preferences</p>
+    <div className="space-y-8 max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500 px-4 lg:px-0">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60 pb-7">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground flex items-center gap-3">
+            <Settings className="w-8 h-8 text-primary" />
+            Configuration
+          </h1>
+          <p className="text-muted-foreground font-medium">
+            Manage workspace preferences, currency, and business details.
+          </p>
+        </div>
+        <Button
+          onClick={handleSave}
+          disabled={isSaving}
+          size="lg"
+          className={cn(
+            "gap-2 font-bold tracking-widest shadow-lg transition-all",
+            saved && "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20"
+          )}
+        >
+          {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+          {isSaving ? "Saving…" : saved ? "Saved!" : "Save Changes"}
+        </Button>
       </div>
 
-      <Card>
+      {/* ── Company Info ─────────────────────────────────────────────────── */}
+      <Card className="border-border/50 shadow-sm">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Building2 className="w-5 h-5 text-primary" />
             <div>
-              <CardTitle>Company Information</CardTitle>
-              <CardDescription>Update your business details stored in the database</CardDescription>
+              <CardTitle className="text-base font-bold">Company Information</CardTitle>
+              <CardDescription>Your business identity and contact details.</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-muted-foreground tracking-wider">Company Name</Label>
+              <Input value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Acme Corporation" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-muted-foreground tracking-wider">Billing Email</Label>
+              <Input type="email" value={companyEmail} onChange={e => setCompanyEmail(e.target.value)} placeholder="billing@acme.io" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-muted-foreground tracking-wider">Phone</Label>
+              <Input value={companyPhone} onChange={e => setCompanyPhone(e.target.value)} placeholder="+1 555-000-0000" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-muted-foreground tracking-wider">Website</Label>
+              <Input value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://acme.io" />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-muted-foreground tracking-wider">Tax ID / VAT Number</Label>
+              <Input value={taxId} onChange={e => setTaxId(e.target.value)} placeholder="FR-12345678" className="font-mono" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-bold text-muted-foreground tracking-wider">Address</Label>
+            <Input value={companyAddr} onChange={e => setCompanyAddr(e.target.value)} placeholder="123 Business Street, City, Country" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Invoice Preferences ──────────────────────────────────────────── */}
+      <Card className="border-border/50 shadow-sm">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-primary" />
+            <div>
+              <CardTitle className="text-base font-bold">Invoice Preferences</CardTitle>
+              <CardDescription>Default values applied to all new invoices.</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem><FormLabel>Company Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
-                <FormField control={form.control} name="email" render={({ field }) => (
-                  <FormItem><FormLabel>Billing Email</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
-              </div>
-              <div className="flex justify-end pt-4 border-t border-border mt-6">
-                <Button type="submit" disabled={isSaving} className="gap-2">
-                  <Save className="w-4 h-4" /> {isSaving ? "Saving..." : "Save Changes"}
-                </Button>
-              </div>
-            </form>
-          </Form>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Currency */}
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-muted-foreground tracking-wider flex items-center gap-1.5">
+                <DollarSign className="w-3 h-3" />Currency
+              </Label>
+              <Select value={currency} onValueChange={setCurrency}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map(c => (
+                    <SelectItem key={c.code} value={c.code} className="font-medium text-sm">{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Weight Unit */}
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-muted-foreground tracking-wider flex items-center gap-1.5">
+                <Scale className="w-3 h-3" />Default Weight Unit
+              </Label>
+              <Select value={weightUnit} onValueChange={setWeightUnit}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {WEIGHT_UNITS.map(u => (
+                    <SelectItem key={u.value} value={u.value} className="font-medium text-sm">{u.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date Format */}
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-muted-foreground tracking-wider flex items-center gap-1.5">
+                <Globe className="w-3 h-3" />Date Format
+              </Label>
+              <Select value={dateFormat} onValueChange={setDateFormat}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DATE_FORMATS.map(d => (
+                    <SelectItem key={d.value} value={d.value} className="font-medium text-sm">{d.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Default Tax Rate */}
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-muted-foreground tracking-wider flex items-center gap-1.5">
+                <Percent className="w-3 h-3" />Default Tax Rate (%)
+              </Label>
+              <Input
+                type="number" step="0.5" min={0} max={100}
+                value={taxRate}
+                onChange={e => setTaxRate(parseFloat(e.target.value) || 0)}
+                placeholder="0"
+              />
+            </div>
+
+            {/* Invoice Prefix */}
+            <div className="space-y-2">
+              <Label className="text-xs font-bold text-muted-foreground tracking-wider flex items-center gap-1.5">
+                <Hash className="w-3 h-3" />Invoice Number Prefix
+              </Label>
+              <Input
+                value={invPrefix}
+                maxLength={8}
+                onChange={e => setInvPrefix(e.target.value.toUpperCase())}
+                placeholder="INV"
+                className="font-mono font-bold"
+              />
+              <p className="text-[10px] text-muted-foreground">Preview: <span className="font-mono font-bold text-foreground">{invPrefix}-2025-0001</span></p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Static Mock sections for UI aesthetics until extended DB schema is confirmed */}
-      <Card className="opacity-70 pointer-events-none grayscale">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-muted-foreground" />
-            <div>
-              <CardTitle>Notifications (Coming Soon)</CardTitle>
-              <CardDescription>Notification preferences require additional database setup</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-3 border rounded-lg">
-            <div><p className="font-medium text-sm">Invoice Reminders</p></div>
-            <input type="checkbox" checked={true} readOnly className="w-5 h-5 rounded border-input" />
+      {/* ── Preview / Info ────────────────────────────────────────────────── */}
+      <Card className="border-primary/20 bg-primary/5 border-2">
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            {[
+              { label: "Currency",     value: currency },
+              { label: "Weight Unit",  value: weightUnit },
+              { label: "Date Format",  value: dateFormat },
+              { label: "Default Tax",  value: `${taxRate}%` },
+            ].map((item) => (
+              <div key={item.label} className="space-y-1">
+                <p className="text-[10px] font-bold tracking-widest text-muted-foreground">{item.label}</p>
+                <p className="text-xl font-bold tracking-tight text-primary">{item.value}</p>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>

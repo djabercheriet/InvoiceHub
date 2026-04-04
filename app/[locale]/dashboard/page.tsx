@@ -130,7 +130,19 @@ export default function DashboardPage() {
 
         // 5. Processing low stock
         if (lowStock) {
-          setLowStockProducts(lowStock.filter((p: any) => p.quantity <= p.min_stock_level) as LowStockProduct[])
+          const criticalItems = lowStock.filter((p: any) => p.quantity <= p.min_stock_level) as LowStockProduct[];
+          setLowStockProducts(criticalItems);
+          
+          if (criticalItems.length > 0) {
+            toast.warning(`Critical Inventory Conflict`, {
+              description: `${criticalItems.length} items have dropped below safety thresholds.`,
+              action: {
+                label: "Restock",
+                onClick: () => window.location.href = "/dashboard/inventory"
+              },
+              duration: 10000
+            });
+          }
         }
 
         // 6. Generate Activity Logs (Real Multi-table feed)
@@ -140,7 +152,7 @@ export default function DashboardPage() {
             id: `inv-${inv.invoice_number}`,
             type: 'invoice',
             title: `Invoice Generated: ${inv.invoice_number}`,
-            detail: `Total: $${inv.total.toLocaleString()}`,
+            detail: `Total: $${(inv.total || 0).toLocaleString()}`,
             date: inv.issue_date
           })
         })
@@ -228,13 +240,13 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-8">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter text-foreground">Workspace Intelligence</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">Workspace Intelligence</h1>
           <p className="text-muted-foreground mt-2 font-medium">
             Real-time business performance & resource tracking.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black rounded-full border border-emerald-500/20 shadow-lg shadow-emerald-500/5 pulse">
+          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-full border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
             MARKET LIVE
           </div>
@@ -246,7 +258,7 @@ export default function DashboardPage() {
         
         <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Total Revenue</CardTitle>
+            <CardTitle className="text-xs font-bold tracking-wider text-muted-foreground">Total Revenue</CardTitle>
             <div className="p-2 bg-emerald-500/10 rounded-full">
               <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             </div>
@@ -261,7 +273,7 @@ export default function DashboardPage() {
 
         <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Total Invoices</CardTitle>
+            <CardTitle className="text-xs font-bold tracking-wider text-muted-foreground">Total Invoices</CardTitle>
             <div className="p-2 bg-blue-500/10 rounded-full">
               <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
@@ -274,7 +286,7 @@ export default function DashboardPage() {
 
         <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Low Stock Items</CardTitle>
+            <CardTitle className="text-xs font-bold tracking-wider text-muted-foreground">Low Stock Items</CardTitle>
             <div className="p-2 bg-amber-500/10 rounded-full">
               <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </div>
@@ -287,7 +299,7 @@ export default function DashboardPage() {
 
         <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Active Customers</CardTitle>
+            <CardTitle className="text-xs font-bold tracking-wider text-muted-foreground">Active Customers</CardTitle>
             <div className="p-2 bg-indigo-500/10 rounded-full">
               <Users className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
             </div>
@@ -306,7 +318,7 @@ export default function DashboardPage() {
             <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 border border-primary/20">
                <Zap className="w-8 h-8 text-primary fill-primary" />
             </div>
-            <CardTitle className="text-4xl font-black tracking-tighter uppercase mb-2">Welcome to InvoiceHub</CardTitle>
+            <CardTitle className="text-4xl font-bold tracking-tight mb-2">Welcome to InvoiceHub</CardTitle>
             <CardDescription className="max-w-md mx-auto text-base font-medium">
               Start your journey by populating your workspace with enterprise demo data. One click, unlimited insights.
             </CardDescription>
@@ -314,7 +326,7 @@ export default function DashboardPage() {
           <CardContent className="flex justify-center pb-12">
             <button
                onClick={handleSeed}
-               className="group relative px-10 py-5 bg-primary text-primary-foreground font-black uppercase tracking-widest text-sm rounded-xl hover:scale-105 transition-all shadow-2xl shadow-primary/40 overflow-hidden"
+               className="group relative px-10 py-5 bg-primary text-primary-foreground font-bold tracking-widest text-sm rounded-xl hover:scale-105 transition-all shadow-2xl shadow-primary/40 overflow-hidden"
             >
               <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               Populate Demo Data
@@ -411,7 +423,7 @@ export default function DashboardPage() {
       {lowStockProducts.length > 0 && (
         <Card className="border-amber-500/20 bg-amber-500/5 shadow-none overflow-hidden border-2">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-black uppercase tracking-widest text-xs">
+            <CardTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-bold tracking-widest text-xs">
               <AlertCircle className="w-4 h-4" />
               Critical Inventory Conflict
             </CardTitle>
@@ -434,7 +446,7 @@ export default function DashboardPage() {
                         <div className="h-1.5 w-24 bg-muted rounded-full overflow-hidden">
                            <div className="h-full bg-amber-500" style={{ width: `${(product.quantity / product.min_stock_level) * 100}%` }} />
                         </div>
-                        <p className="text-[10px] font-black text-amber-600 uppercase">
+                        <p className="text-[10px] font-bold text-amber-600">
                           {product.quantity} / {product.min_stock_level} Unit
                         </p>
                       </div>
@@ -442,7 +454,7 @@ export default function DashboardPage() {
                   </div>
                   <Link
                     href={`/dashboard/inventory?search=${product.name}`}
-                    className="text-[10px] px-4 py-2 bg-amber-600 text-white font-black rounded uppercase hover:bg-amber-700 transition shadow-lg shadow-amber-600/20"
+                    className="text-[10px] px-4 py-2 bg-amber-600 text-white font-bold rounded hover:bg-amber-700 transition shadow-lg shadow-amber-600/20"
                   >
                     Restock
                   </Link>
@@ -459,7 +471,7 @@ export default function DashboardPage() {
           <Zap className="w-32 h-32 text-primary" />
         </div>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs">
+          <CardTitle className="flex items-center gap-2 text-primary font-bold tracking-widest text-xs">
             <Zap className="w-4 h-4 fill-primary" />
             Workspace Capability
           </CardTitle>
@@ -472,16 +484,16 @@ export default function DashboardPage() {
                 <ShieldCheck className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Active Infrastructure</p>
+                <p className="text-[10px] text-muted-foreground font-bold tracking-widest">Active Infrastructure</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-3xl font-black tracking-tighter">{subscriptionPlan}</p>
-                  <span className="px-2 py-1 bg-emerald-500/10 text-emerald-600 text-[9px] font-black rounded border border-emerald-500/20 uppercase tracking-widest">Verified</span>
+                  <p className="text-3xl font-bold tracking-tight">{subscriptionPlan}</p>
+                  <span className="px-2 py-1 bg-emerald-500/10 text-emerald-600 text-[9px] font-bold rounded border border-emerald-500/20 tracking-widest">Verified</span>
                 </div>
               </div>
             </div>
             <Link
               href="/dashboard/subscription"
-              className="px-8 py-3 bg-primary text-primary-foreground text-xs font-black rounded-lg hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 uppercase tracking-widest"
+              className="px-8 py-3 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:shadow-xl hover:shadow-primary/20 transition-all duration-300 tracking-widest"
             >
               Management Console
             </Link>
