@@ -2,20 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, Search, Eye, Download, Trash2, Loader2, ArrowLeft, Send } from "lucide-react";
+import { Plus, FileText, Send, Download, Trash2, ArrowLeft, MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import NewInvoiceBuilder from "@/components/invoices/new-invoice-builder";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { InvoicePDF } from "@/components/invoices/invoice-pdf";
 import { Badge } from "@/components/ui/badge";
+import { DataTable } from "@/components/ui/data-table";
+import { cn } from "@/lib/utils";
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "new">("list");
   const supabase = createClient();
 
@@ -27,90 +25,113 @@ export default function InvoicesPage() {
 
   const fetchInvoices = async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data: companies } = await supabase.from('companies').select('id').eq('user_id', user.id).single();
-    if (!companies) return;
-
-    // Supabase foreign table lookup
-    const { data, error } = await supabase
-      .from("invoices")
-      .select("*, customers(*)")
-      .eq("company_id", companies.id)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      toast.error("Failed to fetch invoices");
-    } else {
-      setInvoices(data || []);
-    }
-    setLoading(false);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this invoice?")) return;
-    const { error } = await supabase.from("invoices").delete().eq("id", id);
-    if (error) {
-      toast.error("Error deleting invoice");
-    } else {
-      toast.success("Invoice deleted");
-      fetchInvoices();
-    }
-  };
-
-  const handleSendEmail = async (id: string, email: string) => {
-    const loadingToast = toast.loading("Sending invoice...");
     try {
-      const res = await fetch("/api/invoices/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ invoiceId: id, email }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success(data.message || "Email sent successfully!", { id: loadingToast });
-        fetchInvoices();
-      } else {
-        throw new Error(data.error || "Failed to send email");
-      }
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
+        if (!profile?.company_id) return;
+
+        const { data, error } = await supabase
+          .from("invoices")
+          .select("*, customers(name, email)")
+          .eq("company_id", profile.company_id)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        setInvoices(data || []);
     } catch (err: any) {
-      toast.error(err.message, { id: loadingToast });
+        toast.error("Audit trail acquisition failed: " + err.message);
+    } finally {
+        setLoading(false);
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const handleDelete = async (invoice: any) => {
+    if (!confirm(`Permanently purge ${invoice.invoice_number}?`)) return;
+    try {
+        const { error } = await supabase.from("invoices").delete().eq("id", invoice.id);
+        if (error) throw error;
+        toast.success("Document purged from records.");
+        fetchInvoices();
+    } catch (err: any) {
+        toast.error("Decommissioning failed.");
+    }
+  };
+
+  const getStatusConfig = (status: string) => {
     switch (status) {
       case "paid":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Paid</Badge>;
+        return { label: "Settled", class: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" };
       case "sent":
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">Sent</Badge>;
+        return { label: "Pending", class: "bg-blue-500/10 text-blue-600 border-blue-500/20" };
       case "draft":
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Draft</Badge>;
+        return { label: "Internal", class: "bg-muted text-muted-foreground border-border/50" };
       case "overdue":
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Overdue</Badge>;
+        return { label: "Conflict", class: "bg-destructive/10 text-destructive border-destructive/20" };
       default:
-        return <Badge>{status}</Badge>;
+        return { label: status, class: "" };
     }
   };
 
-  // We should fetch items if they want to download, but for now we pass empty arrays
-  // In a real app, downloading a specific invoice requires fetching its invoice_items first
-  // Here we mock the trigger
-  const handleDownloadDraft = () => {
-    toast.info("A full PDF download requires pre-fetching items. This is a stub for the table action.");
-  };
-
-  const filteredInvoices = invoices.filter((inv) =>
-    inv.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    inv.customers?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const columns = [
+    { 
+        header: "Document Reference", 
+        accessorKey: "invoice_number",
+        cell: (row: any) => (
+            <div className="flex flex-col">
+                <span className="font-bold tracking-tight text-sm">{row.invoice_number}</span>
+                <span className="text-[10px] text-muted-foreground opacity-70">
+                    ID: {row.id.substring(0, 8)}...
+                </span>
+            </div>
+        )
+    },
+    { 
+        header: "Stakeholder", 
+        accessorKey: "customers.name",
+        cell: (row: any) => (
+            <div className="flex flex-col">
+                <span className="font-bold text-sm">{row.customers?.name || "Anonymous Entity"}</span>
+                <span className="text-[10px] text-muted-foreground">{row.customers?.email}</span>
+            </div>
+        )
+    },
+    { 
+        header: "Valuation", 
+        accessorKey: "total",
+        cell: (row: any) => (
+            <div className="font-bold tracking-tight text-sm text-primary">
+                ${(row.total || 0).toLocaleString()}
+            </div>
+        )
+    },
+    { 
+        header: "Issue Date", 
+        accessorKey: "issue_date",
+        cell: (row: any) => (
+            <span className="text-[11px] font-mono font-medium opacity-60">{row.issue_date}</span>
+        )
+    },
+    {
+        header: "Status",
+        accessorKey: "status",
+        cell: (row: any) => {
+            const config = getStatusConfig(row.status);
+            return (
+                <Badge variant="outline" className={cn("font-bold text-[9px] tracking-widest px-2 py-0.5", config.class)}>
+                    {config.label}
+                </Badge>
+            )
+        }
+    }
+  ];
 
   if (viewMode === "new") {
     return (
-      <div className="space-y-6 animate-in fade-in">
-        <Button variant="ghost" onClick={() => setViewMode("list")} className="gap-2">
-          <ArrowLeft className="w-4 h-4" /> Back to Invoices
+      <div className="space-y-6 page-fade-in px-4 lg:px-0">
+        <Button variant="ghost" onClick={() => setViewMode("list")} className="gap-2 font-bold tracking-tight text-muted-foreground hover:text-foreground group">
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Records
         </Button>
         <NewInvoiceBuilder onSaveSuccess={() => setViewMode("list")} />
       </div>
@@ -118,81 +139,84 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Invoices</h1>
-          <p className="text-muted-foreground mt-2">Create and manage your invoices.</p>
+    <div className="space-y-8 page-fade-in px-4 lg:px-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/60 pb-8">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground flex items-center gap-3">
+            <FileText className="w-8 h-8 text-primary" />
+            Invoice Records
+          </h1>
+          <p className="text-muted-foreground font-medium">
+            Enterprise document management and auditing protocols.
+          </p>
         </div>
-        <Button onClick={() => setViewMode("new")} className="gap-2">
-          <Plus className="w-4 h-4" /> New Invoice
+
+        <Button onClick={() => setViewMode("new")} size="lg" className="gap-2 font-bold tracking-tight shadow-lg shadow-primary/10">
+          <Plus className="w-5 h-5" /> Generate Document
         </Button>
       </div>
 
-      <div className="flex gap-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search invoice number or customer..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+         <Card className="glass-card">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-[10px] font-bold tracking-widest text-muted-foreground">Total Manifests</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="text-3xl font-bold tracking-tight">{invoices.length}</div>
+            </CardContent>
+         </Card>
+         <Card className="glass-card">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-[10px] font-bold tracking-widest text-emerald-600">Paid Valuation</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="text-3xl font-bold tracking-tight text-emerald-600">
+                    ${invoices.filter(i => i.status === 'paid').reduce((acc, i) => acc + (i.total || 0), 0).toLocaleString()}
+                </div>
+            </CardContent>
+         </Card>
+         <Card className="glass-card">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-[10px] font-bold tracking-widest text-amber-600">Outstanding Funds</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="text-3xl font-bold tracking-tight text-amber-600">
+                    ${invoices.filter(i => i.status !== 'paid').reduce((acc, i) => acc + (i.total || 0), 0).toLocaleString()}
+                </div>
+            </CardContent>
+         </Card>
+         <Card className="glass-card bg-indigo-500/5 border-indigo-500/20">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-[10px] font-bold tracking-widest text-indigo-600 dark:text-indigo-400">Pipeline Health</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="text-3xl font-bold tracking-tight text-indigo-600 dark:text-indigo-400">Stable</div>
+            </CardContent>
+         </Card>
       </div>
 
-      <Card className="shadow-lg border-border/50">
-        <CardHeader>
-          <CardTitle>Recent Invoices</CardTitle>
-          <CardDescription>{filteredInvoices.length} invoices found</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-muted/50">
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium text-sm">Invoice #</th>
-                  <th className="text-left py-3 px-4 font-medium text-sm">Customer</th>
-                  <th className="text-left py-3 px-4 font-medium text-sm">Amount</th>
-                  <th className="text-left py-3 px-4 font-medium text-sm">Issue Date</th>
-                  <th className="text-left py-3 px-4 font-medium text-sm">Due Date</th>
-                  <th className="text-left py-3 px-4 font-medium text-sm">Status</th>
-                  <th className="text-right py-3 px-4 font-medium text-sm">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                   <tr><td colSpan={7} className="text-center py-8"><Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" /></td></tr>
-                ) : filteredInvoices.length === 0 ? (
-                   <tr><td colSpan={7} className="text-center py-8 text-muted-foreground">No invoices found.</td></tr>
-                ) : filteredInvoices.map((invoice) => (
-                  <tr key={invoice.id} className="border-b hover:bg-muted/50 transition-colors">
-                    <td className="py-3 px-4 font-medium text-sm">{invoice.invoice_number}</td>
-                    <td className="py-3 px-4 text-sm text-muted-foreground">{invoice.customers?.name || "Unknown"}</td>
-                    <td className="py-3 px-4 font-semibold text-sm text-primary">${invoice.total.toLocaleString()}</td>
-                    <td className="py-3 px-4 text-sm">{invoice.issue_date}</td>
-                    <td className="py-3 px-4 text-sm">{invoice.due_date}</td>
-                    <td className="py-3 px-4">{getStatusBadge(invoice.status)}</td>
-                    <td className="py-3 px-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => handleSendEmail(invoice.id, invoice.customers?.email)}
-                          title="Send Email"
-                        >
-                          <Send className="w-4 h-4 text-primary" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDownloadDraft()}>
-                          <Download className="w-4 h-4 text-muted-foreground" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(invoice.id)}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      <DataTable 
+        data={invoices} 
+        columns={columns} 
+        loading={loading}
+        onDelete={handleDelete}
+        searchPlaceholder="Scan manifest registry..."
+        actions={(row) => (
+            <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-9 w-9 hover:bg-primary/10 hover:text-primary rounded-xl"
+                    onClick={() => window.location.href = `/dashboard/invoices/${row.id}`}
+                >
+                    <FileText className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-red-500 hover:bg-red-500/10 rounded-xl" onClick={() => handleDelete(row)}>
+                    <Trash2 className="w-4 h-4" />
+                </Button>
+            </div>
+        )}
+      />
     </div>
   );
 }

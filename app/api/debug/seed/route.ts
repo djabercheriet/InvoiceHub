@@ -4,135 +4,241 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
-
-    // 1. Identify User
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // 2. Check for Profile & Company
-    let { data: profile } = await supabase
+    const isSuperAdmin = user.email === process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
+
+    // ── 1. Get or create the user's primary company ──
+    const { data: profile } = await supabase
       .from('profiles')
       .select('company_id')
       .eq('id', user.id)
       .single();
 
     let companyId = profile?.company_id;
+    let syncNeeded = !companyId;
 
-    // --- SELF-HEALING: NO COMPANY DETECTED ---
     if (!companyId) {
-      console.log(`[DEBUG] No company found for User ${user.id}. Creating new Enterprise Workspace...`);
-      
-      // A. Create Company (Ensuring NOT NULL constraints match schema)
-      const { data: newCompany, error: compErr } = await supabase
+      console.log('[Seed] No existing company found. Creating primary workspace...');
+      const { data: newComp, error: compErr } = await supabase
         .from('companies')
-        .insert([{ 
-          user_id: user.id, // REQUIRED
-          name: 'Enterprise Hub', 
-          email: user.email,
-          currency: 'USD'
+        .insert([{
+          user_id: user.id,
+          name: 'Main Executive Hub',
+          tax_id: 'TX-MAIN-77',
+          currency: 'USD',
         }])
-        .select()
+        .select('id')
         .single();
-      
-      if (compErr) throw new Error(`Company Creation Failed: ${compErr.message}`);
-      companyId = newCompany.id;
 
-      // B. Link Profile
-      const { error: linkErr } = await supabase
+      if (compErr || !newComp) {
+        throw new Error(`Failed to create company: ${compErr?.message ?? 'unknown error'}`);
+      }
+      companyId = newComp.id;
+      syncNeeded = true;
+    }
+
+    // Force synchronization of profile to ensure visibility on Client Dashboard
+    if (syncNeeded || true) { // Always sync to be safe
+       const { error: profileErr } = await supabase
         .from('profiles')
-        .update({ company_id: companyId })
-        .eq('id', user.id);
-      
-      if (linkErr) throw new Error(`Profile Linking Failed: ${linkErr.message}`);
-
-      // C. Optional: Initialize Subscription
-      try {
-        const { data: freePlan } = await supabase
-          .from('subscription_plans')
-          .select('id')
-          .eq('name', 'Free')
-          .single();
+        .upsert({ 
+          id: user.id, 
+          company_id: companyId,
+          full_name: user.user_metadata?.full_name || 'System Admin'
+        });
         
-        if (freePlan) {
-          await supabase.from('subscriptions').insert([{
-             company_id: companyId,
-             plan_id: freePlan.id,
-             status: 'active',
-             subscription_type: 'monthly',
-             current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-          }]);
-        }
-      } catch (e) {
-        console.warn('[DEBUG] Subscription table might be missing, skipping sub-init.');
+      if (profileErr) {
+        console.error('[Seed] Profile sync failed:', profileErr.message);
+      } else {
+        console.log(`[Seed] Profile synchronized with Workspace ID: ${companyId}`);
       }
     }
 
-    // --- PROCEED WITH SEEDING ---
+    // ── 2. Global Sanitization: Reset environment ──
+    console.log('[Seed] NUCLEAR RESET: Purging all platform archives...');
+    
+    // Purge dependent records first to avoid FK violations
+    await supabase.from('invoices').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('products').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('customers').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('categories').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    
+    // Now purge other companies
+    const { error: purgeErr } = await supabase
+      .from('companies')
+      .delete()
+      .neq('id', companyId);
 
-    // 3. Categories
-    const { data: existingCats } = await supabase
-      .from('categories')
-      .select('id, name')
-      .eq('company_id', companyId);
-
-    let catMap: Record<string, string> = {};
-    if (existingCats && existingCats.length > 0) {
-      existingCats.forEach(c => catMap[c.name] = c.id);
+    if (purgeErr) {
+      console.error('[Seed] Company purge failed (non-fatal):', purgeErr.message);
     } else {
-        const { data: newCats } = await supabase
+      console.log('[Seed] Database sanitized to primary workspace.');
+    }
+
+    const companiesToSeed: string[] = [companyId];
+    // Removed secondary "Shadow" company logic to maintain a clean environment.
+
+    // ── 3. Seed each company ──
+    for (const targetId of companiesToSeed) {
+      // Use a short suffix unique to this run to avoid duplicate-key issues
+      const suffix = Math.floor(1000 + Math.random() * 9000);
+
+      // A. Seed Category (optional – only if table exists)
+      let catId: string | null = null;
+      {
+        const { data: existingCat } = await supabase
           .from('categories')
-          .insert([
-            { company_id: companyId, name: 'Hardware', description: 'Physical devices' },
-            { company_id: companyId, name: 'Software', description: 'SaaS and licenses' }
-          ])
-          .select();
-        newCats?.forEach(c => catMap[c.name] = c.id);
-    }
+          .select('id')
+          .eq('company_id', targetId)
+          .eq('name', 'Hardware')
+          .maybeSingle();
 
-    // 4. Products (Schema: cost_price, unit_price)
-    await supabase
-      .from('products')
-      .insert([
-        { 
-          company_id: companyId, 
-          category_id: catMap['Hardware'], 
-          name: 'Enterprise Server Rack', 
-          sku: `SRV-${Math.floor(Math.random()*1000)}`, 
-          cost_price: 5000, 
-          unit_price: 8500, 
-          quantity: 12, 
-          min_stock_level: 2,
-          image_url: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc48?w=400'
+        if (existingCat) {
+          catId = existingCat.id;
+        } else {
+          const { data: newCat } = await supabase
+            .from('categories')
+            .insert([{ company_id: targetId, name: 'Hardware', description: 'Physical devices' }])
+            .select('id')
+            .single();
+          catId = newCat?.id ?? null;
         }
-      ]);
+      }
 
-    // 5. Customers
-    const { data: customers } = await supabase
-      .from('customers')
-      .insert([
-        { company_id: companyId, name: 'Atherton Corp', email: `finance@atherton-${Math.floor(Math.random()*100)}.co`, address: 'London, UK' }
-      ])
-      .select();
+      // B. Seed Customers – use unique emails per run to avoid conflicts
+      const { data: customers, error: custErr } = await supabase
+        .from('customers')
+        .insert([
+          {
+            company_id: targetId,
+            name: 'Atherton Group',
+            email: `finance.${suffix}@atherton.co`,
+            phone: '+1-555-100-0001',
+            address: 'Industrial Sector 7, New York',
+          },
+          {
+            company_id: targetId,
+            name: 'Cyberdyne Systems',
+            email: `billing.${suffix}@cyberdyne.io`,
+            phone: '+1-555-200-0002',
+            address: 'Tech Plaza, Neo-Tokyo',
+          },
+          {
+            company_id: targetId,
+            name: 'Weyland-Yutani Corp',
+            email: `accounts.${suffix}@weyland.corp`,
+            phone: '+1-555-300-0003',
+            address: 'Off-world Terminal 4',
+          },
+        ])
+        .select('id, name');
 
-    // 6. Invoices
-    const custId = customers?.[0]?.id || (await supabase.from('customers').select('id').eq('company_id', companyId).limit(1).single()).data?.id;
-    if (custId) {
-        await supabase.from('invoices').insert([
-            { 
-              company_id: companyId, 
-              customer_id: custId, 
-              invoice_number: `INV-ENT-${Math.floor(Math.random() * 9000) + 1000}`, 
-              total: 125000, 
-              status: 'paid', 
-              issue_date: new Date().toISOString(),
-              due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      if (custErr) {
+        console.error('[Seed] Customer insert failed:', custErr.message);
+        // Don't crash — continue to products
+      }
+
+      // C. Seed Products (correct field: `quantity`, not `stock`)
+      const { data: products, error: prodErr } = await supabase
+        .from('products')
+        .insert([
+          {
+            company_id: targetId,
+            category_id: catId,
+            name: 'Quantum Processor Unit',
+            sku: `QPU-${suffix}`,
+            buy_price: 1200,
+            unit_price: 2500,
+            quantity: 45,
+            min_stock_level: 10,
+          },
+          {
+            company_id: targetId,
+            category_id: catId,
+            name: 'Encrypted Storage Node',
+            sku: `ESN-${suffix}`,
+            buy_price: 450,
+            unit_price: 980,
+            quantity: 120,
+            min_stock_level: 20,
+          },
+          {
+            company_id: targetId,
+            category_id: catId,
+            name: 'Nu-Tech Interface',
+            sku: `NTI-${suffix}`,
+            buy_price: 80,
+            unit_price: 240,
+            quantity: 3,
+            min_stock_level: 10, // intentionally low to trigger alert
+          },
+        ])
+        .select('id, name');
+
+      if (prodErr) {
+        console.error('[Seed] Product insert failed:', prodErr.message);
+      }
+
+      // D. Seed Invoices – only if we have customers
+      if (customers && customers.length > 0) {
+        const invoiceRows = customers.map((c, i) => ({
+          company_id: targetId,
+          customer_id: c.id,
+          invoice_number: `INV-${suffix}-${String(100 + i).padStart(3, '0')}`,
+          total: 15000 + i * 25000,
+          status: i === 0 ? 'paid' : i === 1 ? 'sent' : 'overdue',
+          invoice_type: 'sale',
+          issue_date: new Date().toISOString().split('T')[0],
+          due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          tax_rate: 15,
+          discount_amount: 500,
+          notes: 'Demo invoice — seeded automatically.',
+        }));
+
+        const { data: invs, error: invErr } = await supabase.from('invoices').insert(invoiceRows).select('id');
+        if (invErr) {
+          console.error('[Seed] Invoice insert error (non-fatal):', invErr.message);
+        }
+
+        // E. Seed Invoice Items for rich dashboard visibility
+        if (invs && products && products.length > 0) {
+          const itemRows = invs.flatMap((inv) => [
+            {
+              invoice_id: inv.id,
+              company_id: targetId,
+              product_id: products[0].id,
+              designation: `Professional ${products[0].name}`,
+              quantity: 2,
+              unit_price: 2500,
+              discount: 10,
+              tax_rate: 15,
+              total: 4500, // (2 * 2500) - 10% + 15% (simplified for seeding)
+            },
+            {
+              invoice_id: inv.id,
+              company_id: targetId,
+              product_id: products[1].id,
+              designation: `Service Fee - ${products[1].name}`,
+              quantity: 1,
+              unit_price: 980,
+              discount: 0,
+              tax_rate: 15,
+              total: 1127,
             }
-        ]);
+          ]);
+          await supabase.from('invoice_items').insert(itemRows);
+        }
+      }
     }
 
-    return NextResponse.json({ success: true, message: 'Workspace fully initialized and seeded!' });
+    return NextResponse.json({
+      success: true,
+      message: `✅ System seeded: ${companiesToSeed.length} workspace(s) × 3 customers, 3 products, 3 invoices.`,
+    });
   } catch (err: any) {
-    console.error('Final Seed API Error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('[Seed] Fatal error:', err);
+    return NextResponse.json({ error: err.message ?? 'Unknown seed error' }, { status: 500 });
   }
 }

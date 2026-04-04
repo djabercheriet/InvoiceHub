@@ -4,16 +4,18 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Plus, Search, Edit, Trash2, Mail, Phone, Loader2 } from "lucide-react";
+import { Plus, Users, Mail, Phone, MapPin, Trash2, Edit } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
+import { DataTable } from "@/components/ui/data-table";
+import { FormDialog } from "@/components/ui/form-dialog";
 
 const customerSchema = z.object({
   id: z.string().optional(),
@@ -21,6 +23,7 @@ const customerSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().min(6, "Phone is required"),
   address: z.string().optional(),
+  tax_number: z.string().optional(),
 });
 
 type CustomerFormValues = z.infer<typeof customerSchema>;
@@ -28,14 +31,16 @@ type CustomerFormValues = z.infer<typeof customerSchema>;
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
   const supabase = createClient();
+  const t = useTranslations('Common');
 
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
-    defaultValues: { name: "", email: "", phone: "", address: "" },
+    defaultValues: { name: "", email: "", phone: "", address: "", tax_number: "" },
   });
 
   useEffect(() => {
@@ -44,202 +49,228 @@ export default function CustomersPage() {
 
   const fetchCustomers = async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-    const { data: companies } = await supabase.from('companies').select('id').eq('user_id', user.id).single();
-    if (!companies) return;
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('company_id')
+            .eq('id', user.id)
+            .single();
+        
+        if (!profile?.company_id) return;
 
-    // We can also fetch the total spent and invoices by querying invoices, but we'll do a simple fetch for the list first
-    const { data, error } = await supabase.from("customers").select("*").eq("company_id", companies.id);
+        const { data, error } = await supabase
+            .from("customers")
+            .select("*")
+            .eq("company_id", profile.company_id)
+            .order('created_at', { ascending: false });
 
-    if (error) {
-       toast.error("Failed to load customers");
-    } else {
-       // We'll mock the aggregated stats for now since Supabase client might not have an easy joined aggregate in one query
-       // For a production app, a DB view or Edge function is best here.
-       setCustomers(data.map((c: any) => ({
-         ...c,
-         totalInvoices: Math.floor(Math.random() * 20),
-         totalSpent: Math.floor(Math.random() * 10000),
-         status: "active"
-       })));
+        if (error) throw error;
+        setCustomers(data || []);
+    } catch (err: any) {
+        toast.error("Failed to load stack: " + err.message);
+    } finally {
+        setLoading(false);
     }
-    setLoading(false);
   };
 
   const onSubmit = async (values: CustomerFormValues) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data: companies } = await supabase.from('companies').select('id').eq('user_id', user.id).single();
-    if (!companies) {
-      toast.error("No active company found");
-      return;
-    }
-
+    setLoading(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user?.id).single();
+      
+      if (!profile?.company_id) throw new Error("No active workspace detected.");
+
       const payload = {
-        name: values.name,
-        email: values.email,
-        phone: values.phone,
-        address: values.address,
-        company_id: companies.id,
+        ...values,
+        company_id: profile.company_id,
       };
 
       if (editingCustomer) {
         const { error } = await supabase.from("customers").update(payload).eq("id", editingCustomer.id);
         if (error) throw error;
-        toast.success("Customer updated successfully");
+        toast.success("Stakeholder profile updated.");
       } else {
-        const { error } = await supabase.from("customers").insert(payload);
+        const { error } = await supabase.from("customers").insert([payload]);
         if (error) throw error;
-        toast.success("Customer added successfully");
+        toast.success("New client synchronization complete.");
       }
       setIsDialogOpen(false);
       fetchCustomers();
     } catch (error: any) {
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleEdit = (customer: any) => {
     setEditingCustomer(customer);
     form.reset({
-      id: customer.id,
       name: customer.name,
       email: customer.email,
       phone: customer.phone,
       address: customer.address || "",
+      tax_number: customer.tax_number || "",
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this customer? All their invoices will be affected.")) return;
-    const { error } = await supabase.from("customers").delete().eq("id", id);
-    if (error) {
-      toast.error("Error deleting customer");
-    } else {
-      toast.success("Customer deleted");
-      fetchCustomers();
+  const handleDelete = async (customer: any) => {
+    if (!confirm(`Permanently disconnect ${customer.name}? This action is irreversible.`)) return;
+    
+    setIsDeleting(true);
+    try {
+        const { error } = await supabase.from("customers").delete().eq("id", customer.id);
+        if (error) throw error;
+        toast.success("Stakeholder purged from system.");
+        fetchCustomers();
+    } catch (err: any) {
+        toast.error("Purge failed: " + err.message);
+    } finally {
+        setIsDeleting(false);
     }
   };
 
-  const filteredCustomers = customers.filter((c) =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const columns = [
+    { 
+        header: "Stakeholder", 
+        accessorKey: "name",
+        cell: (row: any) => (
+            <div className="flex flex-col">
+                <span className="font-bold tracking-tight text-sm">{row.name}</span>
+                <span className="text-[10px] text-muted-foreground opacity-70">{row.email}</span>
+            </div>
+        )
+    },
+    { 
+        header: "Communication", 
+        accessorKey: "phone",
+        cell: (row: any) => (
+            <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
+                    <Phone className="w-3 h-3" /> {row.phone}
+                </div>
+                {row.address && (
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground opacity-60">
+                        <MapPin className="w-3 h-3" /> {row.address}
+                    </div>
+                )}
+            </div>
+        )
+    },
+    {
+        header: "Tax ID",
+        accessorKey: "tax_number",
+        cell: (row: any) => (
+            <Badge variant="outline" className="font-mono text-[10px] bg-secondary/30 border-border/50">
+                {row.tax_number || "NO_TAX_ID"}
+            </Badge>
+        )
+    },
+    {
+        header: "Network Status",
+        accessorKey: "status",
+        cell: (row: any) => (
+            <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-bold tracking-widest text-emerald-600 dark:text-emerald-400">Stable</span>
+            </div>
+        )
+    }
+  ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
-          <p className="text-muted-foreground mt-2">Manage your customer relationships and billing info.</p>
+    <div className="space-y-8 page-fade-in px-4 lg:px-0">
+      {/* Header section with refined Vercel look */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/60 pb-8">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground flex items-center gap-3">
+            <Users className="w-8 h-8 text-primary" />
+            Stakeholders
+          </h1>
+          <p className="text-muted-foreground font-medium">
+            Management console for key accounts and billing relationships.
+          </p>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) { setEditingCustomer(null); form.reset(); }
-        }}>
-          <DialogTrigger asChild>
-            <Button className="gap-2"><Plus className="w-4 h-4" /> New Customer</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>{editingCustomer ? "Edit Customer" : "New Customer"}</DialogTitle>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField control={form.control} name="name" render={({ field }) => (
-                  <FormItem><FormLabel>Full Name / Company Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
+        <FormDialog
+          title={editingCustomer ? "Edit Stakeholder" : "Sync New Stakeholder"}
+          description="Update global identifiers and delivery protocols."
+          triggerText="Add Stakeholder"
+          isOpen={isDialogOpen}
+          onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) { setEditingCustomer(null); form.reset(); }
+          }}
+          onSubmit={form.handleSubmit(onSubmit)}
+          loading={loading}
+          size="md"
+        >
+          <Form {...form}>
+            <div className="space-y-4">
+              <FormField control={form.control} name="name" render={({ field }) => (
+                <FormItem><FormLabel className="text-xs font-bold text-muted-foreground">Full Name / Organization</FormLabel><FormControl><Input {...field} className="glass-card" /></FormControl><FormMessage /></FormItem>
+              )} />
+              <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="email" render={({ field }) => (
-                  <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel className="text-xs font-bold text-muted-foreground">Email Protocol</FormLabel><FormControl><Input type="email" {...field} className="glass-card" /></FormControl><FormMessage /></FormItem>
                 )} />
                 <FormField control={form.control} name="phone" render={({ field }) => (
-                  <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel className="text-xs font-bold text-muted-foreground">Direct Line</FormLabel><FormControl><Input {...field} className="glass-card" /></FormControl><FormMessage /></FormItem>
                 )} />
-                <FormField control={form.control} name="address" render={({ field }) => (
-                  <FormItem><FormLabel>Address / Location</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                )} />
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                  <Button type="submit">{editingCustomer ? "Update" : "Save"} Customer</Button>
-                </div>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+              </div>
+              <FormField control={form.control} name="address" render={({ field }) => (
+                <FormItem><FormLabel className="text-xs font-bold text-muted-foreground">Physical Coordinates</FormLabel><FormControl><Input {...field} className="glass-card" /></FormControl><FormMessage /></FormItem>
+              )} />
+              <FormField control={form.control} name="tax_number" render={({ field }) => (
+                <FormItem><FormLabel className="text-xs font-bold text-muted-foreground">Tax / VAT Registry</FormLabel><FormControl><Input {...field} className="glass-card font-mono" /></FormControl><FormMessage /></FormItem>
+              )} />
+            </div>
+          </Form>
+        </FormDialog>
       </div>
 
-      <div className="flex gap-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search by name or email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
-        </div>
+      {/* KPI Overlays for premium feel */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+         <Card className="glass-card">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-[10px] font-bold tracking-widest text-muted-foreground">Total Stakeholders</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="text-3xl font-bold tracking-tight">{customers.length}</div>
+            </CardContent>
+         </Card>
+         <Card className="glass-card">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-[10px] font-bold tracking-widest text-muted-foreground">Active Syncs</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="text-3xl font-bold tracking-tight">{customers.length}</div>
+            </CardContent>
+         </Card>
+         <Card className="glass-card bg-emerald-500/5 border-emerald-500/20">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-[10px] font-bold tracking-widest text-emerald-600 dark:text-emerald-400">System Health</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="text-3xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">Optimal</div>
+            </CardContent>
+         </Card>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center p-12">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-      ) : filteredCustomers.length === 0 ? (
-        <div className="text-center p-12 bg-muted/20 rounded-lg border border-border">
-          <p className="text-muted-foreground">No customers found.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCustomers.map((customer) => (
-            <Card key={customer.id} className="hover:shadow-lg transition-shadow bg-card/50 backdrop-blur-sm border-border/50">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg">{customer.name}</CardTitle>
-                    <CardDescription className="truncate max-w-[200px]">{customer.address || "No address provided"}</CardDescription>
-                  </div>
-                  <Badge variant={customer.status === "active" ? "default" : "secondary"}>{customer.status}</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-2 text-sm">
-                  <Mail className="w-4 h-4 text-muted-foreground" />
-                  <a href={`mailto:${customer.email}`} className="text-blue-600 dark:text-blue-400 hover:underline">
-                    {customer.email}
-                  </a>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Phone className="w-4 h-4 text-muted-foreground" />
-                  <a href={`tel:${customer.phone}`} className="text-blue-600 dark:text-blue-400 hover:underline">
-                    {customer.phone}
-                  </a>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 py-4 border-t border-b border-border/50">
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Invoices</p>
-                    <p className="text-2xl font-bold">{customer.totalInvoices}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Spent</p>
-                    <p className="text-2xl font-bold text-primary">${customer.totalSpent.toLocaleString()}</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button size="sm" variant="secondary" className="flex-1 gap-1 border border-border" onClick={() => handleEdit(customer)}>
-                    <Edit className="w-4 h-4" /> Edit
-                  </Button>
-                  <Button size="sm" variant="destructive" className="flex-1 gap-1" onClick={() => handleDelete(customer.id)}>
-                    <Trash2 className="w-4 h-4" /> Delete
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      {/* Main Data View */}
+      <DataTable 
+        data={customers} 
+        columns={columns} 
+        loading={loading}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        searchPlaceholder="Scan stakeholder registry..."
+      />
     </div>
   );
 }

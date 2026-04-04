@@ -182,10 +182,10 @@ export default function SubscriptionPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-8">
         <div>
-          <h1 className="text-4xl font-black tracking-tighter text-foreground">{t('title')}</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">{t('title')}</h1>
           <p className="text-muted-foreground mt-2 font-medium">{t('description')}</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-full border border-emerald-500/20 uppercase tracking-widest shadow-lg shadow-emerald-500/5 pulse">
+        <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold rounded-full border border-emerald-500/20 tracking-widest shadow-lg shadow-emerald-500/5 pulse">
           <ShieldCheck className="w-4 h-4" />
           {t('secureBilling')}
         </div>
@@ -200,13 +200,13 @@ export default function SubscriptionPage() {
           <CardHeader>
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between relative z-10 gap-6">
               <div>
-                <CardTitle className="flex items-center gap-3 text-primary font-black text-3xl tracking-tighter">
+                <CardTitle className="flex items-center gap-3 text-primary font-bold text-3xl tracking-tight">
                   <div className="p-2 bg-primary/10 rounded-xl">
                     <Zap className="w-6 h-6 fill-primary" />
                   </div>
                   {currentPlan?.name} {t('activeTier')}
                 </CardTitle>
-                <CardDescription className="mt-3 font-medium italic text-sm">
+                <CardDescription className="mt-3 font-medium text-sm">
                   {subscription.status === 'trial' && (
                     <span className="text-amber-600 flex items-center gap-2">
                       <AlertCircle className="w-4 h-4" />
@@ -224,11 +224,11 @@ export default function SubscriptionPage() {
                 </CardDescription>
               </div>
               <div className="text-left md:text-right">
-                <p className="text-5xl font-black tracking-tighter">
+                <p className="text-5xl font-bold tracking-tight">
                   {subscription.subscription_type === 'monthly'
                     ? `$${currentPlan?.monthly_price}`
                     : `$${currentPlan?.yearly_price}`}
-                  <span className="text-xs text-muted-foreground font-bold lowercase tracking-widest block mt-1">
+                  <span className="text-xs text-muted-foreground font-bold tracking-widest block mt-1">
                     PER {subscription.subscription_type === 'monthly' ? 'MONTH' : 'YEAR'}
                   </span>
                 </p>
@@ -243,7 +243,7 @@ export default function SubscriptionPage() {
         <div className="space-y-6">
           <div className="flex items-center gap-2 px-1">
              <div className="w-1 h-6 bg-primary rounded-full" />
-             <h2 className="text-xl font-black tracking-tight">{t('resources')}</h2>
+             <h2 className="text-xl font-bold tracking-tight">{t('resources')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -261,8 +261,8 @@ export default function SubscriptionPage() {
                 <Card key={item.key} className="bg-muted/30 border-none shadow-none">
                   <CardContent className="pt-6">
                     <div className="flex justify-between items-end mb-3">
-                      <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">{item.name}</label>
-                      <span className="text-xs font-black font-mono">
+                      <label className="text-[10px] font-bold tracking-widest text-muted-foreground">{item.name}</label>
+                      <span className="text-xs font-bold font-mono">
                         {current} <span className="text-muted-foreground font-medium">/ {unlimited ? '∞' : limit}</span>
                       </span>
                     </div>
@@ -285,7 +285,7 @@ export default function SubscriptionPage() {
       {/* Pricing Grids */}
       <div className="space-y-8 pt-4">
         <div className="text-center space-y-4 max-w-2xl mx-auto">
-          <h2 className="text-4xl font-black tracking-tighter">{t('expandScalability')}</h2>
+          <h2 className="text-4xl font-bold tracking-tight">{t('expandScalability')}</h2>
           <p className="text-muted-foreground font-medium">{t('professionalFeatures')}</p>
         </div>
         
@@ -302,26 +302,26 @@ export default function SubscriptionPage() {
                 } ${isPro && !isCurrentPlan ? 'border-2 border-indigo-500/20 bg-indigo-500/5' : 'bg-card'}`}
               >
                 {isCurrentPlan && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl ring-4 ring-background">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-6 py-1.5 rounded-full text-[10px] font-bold tracking-widest shadow-xl ring-4 ring-background">
                     {t('currentPlan')}
                   </div>
                 )}
                 {isPro && !isCurrentPlan && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl ring-4 ring-background">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-6 py-1.5 rounded-full text-[10px] font-bold tracking-widest shadow-xl ring-4 ring-background">
                     {t('recommended')}
                   </div>
                 )}
 
                 <CardHeader className="text-center pt-12">
-                  <CardTitle className="text-3xl font-black tracking-tighter uppercase">{plan.name}</CardTitle>
-                  <CardDescription className="text-xs font-semibold px-6 leading-relaxed italic">{plan.description}</CardDescription>
+                  <CardTitle className="text-3xl font-bold tracking-tight">{plan.name}</CardTitle>
+                  <CardDescription className="text-xs font-semibold px-6 leading-relaxed">{plan.description}</CardDescription>
                 </CardHeader>
 
                 <CardContent className="space-y-8 flex-1">
                   <div className="text-center py-4 bg-muted/20 rounded-2xl">
-                    <div className="text-5xl font-black tracking-tighter">
+                    <div className="text-5xl font-bold tracking-tight">
                       ${plan.monthly_price}
-                      <span className="text-[10px] font-black text-muted-foreground tracking-widest block mt-2 uppercase">WORKSPACE / MONTH</span>
+                      <span className="text-[10px] font-bold text-muted-foreground tracking-widest block mt-2">WORKSPACE / MONTH</span>
                     </div>
                   </div>
 
@@ -337,8 +337,8 @@ export default function SubscriptionPage() {
                           <div className={`p-1.5 rounded-lg ${isCurrentPlan ? 'bg-primary/10' : 'bg-emerald-500/10'}`}>
                             <Check className={`w-3.5 h-3.5 ${isCurrentPlan ? 'text-primary' : 'text-emerald-600'}`} />
                           </div>
-                          <p className="text-xs font-black uppercase tracking-tighter">
-                            {limit.value === 0 ? 'Unlimited' : limit.value} <span className="text-muted-foreground font-medium lowercase tracking-normal ml-1">{limit.label}</span>
+                          <p className="text-xs font-bold tracking-tight">
+                            {limit.value === 0 ? 'Unlimited' : limit.value} <span className="text-muted-foreground font-medium ml-1">{limit.label}</span>
                           </p>
                         </div>
                       ))}
@@ -352,7 +352,7 @@ export default function SubscriptionPage() {
                               <div className="p-1.5 bg-blue-500/10 rounded-lg">
                                 <Check className="w-3.5 h-3.5 text-blue-600" />
                               </div>
-                              <p className="text-[10px] font-bold text-foreground italic capitalize tracking-tight">
+                              <p className="text-[10px] font-bold text-foreground capitalize tracking-tight">
                                 {feature.replace(/_/g, ' ')}
                               </p>
                             </div>
@@ -365,12 +365,12 @@ export default function SubscriptionPage() {
 
                 <CardFooter className="pt-0 pb-8 px-6">
                   {isCurrentPlan ? (
-                    <Button className="w-full h-14 bg-muted text-muted-foreground font-black uppercase tracking-widest text-xs rounded-xl" disabled>
+                    <Button className="w-full h-14 bg-muted text-muted-foreground font-bold tracking-widest text-xs rounded-xl" disabled>
                       {t('currentPlan')}
                     </Button>
                   ) : (
                     <Button
-                      className={`w-full h-14 font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-xl shadow-opacity-20 ${
+                      className={`w-full h-14 font-bold tracking-widest text-xs rounded-xl transition-all shadow-xl shadow-opacity-20 ${
                         isPro 
                           ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/30' 
                           : 'bg-primary hover:bg-primary/90 shadow-primary/30'

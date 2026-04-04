@@ -219,11 +219,11 @@ export default function AdminDashboard() {
             <table className="w-full text-sm">
               <thead className="bg-muted/40 backdrop-blur-sm">
                 <tr className="border-b border-border/50">
-                  <th className="text-left py-4 px-6 font-bold uppercase tracking-tighter text-muted-foreground italic">Company Name</th>
-                  <th className="text-left py-4 px-6 font-bold uppercase tracking-tighter text-muted-foreground italic">Plan</th>
-                  <th className="text-right py-4 px-6 font-bold uppercase tracking-tighter text-muted-foreground italic">Customers</th>
-                  <th className="text-right py-4 px-6 font-bold uppercase tracking-tighter text-muted-foreground italic">Invoices</th>
-                  <th className="text-right py-4 px-6 font-bold uppercase tracking-tighter text-muted-foreground italic">Revenue</th>
+                  <th className="text-left py-4 px-6 font-semibold uppercase tracking-wider text-muted-foreground text-xs">Company Name</th>
+                  <th className="text-left py-4 px-6 font-semibold uppercase tracking-wider text-muted-foreground text-xs">Plan</th>
+                  <th className="text-right py-4 px-6 font-semibold uppercase tracking-wider text-muted-foreground text-xs">Customers</th>
+                  <th className="text-right py-4 px-6 font-semibold uppercase tracking-wider text-muted-foreground text-xs">Invoices</th>
+                  <th className="text-right py-4 px-6 font-semibold uppercase tracking-wider text-muted-foreground text-xs">Revenue</th>
                 </tr>
               </thead>
               <tbody>
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
                     <td className="py-4 px-6 font-bold tracking-tight">{company.name}</td>
                     <td className="py-4 px-6">
                       <span
-                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                        className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide border ${
                           company.plan === 'Free'
                             ? 'bg-muted text-muted-foreground border-border/50'
                             : company.plan === 'Pro'
@@ -245,7 +245,7 @@ export default function AdminDashboard() {
                     </td>
                     <td className="py-4 px-6 text-right font-medium opacity-80 group-hover:opacity-100">{company.customers}</td>
                     <td className="py-4 px-6 text-right font-medium opacity-80 group-hover:opacity-100">{company.invoices}</td>
-                    <td className="py-4 px-6 text-right font-black tracking-tight self-center">
+                    <td className="py-4 px-6 text-right font-semibold">
                       ${company.revenue.toLocaleString('en-US', {
                         minimumFractionDigits: 0,
                       })}
