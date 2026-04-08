@@ -9,10 +9,10 @@ const intlMiddleware = createMiddleware({
   localePrefix: 'as-needed'
 })
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   // First, run the next-intl middleware to handle localization
   const intlResponse = intlMiddleware(request)
-  
+
   // Then, pass this response to the Supabase middleware to handle auth
   return await updateSession(request, intlResponse)
 }

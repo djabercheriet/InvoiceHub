@@ -97,8 +97,8 @@ export default function DashboardPage() {
         console.log(`[DEBUG] Dashboard Fetching for Workspace ID: ${companyId}`)
 
         // 2. Safely get subscription
-        // @ts-ignore - dynamic join structure
-        const planName = profile.company?.subscriptions?.[0]?.plan?.name || 'Free'
+        const companyData = profile.company as any
+        const planName = companyData?.subscriptions?.[0]?.plan?.name || 'Free'
         setSubscriptionPlan(`${planName} Tier`)
 
         // 3. Parallel fetching
@@ -202,24 +202,6 @@ export default function DashboardPage() {
     fetchData()
   }, [user])
 
-  const handleSeed = async () => {
-    try {
-      setLoadingData(true)
-      const res = await fetch('/api/debug/seed', { method: 'POST' })
-      const data = await res.json()
-      if (data.success) {
-        toast.success(data.message)
-        window.location.reload()
-      } else {
-        throw new Error(data.error)
-      }
-    } catch (err: any) {
-      toast.error(`Seed failed: ${err.message}`)
-    } finally {
-      setLoadingData(false)
-    }
-  }
-
   if (loading || loadingData) {
     return (
       <div className="space-y-8 animate-pulse p-4">
@@ -232,8 +214,6 @@ export default function DashboardPage() {
       </div>
     )
   }
-
-  const isEmpty = stats.totalInvoices === 0 && stats.customerCount === 0
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 p-4 lg:p-0">
@@ -311,29 +291,6 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Empty State / Seed Helper */}
-      {isEmpty && (
-        <Card className="border-primary/20 bg-primary/5 shadow-xl overflow-hidden border-2 animate-bounce-subtle mt-4">
-          <CardHeader className="text-center pt-12 pb-6">
-            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 border border-primary/20">
-               <Zap className="w-8 h-8 text-primary fill-primary" />
-            </div>
-            <CardTitle className="text-4xl font-bold tracking-tight mb-2">Welcome to InvoiceHub</CardTitle>
-            <CardDescription className="max-w-md mx-auto text-base font-medium">
-              Start your journey by populating your workspace with enterprise demo data. One click, unlimited insights.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center pb-12">
-            <button
-               onClick={handleSeed}
-               className="group relative px-10 py-5 bg-primary text-primary-foreground font-bold tracking-widest text-sm rounded-xl hover:scale-105 transition-all shadow-2xl shadow-primary/40 overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-              Populate Demo Data
-            </button>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

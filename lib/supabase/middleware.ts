@@ -34,9 +34,13 @@ export async function updateSession(request: NextRequest, response: NextResponse
     data: { user },
   } = await supabase.auth.getUser()
 
+  const pathname = request.nextUrl.pathname
+  const isDashboard = pathname.startsWith('/dashboard') || 
+                      pathname.match(/^\/[a-zA-Z]{2}\/dashboard/)
+  
   if (
     // if the user is not logged in and the app path, in this case, /dashboard, is accessed, redirect to the login page
-    request.nextUrl.pathname.startsWith('/dashboard') &&
+    isDashboard &&
     !user
   ) {
     // no user, potentially respond by redirecting the user to the login page

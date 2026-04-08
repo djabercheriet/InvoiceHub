@@ -63,7 +63,7 @@ const itemSchema = z.object({
 
 const invoiceSchema = z.object({
  invoiceType: z.enum(["sale","purchase"]).default("sale"),
- customerId: z.string().optional(),
+ customerName: z.string().optional(),
  supplierName: z.string().optional(),
  issueDate: z.string(),
  dueDate: z.string(),
@@ -90,7 +90,7 @@ export default function NewInvoiceBuilder({ onSaveSuccess }: { onSaveSuccess: ()
  resolver: zodResolver(invoiceSchema),
  defaultValues: {
  invoiceType:"sale",
- customerId:"",
+ customerName:"",
  supplierName:"",
  issueDate: new Date().toISOString().split("T")[0],
  dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
@@ -137,16 +137,6 @@ export default function NewInvoiceBuilder({ onSaveSuccess }: { onSaveSuccess: ()
  load();
  }, []);
 
- // Auto-fill on product select
- const handleProductSelect = (index: number, productId: string) => {
- const p = products.find(x => x.id === productId);
- if (p) {
- form.setValue(`items.${index}.unitPrice`, watchType ==="purchase" ? (p.buy_price || 0) : (p.unit_price || 0));
- form.setValue(`items.${index}.designation`, p.name);
- form.setValue(`items.${index}.unitType`, (p.unit_type as UnitType) ||"unit");
- }
- };
-
  // Calculation helpers
  const calcLine = (item: any) => {
  const qty = Number(item.quantity || 0);
@@ -172,10 +162,26 @@ export default function NewInvoiceBuilder({ onSaveSuccess }: { onSaveSuccess: ()
  const prefix = companyPrefs.invoice_prefix ||"INV";
  const invoiceNumber = `${prefix}-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
+ // Resolve customer ID or insert a new one
+ let finalCustomerId = null;
+ if (values.invoiceType === "sale" && values.customerName) {
+ const existing = customers.find(c => c.name.toLowerCase() === values.customerName?.toLowerCase());
+ if (existing) {
+ finalCustomerId = existing.id;
+ } else {
+ const { data: newCust, error: custErr } = await supabase.from("customers").insert({
+ company_id: profile.company_id,
+ name: values.customerName
+ }).select("id").single();
+ if (custErr) throw custErr;
+ finalCustomerId = newCust.id;
+ }
+ }
+
  // 1. Insert invoice
  const { data: inv, error: invErr } = await supabase.from("invoices").insert({
  company_id: profile.company_id,
- customer_id: values.invoiceType ==="sale" ? values.customerId || null : null,
+ customer_id: finalCustomerId,
  supplier_name: values.invoiceType ==="purchase" ? values.supplierName : null,
  invoice_number: invoiceNumber,
  total: totalValue,
@@ -199,6 +205,7 @@ export default function NewInvoiceBuilder({ onSaveSuccess }: { onSaveSuccess: ()
  company_id: profile.company_id,
  product_id: item.productId || null,
  designation: item.designation,
+ description: item.designation,
  quantity: item.quantity,
  unit_type: item.unitType,
  unit_price: item.unitPrice,
@@ -325,21 +332,15 @@ export default function NewInvoiceBuilder({ onSaveSuccess }: { onSaveSuccess: ()
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  {/* Client / Supplier */}
  {watchType ==="sale" ? (
- <FormField control={form.control} name="customerId" render={({ field }) => (
+ <FormField control={form.control} name="customerName" render={({ field }) => (
  <FormItem>
- <FormLabel className="text-[10px] font-bold text-muted-foreground tracking-widest">Client Account</FormLabel>
- <Select onValueChange={field.onChange} value={field.value}>
+ <FormLabel className="text-[10px] font-bold text-muted-foreground tracking-widest">Client Name / Account</FormLabel>
  <FormControl>
- <SelectTrigger className="glass-card font-bold">
- <SelectValue placeholder="Select client…" />
- </SelectTrigger>
+ <Input list="customers-list" {...field} placeholder="Select or type new client…" className="glass-card font-bold" />
  </FormControl>
- <SelectContent>
- {customers.map(c => (
- <SelectItem key={c.id} value={c.id} className="font-semibold">{c.name}</SelectItem>
- ))}
- </SelectContent>
- </Select>
+ <datalist id="customers-list">
+ {customers.map(c => <option key={c.id} value={c.name} />)}
+ </datalist>
  <FormMessage />
  </FormItem>
  )} />
@@ -496,8 +497,8 @@ export default function NewInvoiceBuilder({ onSaveSuccess }: { onSaveSuccess: ()
  <table className="w-full text-sm">
  <thead className="bg-muted/50 border-b border-border/40">
  <tr>
- <th className="text-[10px] font-bold pl-4 py-3 text-left w-[180px]">Product</th>
- <th className="text-[10px] font-bold py-3 text-left">Description / Designation</th>
+ <th className="text-[10px] font-bold py-3 text-center w-[40px]">#</th>
+ <th className="text-[10px] font-bold py-3 text-left w-[240px]">Description / Designation</th>
  <th className="text-[10px] font-bold py-3 text-left w-[90px]">Qty</th>
  <th className="text-[10px] font-bold py-3 text-left w-[100px]">Unit</th>
  <th className="text-[10px] font-bold py-3 text-left w-[120px]">Unit Price</th>
@@ -517,21 +518,9 @@ export default function NewInvoiceBuilder({ onSaveSuccess }: { onSaveSuccess: ()
 
  return (
  <tr key={field.id} className="group border-b border-border/10 hover:bg-muted/20 transition-colors">
- {/* Product */}
- <td className="pl-4 py-2">
- <FormField control={form.control} name={`items.${index}.productId`} render={({ field: f }) => (
- <Select onValueChange={(val) => { f.onChange(val); handleProductSelect(index, val); }} value={f.value}>
- <SelectTrigger className="border-0 bg-transparent shadow-none h-9 font-semibold focus:ring-0 text-xs">
- <SelectValue placeholder="Select…" />
- </SelectTrigger>
- <SelectContent>
- <SelectItem value="_none" className="text-muted-foreground text-xs">None (manual)</SelectItem>
- {products.map(p => (
- <SelectItem key={p.id} value={p.id} className="font-semibold text-xs">{p.name}</SelectItem>
- ))}
- </SelectContent>
- </Select>
- )} />
+ {/* Auto-Increment Index */}
+ <td className="py-2 text-center text-xs font-bold text-muted-foreground">
+ {index + 1}
  </td>
 
  {/* Designation */}
@@ -539,7 +528,24 @@ export default function NewInvoiceBuilder({ onSaveSuccess }: { onSaveSuccess: ()
  <FormField control={form.control} name={`items.${index}.designation`} render={({ field: f }) => (
  <FormItem>
  <FormControl>
- <Input {...f} placeholder="Item description…" className="h-9 border-0 bg-transparent shadow-none focus-visible:ring-0 text-xs font-medium" />
+ <Input 
+ list="products-list"
+ {...f} 
+ onChange={(e) => {
+ f.onChange(e);
+ const val = e.target.value;
+ const p = products.find(prod => prod.name === val);
+ if (p) {
+ form.setValue(`items.${index}.productId`, p.id);
+ form.setValue(`items.${index}.unitPrice`, watchType === "purchase" ? (p.buy_price || 0) : (p.unit_price || 0));
+ form.setValue(`items.${index}.unitType`, p.unit_type || "unit");
+ } else {
+ form.setValue(`items.${index}.productId`, "");
+ }
+ }}
+ placeholder="Search or free text…" 
+ className="h-9 border-0 bg-transparent shadow-none focus-visible:ring-0 text-xs font-medium" 
+ />
  </FormControl>
  <FormMessage className="text-[9px]" />
  </FormItem>
@@ -628,10 +634,11 @@ export default function NewInvoiceBuilder({ onSaveSuccess }: { onSaveSuccess: ()
  </table>
  </CardContent>
  </Card>
+ <datalist id="products-list">
+ {products.map(p => <option key={p.id} value={p.name} />)}
+ </datalist>
  </form>
  </Form>
  </div>
  );
 }
-
-
