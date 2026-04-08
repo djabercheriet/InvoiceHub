@@ -1,48 +1,53 @@
-# v0 sandbox internal files
-__v0_runtime_loader.js
-__v0_devtools.tsx
-__v0_jsx-dev-runtime.ts
+# next.js
+/.next/
+/out/
+
+# node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env
+.env*.local
+.env
+.env.continue
+
+# open-next
+.open-next
+
+# sandbox and dev tools
 .snowflake/
 .v0-trash/
 .vercel/
 next.user-config.*
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
 
-# Environment variables
-.env*.local
-.env.continue
-.env
+# agents and assistants
 .agent/
 .agents/
 _agent/
 _agents/
 .gemini/
 
-# Common ignores
-node_modules
-.next/
+# misc
 .DS_Store
-.agent/
-
-# Unsecure files
+*.pem
 *.log
 *.backup
 *.bak
 *.tmp
 *.temp
-*.zip
-*.rar
-*.7z
-*.tar
-*.gz
-# Database files
-*.sql
+build_error.log
+tsconfig.tsbuildinfo
+
+# database and setup
+# We keep specific setup files but ignore generic database files
 *.sqlite
 *.db
 
-# Build artifacts and temp
-out/
-build/
-dist/
-.cache/
-.turbo/
-.vercel
+# Allow specific SQL setup scripts if they exist in the root
+# !supabase_superadmin_setup.sql

@@ -227,7 +227,7 @@ export default function CustomersPage() {
                 <FormItem><FormLabel className="text-xs font-bold text-muted-foreground">Physical Coordinates</FormLabel><FormControl><Input {...field} className="glass-card" /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="tax_number" render={({ field }) => (
-                <FormItem><FormLabel className="text-xs font-bold text-muted-foreground">Tax / VAT Registry</FormLabel><FormControl><Input {...field} className="glass-card font-mono" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel className="text-xs font-bold text-muted-foreground">Tax / VAT Registry</FormLabel><FormControl><Input {...field} className="glass-card" /></FormControl><FormMessage /></FormItem>
               )} />
             </div>
           </Form>

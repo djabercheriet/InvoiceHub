@@ -289,7 +289,8 @@ export default function AdminDashboard() {
                   <Cell fill="#a855f7" /> {/* Enterprise */}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', fontSize: '10px' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', fontSize: '10px', color: 'hsl(var(--foreground))' }}
+                  itemStyle={{ color: 'hsl(var(--foreground))' }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -312,7 +313,7 @@ export default function AdminDashboard() {
                 margin={{ left: 20 }}
               >
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
-                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
+                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--foreground))' }} />
                 <YAxis 
                   dataKey="name" 
                   type="category" 
@@ -322,8 +323,9 @@ export default function AdminDashboard() {
                   width={80}
                 />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', fontSize: '10px' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', fontSize: '10px', color: 'hsl(var(--foreground))' }}
                   cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }}
+                  labelStyle={{ color: 'hsl(var(--foreground))' }}
                 />
                 <Bar 
                   dataKey="revenue" 
