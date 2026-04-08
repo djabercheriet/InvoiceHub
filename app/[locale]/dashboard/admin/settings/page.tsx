@@ -101,7 +101,7 @@ export default function AdminSettingsPage() {
             <CardContent className="pt-5 space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="site_name" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Platform Name</Label>
-                <Input id="site_name" name="site_name" defaultValue={settings?.site_name} placeholder="InvoiceHub" />
+                <Input id="site_name" name="site_name" defaultValue={settings?.site_name} placeholder="Bntec" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="support_email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Support Email</Label>
@@ -131,7 +131,7 @@ export default function AdminSettingsPage() {
             <CardContent className="pt-5 space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="meta_title" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Meta Title</Label>
-                <Input id="meta_title" name="meta_title" defaultValue={settings?.meta_title} placeholder="InvoiceHub — Invoice Management" />
+                <Input id="meta_title" name="meta_title" defaultValue={settings?.meta_title} placeholder="Bntec — Invoice Management" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="meta_description" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Meta Description</Label>

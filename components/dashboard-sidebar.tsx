@@ -64,8 +64,8 @@ export function DashboardSidebar({ isSuperAdmin, signOutAction }: SidebarProps) 
  </div>
  {!isCollapsed && (
  <div className="animate-in fade-in slide-in-from-left-2 duration-300">
- <h1 className="text-lg font-bold tracking-tight leading-none">InvoiceHub</h1>
- <p className="text-[10px] text-muted-foreground font-semibold tracking-wider mt-1">Enterprise</p>
+ <h1 className="text-lg font-bold tracking-tight leading-none">Bntec</h1>
+ <p className="text-[10px] text-muted-foreground font-semibold tracking-wider mt-1">Dynamics</p>
  </div>
  )}
  </div>

@@ -43,6 +43,7 @@ export default function AdminDashboard() {
     activeSubscriptions: 0,
     trialUsers: 0,
   })
+  const [platformCurrency, setPlatformCurrency] = useState<string>('USD')
 
   // Access control is handled server-side in the admin/layout.tsx
 
@@ -50,6 +51,10 @@ export default function AdminDashboard() {
     const fetchData = async () => {
       try {
         const supabase = await createClient()
+
+        // Get platform settings for currency
+        const { data: settings } = await supabase.from('platform_settings').select('global_currency').single()
+        if (settings?.global_currency) setPlatformCurrency(settings.global_currency)
 
         // Get all companies
         const { data: allCompanies } = await supabase
@@ -173,7 +178,9 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold tracking-tight">
-              ${totalStats.totalRevenue.toLocaleString('en-US', {
+              {totalStats.totalRevenue.toLocaleString('en-US', {
+                style: 'currency',
+                currency: platformCurrency,
                 minimumFractionDigits: 0,
               })}
             </div>
@@ -246,7 +253,9 @@ export default function AdminDashboard() {
                     <td className="py-4 px-6 text-right font-medium opacity-80 group-hover:opacity-100">{company.customers}</td>
                     <td className="py-4 px-6 text-right font-medium opacity-80 group-hover:opacity-100">{company.invoices}</td>
                     <td className="py-4 px-6 text-right font-semibold">
-                      ${company.revenue.toLocaleString('en-US', {
+                      {company.revenue.toLocaleString('en-US', {
+                        style: 'currency',
+                        currency: platformCurrency,
                         minimumFractionDigits: 0,
                       })}
                     </td>
