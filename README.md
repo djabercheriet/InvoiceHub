@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⬡ InvoiceHub Protocol
+# ⬡ Bntec Protocol
 
 **Enterprise-Grade SaaS for Financial Operations & Inventory Intelligence**
 
@@ -17,9 +17,9 @@
 
 ---
 
-## What is InvoiceHub?
+## What is Bntec?
 
-InvoiceHub is a production-ready, multi-tenant SaaS platform for businesses that demand precision in financial operations. From invoice creation to PDF dispatch, from real-time inventory to customer analytics — everything lives in one unified protocol.
+Bntec is a production-ready, multi-tenant SaaS platform for businesses that demand precision in financial operations. From invoice creation to PDF dispatch, from real-time inventory to customer analytics — everything lives in one unified protocol.
 
 ---
 
@@ -82,12 +82,10 @@ NEXT_PUBLIC_SUPER_ADMIN_EMAIL="admin@yourdomain.com"
 
 ### 2. Database Initialization
 
-Run in your **Supabase SQL Editor** in this order:
+Run in your **Supabase SQL Editor**:
 
-```
-scripts/phase2_database_schema.sql   ← Core tables & RLS policies
-scripts/v2_safe_migration.sql        ← Financial schema (discount, tax_rate)
-scripts/missing_logic.sql            ← Auth triggers & subscription plans
+```sql
+scripts/enterprise_upgrade.sql   ← Master schema, default settings, and RLS
 ```
 
 ### 3. Local Development
@@ -139,10 +137,10 @@ Chr0xD/
 │   ├── admin/                # Admin console components
 │   └── ui/                   # shadcn/ui primitives (zero italic)
 ├── lib/                      # Supabase client, email, utilities
-├── scripts/                  # SQL migrations (idempotent)
-│   ├── phase2_database_schema.sql
-│   ├── v2_safe_migration.sql
-│   └── missing_logic.sql
+├── scripts/                  # SQL migrations (consolidated)
+│   ├── enterprise_upgrade.sql # Master setup script
+│   ├── archive/              # Legacy migrations
+│   └── ...                   # Seed & utility scripts
 ├── hooks/                    # Custom React hooks
 └── public/                   # Icons & static assets
 ```

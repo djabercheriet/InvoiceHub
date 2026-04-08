@@ -1,7 +1,7 @@
 -- ########################################################
 -- # MASTER ENTERPRISE UPGRADE SCRIPT
 -- ########################################################
--- This script ensures all columns and tables for the InvoiceHub Enterprise 
+-- This script ensures all columns and tables for the Bntec Enterprise 
 -- SaaS platform are correctly initialized and aligned with the Master PRD.
 
 -- ============================================
@@ -20,12 +20,13 @@ ADD COLUMN IF NOT EXISTS billing_email TEXT;
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.platform_settings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    site_name TEXT DEFAULT 'InvoiceHub',
+    site_name TEXT DEFAULT 'Bntec',
+    platform_version TEXT DEFAULT '2.1.0-ENTERPRISE',
     site_logo_url TEXT,
     site_favicon_url TEXT,
-    meta_title TEXT DEFAULT 'InvoiceHub - Enterprise SaaS',
-    meta_description TEXT DEFAULT 'The ultimate platform for invoice and stock management.',
-    support_email TEXT DEFAULT 'support@invoicehub.com',
+    meta_title TEXT DEFAULT 'Bntec - Enterprise SaaS',
+    meta_description TEXT DEFAULT 'The next-generation protocol for financial intelligence and inventory control.',
+    support_email TEXT DEFAULT 'support@bntec.app',
     social_links JSONB DEFAULT '{"twitter": "", "github": "", "linkedin": ""}'::jsonb,
     is_maintenance_mode BOOLEAN DEFAULT false,
     global_currency TEXT DEFAULT 'USD',
@@ -36,7 +37,7 @@ CREATE TABLE IF NOT EXISTS public.platform_settings (
 
 -- Seed initial platform settings if empty
 INSERT INTO public.platform_settings (id, site_name)
-SELECT gen_random_uuid(), 'InvoiceHub'
+SELECT gen_random_uuid(), 'Bntec'
 WHERE NOT EXISTS (SELECT 1 FROM public.platform_settings);
 
 -- ============================================

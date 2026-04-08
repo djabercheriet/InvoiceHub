@@ -28,13 +28,13 @@ const getEmailHtml = (customerName: string, invoiceNumber: string, amount: numbe
     <div class="wrapper">
         <div class="container">
             <div class="header">
-                <div class="logo">XB</div>
+                <div class="logo">BT</div>
             </div>
             <div class="content">
                 <p class="label">Priority Notification</p>
-                <h1>Invoice Document Released</h1>
+                <h1>Bntec — Invoice Document Released</h1>
                 <p>Dear ${customerName},</p>
-                <p>A new financial manifest has been generated for your account. Please find the details summarized below and the full document attached.</p>
+                <p>A new financial manifest has been generated for your Bntec account. Please find the details summarized below and the full document attached.</p>
                 
                 <div class="invoice-card">
                     <table width="100%" cellspacing="0" cellpadding="0">
@@ -118,7 +118,7 @@ export async function sendInvoiceEmail({
     });
 
     const info = await transporter.sendMail({
-      from: '"Executive Hub Protocol" <system@invoicehub.to>',
+      from: '"Bntec Dynamics" <system@bntec.app>',
       to: to,
       subject: `[PRO-DASHBOARD] Invoice ${invoiceNumber}`,
       html: html,

@@ -28,6 +28,7 @@ import { useAuthUser } from '@/hooks/use-auth-user'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 
 interface Stats {
   totalRevenue: number
@@ -88,7 +89,7 @@ export default function DashboardPage() {
         // 1. Get company and subscription plan
         const { data: profile, error: profileErr } = await supabase
           .from('profiles')
-          .select('company_id, company:companies(id, subscriptions(plan:subscription_plans(name)))')
+          .select('company_id, company:companies(id, currency, preferences, subscriptions(plan:subscription_plans(name)))')
           .eq('id', user.id)
           .single()
 
@@ -234,7 +235,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-full border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
+          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-full border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
             MARKET LIVE
           </div>
@@ -252,7 +253,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold tracking-tight">
+            <div className="text-2xl font-bold tracking-tight text-foreground">
               {stats.totalRevenue.toLocaleString('en-US', { style: 'currency', currency: currencyCode, minimumFractionDigits: 2 })}
             </div>
             <p className="text-xs text-muted-foreground mt-1 font-medium">All time generated</p>
@@ -267,7 +268,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold tracking-tight">{stats.totalInvoices}</div>
+            <div className="text-2xl font-bold tracking-tight text-foreground">{stats.totalInvoices}</div>
             <p className="text-xs text-muted-foreground mt-1 font-medium">Issued across platform</p>
           </CardContent>
         </Card>
@@ -293,7 +294,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold tracking-tight">{stats.customerCount}</div>
+            <div className="text-2xl font-bold tracking-tight text-foreground">{stats.customerCount}</div>
             <p className="text-xs text-muted-foreground mt-1 font-medium">Client relations</p>
           </CardContent>
         </Card>
@@ -305,8 +306,8 @@ export default function DashboardPage() {
         {/* Revenue Trend */}
         <Card className="border-border/50 shadow-sm overflow-hidden bg-card/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-base font-bold">Revenue Dynamics</CardTitle>
-            <CardDescription>Monthly growth and collections trajectory</CardDescription>
+            <CardTitle className="text-base font-bold text-foreground">Revenue Dynamics</CardTitle>
+            <CardDescription className="text-muted-foreground/90 font-medium">Monthly growth and collections trajectory</CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
             <ResponsiveContainer width="100%" height={300}>
@@ -318,8 +319,8 @@ export default function DashboardPage() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 600, fill: 'currentColor' }} dy={10} className="text-muted-foreground" />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 600, fill: 'currentColor' }} className="text-muted-foreground" />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', fontSize: '12px', color: 'hsl(var(--foreground))' }}
                   itemStyle={{ fontWeight: 'bold' }}
@@ -356,28 +357,29 @@ export default function DashboardPage() {
               {recentActivities.length > 0 ? (
                 recentActivities.map((activity) => (
                   <div key={activity.id} className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors group">
-                    <div className={`mt-1 p-2 rounded-lg ${
-                      activity.type === 'invoice' ? 'bg-blue-500/10' : 'bg-indigo-500/10'
-                    }`}>
+                    <div className={cn(
+                      "mt-1 p-2 rounded-lg",
+                      activity.type === 'invoice' ? "bg-blue-500/10" : "bg-indigo-500/10"
+                    )}>
                       {activity.type === 'invoice' ? (
-                        <FileText className="w-4 h-4 text-blue-600" />
+                        <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       ) : (
-                        <Users className="w-4 h-4 text-indigo-600" />
+                        <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold truncate group-hover:text-primary transition-colors">{activity.title}</p>
+                      <p className="text-sm font-bold truncate group-hover:text-primary transition-colors text-foreground">{activity.title}</p>
                       <p className="text-xs text-muted-foreground truncate">{activity.detail}</p>
                     </div>
-                    <div className="text-[10px] font-medium text-muted-foreground whitespace-nowrap bg-muted px-2 py-1 rounded">
+                    <div className="text-[10px] font-bold text-muted-foreground whitespace-nowrap bg-muted/50 dark:bg-muted/20 px-2 py-1 rounded">
                       {activity.date}
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Package className="w-12 h-12 text-muted mb-4 opacity-20" />
-                  <p className="text-sm font-medium text-muted-foreground">No recent activity pulse detected.</p>
+                  <Package className="w-12 h-12 text-muted-foreground mb-4 opacity-40" />
+                  <p className="text-sm font-bold text-muted-foreground/80">No recent activity pulse detected.</p>
                 </div>
               )}
             </div>

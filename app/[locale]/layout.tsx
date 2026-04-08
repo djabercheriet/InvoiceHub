@@ -4,6 +4,12 @@ import { Analytics } from '@vercel/analytics/next'
 import '../globals.css'
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from "@/components/ui/sonner";
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+import { locales } from '@/i18n/config';
+import { ScrollToTop } from '@/components/scroll-to-top'
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -13,9 +19,10 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'Bntec — The All-in-One Operating System for Modern Businesses',
+  description: 'Streamline your operations with Bntec. Professional invoicing, real-time inventory management, and integrated customer CRM designed to scale your business globally.',
+  generator: 'bntec.app',
+  keywords: 'Bntec, SaaS, business management, online invoicing, inventory tracking, CRM software, multi-tenant billing, enterprise growth',
   icons: {
     icon: [
       {
@@ -34,12 +41,6 @@ export const metadata: Metadata = {
     apple: '/apple-icon.png',
   },
 }
-
-import { Toaster } from "@/components/ui/sonner";
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
-import { notFound } from 'next/navigation';
-import { locales } from '@/i18n/config';
 
 export default async function RootLayout({
   children,
@@ -76,6 +77,7 @@ export default async function RootLayout({
           >
             {children}
             <Toaster position="top-right" />
+            <ScrollToTop />
           </ThemeProvider>
         </NextIntlClientProvider>
         <Analytics />

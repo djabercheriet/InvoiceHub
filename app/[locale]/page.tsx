@@ -1,27 +1,15 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import {
-  BarChart3,
-  Package,
-  FileText,
-  Users,
-  ArrowRight,
-  Check,
-  Zap,
-  Shield,
-  Globe,
-  TrendingUp,
-  Star,
-  ChevronRight,
-  Sparkles,
-} from "lucide-react";
+import { Sparkles, BarChart3, Package, FileText, Users, ArrowRight, Check, Zap, Shield, Globe, TrendingUp, Star, ChevronRight } from 'lucide-react'
+import { LandingNavbar } from '@/components/landing-navbar'
+import { LandingFooter } from '@/components/landing-footer'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 export const metadata = {
-  title: "InvoiceHub — Invoice & Inventory Management Platform",
+  title: "Bntec — The All-in-One Operating System for Modern Businesses",
   description:
-    "Streamline your business with InvoiceHub. Create professional invoices, manage inventory, and grow your operations — all in one place.",
+    "Streamline your business with Bntec. Create professional invoices, manage inventory, and grow your operations — all in one place.",
 };
 
 export default async function Home() {
@@ -140,50 +128,16 @@ export default async function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#050508] text-white overflow-x-hidden">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#050508]/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/30">
-              <FileText className="w-[18px] h-[18px] text-white" />
-            </div>
-            <span className="text-lg font-bold tracking-tight">InvoiceHub</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-white/60 font-medium">
-            <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="#about" className="hover:text-white transition-colors">About</a>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/auth/login">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white/70 hover:text-white hover:bg-white/10 font-medium"
-              >
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/auth/sign-up">
-              <Button
-                size="sm"
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-600/20 transition-all hover:shadow-indigo-600/40"
-              >
-                Get Started <ChevronRight className="w-3.5 h-3.5 ml-1" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-indigo-500/30">
+      <LandingNavbar />
 
       {/* Hero */}
       <section className="relative pt-32 pb-24 px-6 text-center overflow-hidden">
         {/* Ambient glow blobs */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-indigo-600/10 blur-[120px]" />
-          <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] rounded-full bg-purple-600/8 blur-[100px]" />
-          <div className="absolute top-1/3 right-1/4 w-[400px] h-[300px] rounded-full bg-blue-600/8 blur-[100px]" />
+          <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] rounded-full bg-purple-600/10 blur-[100px]" />
+          <div className="absolute top-1/3 right-1/4 w-[400px] h-[300px] rounded-full bg-blue-600/10 blur-[100px]" />
         </div>
 
         {/* Grid overlay */}
@@ -191,14 +145,14 @@ export default async function Home() {
           className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+              "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
             backgroundSize: "60px 60px",
           }}
         />
 
         <div className="relative max-w-5xl mx-auto">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-sm font-medium mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-sm font-medium mb-8">
             <Sparkles className="w-3.5 h-3.5" />
             Trusted by 12,000+ businesses worldwide
           </div>
@@ -206,13 +160,13 @@ export default async function Home() {
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
             Invoice & Inventory
             <br />
-            <span className="bg-linear-to-r from-indigo-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-indigo-600 via-purple-600 to-blue-600 dark:from-indigo-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
               Built for Growth
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-white/50 mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
-            Stop juggling spreadsheets. InvoiceHub gives your business a unified
+          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
+            Stop juggling spreadsheets. Bntec gives your business a unified
             platform to manage invoices, inventory, and clients — beautifully.
           </p>
 
@@ -220,7 +174,7 @@ export default async function Home() {
             <Link href="/auth/sign-up">
               <Button
                 size="lg"
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold h-12 px-8 shadow-xl shadow-indigo-600/25 hover:shadow-indigo-600/40 transition-all"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold h-12 px-8 shadow-xl shadow-indigo-600/25 hover:shadow-indigo-600/40 transition-all"
               >
                 Start Free Trial
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -230,7 +184,7 @@ export default async function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 px-8 border-white/15 text-white/80 hover:bg-white/5 hover:text-white font-semibold transition-all"
+                className="h-12 px-8 font-semibold transition-all"
               >
                 Sign In to Dashboard
               </Button>
@@ -241,8 +195,8 @@ export default async function Home() {
           <div className="mt-14 flex flex-wrap justify-center gap-8 md:gap-16">
             {stats.map((s) => (
               <div key={s.label} className="text-center">
-                <div className="text-3xl font-bold tracking-tight text-white">{s.value}</div>
-                <div className="text-sm text-white/40 font-medium mt-0.5">{s.label}</div>
+                <div className="text-3xl font-bold tracking-tight text-foreground">{s.value}</div>
+                <div className="text-sm text-muted-foreground font-medium mt-0.5">{s.label}</div>
               </div>
             ))}
           </div>
@@ -253,16 +207,16 @@ export default async function Home() {
       <section id="features" className="py-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-white/50 text-xs font-semibold uppercase tracking-widest mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-4">
               <Zap className="w-3 h-3" />
               Features
             </div>
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               Everything you need to
               <br />
-              <span className="text-white/40">run your business</span>
+              <span className="text-muted-foreground">run your business</span>
             </h2>
-            <p className="text-white/40 text-lg max-w-xl mx-auto font-medium">
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto font-medium">
               A complete toolkit designed for modern businesses that want to move fast without breaking things.
             </p>
           </div>
@@ -271,13 +225,13 @@ export default async function Home() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="group relative p-6 rounded-2xl border border-white/8 bg-white/3 hover:bg-white/6 hover:border-white/15 transition-all duration-300 cursor-default"
+                className="group relative p-6 rounded-2xl border border-border bg-card hover:border-indigo-500/50 transition-all duration-300 cursor-default shadow-sm"
               >
                 <div className={`w-10 h-10 rounded-xl ${f.bg} border ${f.border} flex items-center justify-center mb-4`}>
                   <f.icon className={`w-5 h-5 ${f.color}`} />
                 </div>
-                <h3 className="font-semibold text-base mb-2 text-white">{f.title}</h3>
-                <p className="text-sm text-white/40 leading-relaxed font-medium">{f.desc}</p>
+                <h3 className="font-semibold text-base mb-2 text-foreground">{f.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed font-medium">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -285,24 +239,24 @@ export default async function Home() {
       </section>
 
       {/* Why us */}
-      <section id="about" className="py-24 px-6 border-t border-white/5">
+      <section id="about" className="py-24 px-6 border-t border-border">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-white/50 text-xs font-semibold uppercase tracking-widest mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-6">
                 <TrendingUp className="w-3 h-3" />
-                Why InvoiceHub
+                Why Bntec
               </div>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 leading-tight">
                 Built for the way
                 <br />
-                <span className="text-indigo-400">modern teams work</span>
+                <span className="text-indigo-600 dark:text-indigo-500 font-extrabold">modern teams work</span>
               </h2>
-              <p className="text-white/40 text-lg leading-relaxed font-medium mb-8">
-                We obsess over performance, simplicity, and reliability. InvoiceHub
+              <p className="text-muted-foreground text-lg leading-relaxed font-medium mb-8">
+                We obsess over performance, simplicity, and reliability. Bntec
                 is designed to get out of your way and let you focus on what matters — growing your business.
               </p>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {[
                   "Set up in under 5 minutes",
                   "Automatic invoice reminders & follow-ups",
@@ -311,34 +265,34 @@ export default async function Home() {
                   "99.9% uptime SLA guarantee",
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                      <Check className="w-3 h-3 text-emerald-400" />
+                    <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                      <Check className="w-3 h-3 text-emerald-600" />
                     </div>
-                    <span className="text-white/70 text-sm font-medium">{item}</span>
+                    <span className="text-muted-foreground text-sm font-semibold">{item}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div className="relative">
-              <div className="relative rounded-2xl border border-white/10 bg-white/3 p-6 overflow-hidden">
+              <div className="relative rounded-2xl border border-border bg-card p-6 overflow-hidden">
                 {/* Glow */}
                 <div className="absolute -top-20 -right-20 w-60 h-60 bg-indigo-600/10 rounded-full blur-[60px]" />
 
                 {/* Mock dashboard card */}
                 <div className="space-y-4 relative">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-white/40 uppercase tracking-wider">Revenue Overview</span>
-                    <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Revenue Overview</span>
+                    <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
                       <TrendingUp className="w-3 h-3" /> +24.5%
                     </span>
                   </div>
                   <div className="text-4xl font-bold tracking-tight">$142,580</div>
-                  <div className="text-sm text-white/30 font-medium">This month</div>
+                  <div className="text-sm text-muted-foreground font-medium">This month</div>
 
                   {/* Fake bar chart */}
                   <div className="flex items-end gap-2 h-20 mt-4">
                     {[40, 65, 45, 80, 55, 90, 70, 95, 60, 85, 75, 100].map((h, i) => (
-                      <div key={i} className="flex-1 rounded-t-sm" style={{ height: `${h}%`, background: `rgba(99,102,241,${0.2 + (h / 100) * 0.5})` }} />
+                      <div key={i} className="flex-1 rounded-t-sm bg-indigo-500/20" style={{ height: `${h}%` }} />
                     ))}
                   </div>
 
@@ -348,9 +302,9 @@ export default async function Home() {
                       { label: "Customers", val: "64" },
                       { label: "Products", val: "312" },
                     ].map((s) => (
-                      <div key={s.label} className="rounded-xl bg-white/5 border border-white/8 p-3 text-center">
+                      <div key={s.label} className="rounded-xl bg-muted/50 border border-border p-3 text-center">
                         <div className="text-lg font-bold">{s.val}</div>
-                        <div className="text-[10px] text-white/30 font-semibold uppercase tracking-wider mt-0.5">{s.label}</div>
+                        <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mt-0.5">{s.label}</div>
                       </div>
                     ))}
                   </div>
@@ -362,17 +316,17 @@ export default async function Home() {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="py-24 px-6 border-t border-white/5">
+      <section id="pricing" className="py-24 px-6 border-t border-border">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-white/50 text-xs font-semibold uppercase tracking-widest mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted text-muted-foreground text-xs font-semibold uppercase tracking-widest mb-4">
               <Star className="w-3 h-3" />
               Pricing
             </div>
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               Simple, transparent pricing
             </h2>
-            <p className="text-white/40 text-lg font-medium">
+            <p className="text-muted-foreground text-lg font-medium">
               No surprise fees. No hidden costs. Cancel anytime.
             </p>
           </div>
@@ -383,8 +337,8 @@ export default async function Home() {
                 key={plan.name}
                 className={`relative rounded-2xl p-6 border transition-all duration-300 ${
                   plan.highlighted
-                    ? "border-indigo-500/40 bg-indigo-600/10 shadow-2xl shadow-indigo-600/10"
-                    : "border-white/8 bg-white/3 hover:border-white/15"
+                    ? "border-indigo-500/40 bg-indigo-500/5 shadow-2xl shadow-indigo-500/10"
+                    : "border-border bg-card"
                 }`}
               >
                 {plan.highlighted && (
@@ -395,20 +349,20 @@ export default async function Home() {
                   </div>
                 )}
                 <div className="mb-5">
-                  <h3 className="text-sm font-semibold text-white/60 uppercase tracking-wider mb-1">{plan.name}</h3>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-1">{plan.name}</h3>
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-bold tracking-tight">
                       {plan.price === "Custom" ? plan.price : `$${plan.price}`}
                     </span>
-                    {plan.period && <span className="text-white/30 text-sm font-medium">{plan.period}</span>}
+                    {plan.period && <span className="text-muted-foreground text-sm font-medium">{plan.period}</span>}
                   </div>
-                  <p className="text-sm text-white/30 font-medium mt-1">{plan.description}</p>
+                  <p className="text-sm text-muted-foreground font-medium mt-1">{plan.description}</p>
                 </div>
 
                 <ul className="space-y-3 mb-7">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm text-white/60 font-medium">
-                      <Check className={`w-4 h-4 shrink-0 ${plan.highlighted ? "text-indigo-400" : "text-white/30"}`} />
+                    <li key={f} className="flex items-center gap-2.5 text-sm text-muted-foreground font-medium">
+                      <Check className={`w-4 h-4 shrink-0 ${plan.highlighted ? "text-indigo-600" : "text-muted-foreground"}`} />
                       {f}
                     </li>
                   ))}
@@ -418,8 +372,8 @@ export default async function Home() {
                   <Button
                     className={`w-full font-semibold ${
                       plan.highlighted
-                        ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20"
-                        : "bg-white/8 hover:bg-white/15 text-white border border-white/10"
+                        ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20"
+                        : "bg-secondary hover:bg-secondary/80 text-secondary-foreground"
                     } transition-all`}
                   >
                     {plan.cta}
@@ -432,53 +386,35 @@ export default async function Home() {
       </section>
 
       {/* CTA Banner */}
-      <section className="py-24 px-6 border-t border-white/5">
+      <section className="py-24 px-6 border-t border-border/50">
         <div className="max-w-4xl mx-auto relative">
-          <div className="absolute inset-0 bg-indigo-600/10 rounded-3xl blur-3xl" />
-          <div className="relative rounded-3xl border border-indigo-500/20 bg-indigo-600/5 p-12 text-center overflow-hidden">
+          <div className="absolute inset-0 bg-indigo-600/5 rounded-3xl blur-3xl opacity-50" />
+          <div className="relative rounded-3xl border border-indigo-500/20 bg-indigo-600/5 p-12 text-center overflow-hidden shadow-2xl">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-px bg-linear-to-r from-transparent via-indigo-500 to-transparent" />
             <div className="w-14 h-14 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center mx-auto mb-6">
-              <Zap className="w-7 h-7 text-indigo-400" />
+              <Zap className="w-7 h-7 text-indigo-500" />
             </div>
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               Ready to get started?
             </h2>
-            <p className="text-lg text-white/40 font-medium mb-8 max-w-xl mx-auto">
-              Join thousands of businesses already using InvoiceHub. Set up your account in minutes.
+            <p className="text-lg text-muted-foreground font-medium mb-8 max-w-xl mx-auto">
+              Join thousands of businesses already using Bntec. Set up your account in minutes.
             </p>
             <Link href="/auth/sign-up">
               <Button
                 size="lg"
-                className="bg-indigo-600 hover:bg-indigo-500 h-13 px-10 text-white font-semibold shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all"
+                className="bg-indigo-600 hover:bg-indigo-700 h-13 px-10 text-white font-semibold shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all"
               >
                 Start for Free
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
-            <p className="text-sm text-white/20 mt-4 font-medium">No credit card required · Free 14-day trial</p>
+            <p className="text-sm text-muted-foreground/30 mt-4 font-medium italic">No credit card required · Free 14-day trial</p>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-white/5 py-10 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <FileText className="w-3.5 h-3.5 text-white" />
-            </div>
-            <span className="font-bold text-white/80">InvoiceHub</span>
-          </div>
-          <p className="text-sm text-white/20 font-medium">
-            &copy; {new Date().getFullYear()} InvoiceHub. All rights reserved.
-          </p>
-          <div className="flex gap-6 text-sm text-white/30 font-medium">
-            <a href="#" className="hover:text-white/60 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white/60 transition-colors">Terms</a>
-            <a href="#" className="hover:text-white/60 transition-colors">Contact</a>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }
