@@ -58,6 +58,10 @@ interface ActivityEntry {
   date: string
 }
 
+const getCurrencySymbol = (currencyCode: string) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyCode }).format(0).replace(/\d.,/g, '').trim();
+}
+
 export default function DashboardPage() {
   const { user, loading } = useAuthUser()
   const [stats, setStats] = useState<Stats>({
@@ -70,6 +74,7 @@ export default function DashboardPage() {
   const [invoiceData, setInvoiceData] = useState<Invoice[]>([])
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([])
   const [subscriptionPlan, setSubscriptionPlan] = useState<string>('Free Plan')
+  const [currencyCode, setCurrencyCode] = useState<string>('USD')
   const [recentActivities, setRecentActivities] = useState<ActivityEntry[]>([])
   const [loadingData, setLoadingData] = useState(true)
 
@@ -100,6 +105,9 @@ export default function DashboardPage() {
         const companyData = profile.company as any
         const planName = companyData?.subscriptions?.[0]?.plan?.name || 'Free'
         setSubscriptionPlan(`${planName} Tier`)
+        
+        const userCurrency = companyData?.preferences?.currency || companyData?.currency || 'USD'
+        setCurrencyCode(userCurrency)
 
         // 3. Parallel fetching
         const [
@@ -152,7 +160,7 @@ export default function DashboardPage() {
             id: `inv-${inv.invoice_number}`,
             type: 'invoice',
             title: `Invoice Generated: ${inv.invoice_number}`,
-            detail: `Total: $${(inv.total || 0).toLocaleString()}`,
+            detail: `Total: ${(inv.total || 0).toLocaleString('en-US', { style: 'currency', currency: userCurrency })}`,
             date: inv.issue_date
           })
         })
@@ -245,7 +253,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold tracking-tight">
-              ${stats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              {stats.totalRevenue.toLocaleString('en-US', { style: 'currency', currency: currencyCode, minimumFractionDigits: 2 })}
             </div>
             <p className="text-xs text-muted-foreground mt-1 font-medium">All time generated</p>
           </CardContent>
@@ -310,17 +318,18 @@ export default function DashboardPage() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px', fontSize: '12px', color: 'hsl(var(--foreground))' }}
                   itemStyle={{ fontWeight: 'bold' }}
+                  labelStyle={{ color: 'hsl(var(--foreground))' }}
                 />
                 <Line
                   type="monotone"
                   dataKey="revenue"
                   stroke="hsl(var(--primary))"
-                  name="Revenue ($)"
+                  name="Revenue"
                   strokeWidth={4}
                   dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 2, stroke: 'hsl(var(--card))' }}
                   activeDot={{ r: 6, strokeWidth: 0 }}

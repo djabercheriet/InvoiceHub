@@ -200,7 +200,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-bold text-muted-foreground tracking-wider">Tax ID / VAT Number</Label>
-              <Input value={taxId} onChange={e => setTaxId(e.target.value)} placeholder="FR-12345678" className="font-mono" />
+              <Input value={taxId} onChange={e => setTaxId(e.target.value)} placeholder="FR-12345678" />
             </div>
           </div>
           <div className="space-y-2">
