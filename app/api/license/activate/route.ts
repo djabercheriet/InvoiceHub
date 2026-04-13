@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       licenseKey: normalizedKey,
       deviceId: deviceId,
       isLifetime: data.is_lifetime,
-      expiryDate: data.expiry_date,
+      expiryDate: data.expiry_date ? new Date(data.expiry_date).toISOString() : null,
       serverTime: new Date().toISOString()
     }
 
