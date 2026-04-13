@@ -9,6 +9,7 @@ import { Activity, ShieldCheck, Loader2, Server, Database, Store, Clock, HardDri
 
 // Define types based on DB schema
 type TelemetryData = {
+  created_at: string
   id: string
   license_id: string
   device_id: string
@@ -22,7 +23,7 @@ type TelemetryData = {
     uptime: number
     dbSize: string
   } | null
-  last_sync_at: string
+  updated_at: string
   licenses: {
     license_key: string
     company_id: string | null
@@ -113,7 +114,7 @@ export default function AdminTelemetryPage() {
                     <div className="text-right">
                       <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Last Sync</div>
                       <Badge variant="outline" className="text-xs font-mono">
-                        {new Date(data.last_sync_at).toLocaleString()}
+                        {new Date(data.updated_at || data.created_at || '').toLocaleString()}
                       </Badge>
                     </div>
                   </div>
@@ -142,7 +143,7 @@ export default function AdminTelemetryPage() {
                   ) : (
                     <p className="text-xs text-muted-foreground italic border border-dashed rounded p-2 text-center">No metrics logged yet.</p>
                   )}
-                  
+
                   {data.business_info && (
                     <div className="mt-4 pt-4 border-t border-border/40">
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5"><Store className="w-3.5 h-3.5" /> Business Info</p>
