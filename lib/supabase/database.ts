@@ -741,3 +741,41 @@ export async function getSubscriptionUsage(subscriptionId: string) {
     return { data: null, error }
   }
 }
+// ============================================
+// LICENSING
+// ============================================
+
+export async function getLicenseByKey(licenseKey: string) {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('licenses')
+      .select('*, company:company_id(name)')
+      .eq('license_key', licenseKey)
+      .single()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error) {
+    console.error('Error fetching license:', error)
+    return { data: null, error }
+  }
+}
+
+export async function checkActivation(licenseId: string, deviceId: string) {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('activations')
+      .select('*')
+      .eq('license_id', licenseId)
+      .eq('device_id', deviceId)
+      .maybeSingle()
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error) {
+    console.error('Error checking activation:', error)
+    return { data: null, error }
+  }
+}
