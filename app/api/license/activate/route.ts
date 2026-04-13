@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { errorResponse, successResponse } from '@/lib/api/utils'
+import { signLicensePayload } from '@/lib/license/security'
 
 /**
  * POST /api/license/activate
@@ -26,6 +27,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase.rpc('activate_pos_license', {
       p_license_key: normalizedKey,
       p_device_id: deviceId,
+      p_device_name: body.deviceName || null
     })
 
     if (error) {
@@ -40,9 +42,21 @@ export async function POST(request: NextRequest) {
 
     console.log(`[POS Activation] SUCCESS: ${normalizedKey}`)
 
+    const responsePayload = {
+      licenseKey: normalizedKey,
+      deviceId: deviceId,
+      isLifetime: data.is_lifetime,
+      expiryDate: data.expiry_date,
+      serverTime: new Date().toISOString()
+    }
+
+    // Sign the response for offline verification
+    const signature = signLicensePayload(responsePayload)
+
     return successResponse(
       {
-        expiry_date: data.expiry_date,
+        ...responsePayload,
+        signature,
         message: data.message
       },
       'License activated successfully'
