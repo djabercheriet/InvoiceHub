@@ -32,7 +32,11 @@ export async function POST(request: NextRequest) {
 
     // 2. Check status and expiry
     if (license.status !== 'active') {
-      return errorResponse(`License is ${license.status}`, 400)
+      return NextResponse.json({
+        success: false,
+        error: `License is ${license.status}`,
+        metadata: { status: license.status, server_time: new Date().toISOString() }
+      }, { status: 403 })
     }
 
     if (license.expiry_date && new Date(license.expiry_date) < new Date()) {
@@ -54,7 +58,9 @@ export async function POST(request: NextRequest) {
     return successResponse(
       {
         active: true,
+        status: license.status,
         expiry_date: license.expiry_date,
+        server_time: new Date().toISOString(),
       },
       'License is valid'
     )
