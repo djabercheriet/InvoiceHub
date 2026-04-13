@@ -157,7 +157,7 @@ export async function adminFetchTelemetry() {
         *,
         licenses(license_key, company_id)
       `)
-      .order('last_sync_at', { ascending: false })
+      .order('updated_at', { ascending: false })
 
     if (error) throw error
     return { data, error: null }
