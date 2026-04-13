@@ -17,7 +17,8 @@ import {
     Settings2,
     LayoutDashboard,
     ChevronLeft,
-    Key
+    Key,
+    MonitorSmartphone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -39,6 +40,7 @@ export function AdminSidebar({ signOutAction }: AdminSidebarProps) {
         { href: "/dashboard/admin/customers", icon: ShieldCheck, label: "Stakeholders" },
         { href: "/dashboard/admin/inventory", icon: Package, label: "Global Catalog" },
         { href: "/dashboard/admin/licenses", icon: Key, label: "POS Licensing" },
+        { href: "/dashboard/admin/telemetry", icon: MonitorSmartphone, label: "POS Telemetry" },
         { href: "/dashboard/admin/plans", icon: CreditCard, label: "Tiers & Growth" },
         { href: "/dashboard/admin/settings", icon: Globe, label: "Global Config" },
     ];

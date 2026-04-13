@@ -105,6 +105,27 @@ export default function AdminLicensesPage() {
     }
   }
 
+  const handleDeleteLicense = async (licenseId: string) => {
+    if (!confirm('Are you absolutely sure you want to delete this license and all its activations? This action cannot be undone.')) return
+    setActionLoading(`delete-${licenseId}`)
+    try {
+      const res = await fetch(`/api/admin/licenses?id=${licenseId}`, {
+        method: 'DELETE',
+      })
+      const json = await res.json()
+      if (json.success) {
+        toast.success('License deleted')
+        fetchLicenses()
+      } else {
+        toast.error(json.error)
+      }
+    } catch (e: any) {
+      toast.error(e.message)
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
   const handleCreateLicense = async () => {
     if (!newKeyInput) return toast.error('Key cannot be empty')
     setActionLoading('create')
@@ -263,16 +284,27 @@ export default function AdminLicensesPage() {
                     <CalendarClock className="w-3.5 h-3.5" />
                     {license.expiry_date ? `Expires: ${new Date(license.expiry_date).toLocaleDateString()}` : 'Lifetime License'}
                   </span>
-                  <Button
-                    variant={license.status === 'active' ? 'outline' : 'default'}
-                    size="sm"
-                    className="h-8 text-xs font-semibold"
-                    onClick={() => handleUpdateStatus(license.id, license.status)}
-                    disabled={actionLoading === `status-${license.id}`}
-                  >
-                    {actionLoading === `status-${license.id}` ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <PowerOff className="w-3.5 h-3.5 mr-1.5" />}
-                    {license.status === 'active' ? 'Suspend' : 'Activate'}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={license.status === 'active' ? 'outline' : 'default'}
+                      size="sm"
+                      className="h-8 text-xs font-semibold"
+                      onClick={() => handleUpdateStatus(license.id, license.status)}
+                      disabled={actionLoading === `status-${license.id}`}
+                    >
+                      {actionLoading === `status-${license.id}` ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <PowerOff className="w-3.5 h-3.5 mr-1.5" />}
+                      {license.status === 'active' ? 'Suspend' : 'Activate'}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="h-8 px-2 text-xs font-semibold bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border-none"
+                      onClick={() => handleDeleteLicense(license.id)}
+                      disabled={actionLoading === `delete-${license.id}`}
+                    >
+                      {actionLoading === `delete-${license.id}` ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    </Button>
+                  </div>
                 </CardFooter>
               </Card>
             ))}

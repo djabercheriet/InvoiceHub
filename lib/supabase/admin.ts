@@ -130,3 +130,39 @@ export async function adminCreateLicense(payload: any) {
     return { data: null, error: error.message }
   }
 }
+
+export async function adminDeleteLicense(licenseId: string) {
+  try {
+    const supabase = createAdminClient()
+    const { error } = await supabase
+      .from('licenses')
+      .delete()
+      .eq('id', licenseId)
+      
+    if (error) throw error
+
+    return { success: true, error: null }
+  } catch (error: any) {
+    console.error('Error in adminDeleteLicense:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+export async function adminFetchTelemetry() {
+  try {
+    const supabase = createAdminClient()
+    const { data, error } = await supabase
+      .from('pos_telemetry')
+      .select(`
+        *,
+        licenses(license_key, company_id)
+      `)
+      .order('last_sync_at', { ascending: false })
+
+    if (error) throw error
+    return { data, error: null }
+  } catch (error: any) {
+    console.error('Error fetching telemetry:', error)
+    return { data: null, error: error.message }
+  }
+}
