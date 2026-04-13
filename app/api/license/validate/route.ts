@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { errorResponse, successResponse } from '@/lib/api/utils'
+import { signLicensePayload } from '@/lib/license/security'
 
 /**
  * POST /api/license/validate
@@ -59,12 +60,23 @@ export async function POST(request: NextRequest) {
       return errorResponse('Device not registered for this license', 403)
     }
 
+    const responsePayload = {
+      licenseKey: normalizedKey,
+      deviceId: deviceId,
+      isLifetime: license.is_lifetime,
+      expiryDate: license.expiry_date,
+      serverTime: new Date().toISOString()
+    }
+
+    // Sign the response
+    const signature = signLicensePayload(responsePayload)
+
     return successResponse(
       {
-        active: true,
+        valid: true,
+        ...responsePayload,
+        signature,
         status: license.status,
-        expiry_date: license.expiry_date,
-        server_time: new Date().toISOString(),
       },
       'License is valid'
     )
