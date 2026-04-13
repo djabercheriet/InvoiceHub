@@ -16,23 +16,29 @@ export async function POST(request: NextRequest) {
       return errorResponse('licenseKey and deviceId are required', 400)
     }
 
+    const normalizedKey = licenseKey.trim().toUpperCase()
+    console.log(`[POS Activation] Attempting to activate key: "${normalizedKey}" for Device: "${deviceId}"`)
+
     // Use admin client to bypass RLS for activation logic
     const supabase = createAdminClient()
 
     // Call the atomic activation RPC
     const { data, error } = await supabase.rpc('activate_pos_license', {
-      p_license_key: licenseKey,
+      p_license_key: normalizedKey,
       p_device_id: deviceId,
     })
 
     if (error) {
-      console.error('RPC Error activating license:', error)
+      console.error('[POS Activation] RPC Error:', error)
       return errorResponse('Database error during activation', 500)
     }
 
     if (!data.success) {
+      console.warn(`[POS Activation] Failed: ${data.error}`)
       return errorResponse(data.error || 'Activation failed', 400)
     }
+
+    console.log(`[POS Activation] SUCCESS: ${normalizedKey}`)
 
     return successResponse(
       {

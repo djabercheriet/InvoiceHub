@@ -16,6 +16,9 @@ export async function POST(request: NextRequest) {
       return errorResponse('licenseKey and deviceId are required', 400)
     }
 
+    const normalizedKey = licenseKey.trim().toUpperCase()
+    console.log(`[POS Validation] Checking key: "${normalizedKey}" for Device: "${deviceId}"`)
+
     // Use admin client to check license and activations
     const supabase = createAdminClient()
 
@@ -23,10 +26,11 @@ export async function POST(request: NextRequest) {
     const { data: license, error: licenseError } = await supabase
       .from('licenses')
       .select('*')
-      .eq('license_key', licenseKey)
-      .single()
+      .eq('license_key', normalizedKey)
+      .maybeSingle()
 
     if (licenseError || !license) {
+      console.warn(`[POS Validation] Invalid key attempt: "${normalizedKey}"`)
       return errorResponse('Invalid license key', 404)
     }
 
