@@ -1,244 +1,328 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Plus, Building2, Trash2, Edit2, ShieldAlert } from "lucide-react";
-import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { DataTable } from "@/components/ui/data-table";
-import { FormDialog } from "@/components/ui/form-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import {
+  Building2,
+  Plus,
+  Search,
+  MoreVertical,
+  Activity,
+  Globe,
+  Database,
+  ArrowUpRight,
+  TrendingUp,
+  ShieldCheck,
+  Edit2,
+  Trash2,
+  ExternalLink,
+  Zap,
+  Filter
+} from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from '@/components/ui/dropdown-menu'
+import { FormDialog } from '@/components/ui/form-dialog'
+import { Label } from '@/components/ui/label'
+
+interface Company {
+  id: string
+  name: string
+  domain: string | null
+  tax_id: string | null
+  website: string | null
+  billing_email: string | null
+  is_active: boolean
+  created_at: string
+}
 
 export default function AdminCompaniesPage() {
-  const [companies, setCompanies] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<any>(null);
-  const supabase = createClient();
+  const [companies, setCompanies] = useState<Company[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
+  
+  const supabase = createClient()
 
-  useEffect(() => { fetchCompanies(); }, []);
+  useEffect(() => {
+    fetchCompanies()
+  }, [])
 
   const fetchCompanies = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const { data, error } = await supabase
-        .from("companies")
-        .select("*, profiles(count)")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      setCompanies(data || []);
+        .from('companies')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (error) throw error
+      setCompanies(data || [])
     } catch (err: any) {
-      toast.error("Failed to load companies: " + err.message);
+      toast.error('Failed to synchronize clusters: ' + err.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleCreateOrUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
     const data = {
-      name: formData.get("name"),
-      domain: formData.get("domain"),
-      tax_id: formData.get("tax_id"),
-      website: formData.get("website"),
-      billing_email: formData.get("billing_email"),
-    };
+      name: formData.get('name'),
+      domain: formData.get('domain'),
+      tax_id: formData.get('tax_id'),
+      website: formData.get('website'),
+      billing_email: formData.get('billing_email'),
+    }
+
     try {
       if (selectedCompany) {
-        const { error } = await supabase.from("companies").update(data).eq("id", selectedCompany.id);
-        if (error) throw error;
-        toast.success("Company updated.");
+        const { error } = await supabase.from('companies').update(data).eq('id', selectedCompany.id)
+        if (error) throw error
+        toast.success('Cluster configuration updated.')
       } else {
-        const { error } = await supabase.from("companies").insert(data);
-        if (error) throw error;
-        toast.success("Company created.");
+        const { error } = await supabase.from('companies').insert(data)
+        if (error) throw error
+        toast.success('New cluster initialized.')
       }
-      setIsDialogOpen(false);
-      fetchCompanies();
+      setIsDialogOpen(false)
+      fetchCompanies()
     } catch (err: any) {
-      toast.error("Operation failed: " + err.message);
+      toast.error('Protocol failure: ' + err.message)
     }
-  };
+  }
 
-  const handleDelete = async (company: any) => {
-    if (!confirm(`Delete "${company.name}"? This will affect all associated users.`)) return;
+  const handleDelete = async (company: Company) => {
+    if (!confirm(`AUTHORIZED ACTION: Decommission cluster "${company.name}"? This will terminate all node processes.`)) return
+    
     try {
-      const { error } = await supabase.from("companies").delete().eq("id", company.id);
-      if (error) throw error;
-      toast.success("Company removed.");
-      fetchCompanies();
+      const { error } = await supabase.from('companies').delete().eq('id', company.id)
+      if (error) throw error
+      toast.success('Cluster purged from registry.')
+      fetchCompanies()
     } catch (err: any) {
-      toast.error("Delete failed.");
+      toast.error('Decommissioning failed.')
     }
-  };
+  }
 
-  const columns = [
-    {
-      header: "Company",
-      accessorKey: "name",
-      cell: (row: any) => (
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 font-bold text-indigo-600 uppercase text-sm shrink-0">
-            {row.name?.substring(0, 1)}
-          </div>
-          <span className="font-semibold text-sm">{row.name}</span>
-        </div>
-      ),
-    },
-    {
-      header: "Domain",
-      accessorKey: "domain",
-      cell: (row: any) => (
-        <Badge variant="outline" className="font-medium text-xs bg-muted/30 border-border/40">
-          {row.domain || "—"}
-        </Badge>
-      ),
-    },
-    {
-      header: "Tax ID",
-      accessorKey: "tax_id",
-      cell: (row: any) => (
-        <span className="text-xs font-mono text-muted-foreground">{row.tax_id || "—"}</span>
-      ),
-    },
-    {
-      header: "Status",
-      accessorKey: "is_active",
-      cell: () => (
-        <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-medium text-xs">
-          Active
-        </Badge>
-      ),
-    },
-  ];
+  const filteredCompanies = companies.filter(c => 
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.domain?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60 pb-7">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2.5">
-            <Building2 className="w-6 h-6 text-indigo-500" />
-            Organizations
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Manage all registered workspace organizations on the platform.
+    <div className="space-y-10">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
+              <Building2 className="w-5 h-5 text-indigo-400" />
+            </div>
+            <h1 className="text-4xl font-black tracking-tighter text-white uppercase italic">
+              Workspace <span className="text-indigo-500">Clusters</span>
+            </h1>
+          </div>
+          <p className="text-muted-foreground font-medium flex items-center gap-2">
+            <Globe className="w-4 h-4 text-indigo-500" />
+            Managing global tenant architecture and node identities.
           </p>
         </div>
-        <Button
+        
+        <Button 
           onClick={() => { setSelectedCompany(null); setIsDialogOpen(true); }}
-          size="sm"
-          className="gap-2 font-semibold bg-indigo-600 hover:bg-indigo-700 shadow-sm"
+          className="bg-white text-black hover:bg-white/90 font-black uppercase tracking-widest text-xs h-14 px-8 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.1)] active:scale-[0.98] transition-all"
         >
-          <Plus className="w-4 h-4" /> New Organization
+          <Plus className="w-4 h-4 mr-2" /> Initialize New Cluster
         </Button>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border-border/50 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs uppercase font-semibold tracking-wider text-muted-foreground">
-              Total Organizations
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold tracking-tight">{companies.length}</div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50 shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs uppercase font-semibold tracking-wider text-indigo-500">
-              Enterprise Tier
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold tracking-tight text-indigo-600">3</div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[
+          { label: 'Network Verticals', value: companies.length, icon: Database, color: 'text-indigo-400', glow: 'shadow-[0_0_20px_rgba(99,102,241,0.1)]' },
+          { label: 'Active Domains', value: companies.filter(c => c.domain).length, icon: Globe, color: 'text-emerald-400', glow: 'shadow-[0_0_20px_rgba(16,185,129,0.1)]' },
+          { label: 'System Saturation', value: 'High', icon: Activity, color: 'text-purple-400', glow: 'shadow-[0_0_20px_rgba(168,85,247,0.1)]' },
+        ].map((kpi, i) => (
+          <Card key={i} className={cn("glass-dashboard group overflow-hidden border-white/5", kpi.glow)}>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">{kpi.label}</CardDescription>
+                <kpi.icon className={cn("w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity", kpi.color)} />
+              </div>
+              <CardTitle className="text-4xl font-black tracking-tighter text-white">{kpi.value}</CardTitle>
+            </CardHeader>
+          </Card>
+        ))}
       </div>
 
-      {/* Table */}
-      <DataTable
-        data={companies}
-        columns={columns}
-        loading={loading}
-        onDelete={handleDelete}
-        onEdit={(row) => { setSelectedCompany(row); setIsDialogOpen(true); }}
-        searchPlaceholder="Search organizations..."
-        actions={(row) => (
-          <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost" size="icon"
-              className="h-8 w-8 hover:bg-indigo-500/10 hover:text-indigo-600"
-              onClick={() => { setSelectedCompany(row); setIsDialogOpen(true); }}
-            >
-              <Edit2 className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost" size="icon"
-              className="h-8 w-8 text-destructive hover:bg-destructive/10"
-              onClick={() => handleDelete(row)}
-            >
-              <Trash2 className="w-4 h-4" />
+      {/* Main Registry */}
+      <Card className="glass-dashboard border-white/5 overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 bg-white/1 p-8">
+          <div className="flex items-center gap-6 flex-1">
+            <div className="relative w-full max-w-md group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-indigo-400 transition-colors" />
+              <Input 
+                placeholder="Scan cluster registry..." 
+                className="h-12 pl-12 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl transition-all text-sm font-medium" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button variant="ghost" size="icon" className="h-12 w-12 rounded-2xl border border-white/5 text-muted-foreground hover:text-white">
+               <Filter className="w-4 h-4" />
             </Button>
           </div>
-        )}
-      />
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[#0c0c0e] border-b border-white/5">
+                <tr>
+                  <th className="text-left py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/40 text-[9px]">Cluster Identity</th>
+                  <th className="text-left py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/40 text-[9px]">Network Domain</th>
+                  <th className="text-left py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/40 text-[9px]">Fiscal Signature</th>
+                  <th className="text-right py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/40 text-[9px]">Status</th>
+                  <th className="text-right py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/40 text-[9px]">Control</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/3">
+                {loading ? (
+                  [1,2,3].map(i => (
+                    <tr key={i} className="animate-pulse">
+                      <td colSpan={5} className="py-8 px-8"><div className="h-8 bg-white/5 rounded-xl w-full" /></td>
+                    </tr>
+                  ))
+                ) : filteredCompanies.map((company) => (
+                  <tr key={company.id} className="hover:bg-white/2 transition-colors group">
+                    <td className="py-6 px-8">
+                       <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-black text-xs uppercase tracking-tighter group-hover:scale-110 transition-transform">
+                             {company.name.substring(0,2)}
+                          </div>
+                          <div>
+                            <div className="font-bold text-white tracking-tight flex items-center gap-2">
+                              {company.name}
+                              {company.website && <ExternalLink className="w-3 h-3 text-muted-foreground hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all cursor-pointer" />}
+                            </div>
+                            <div className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest mt-0.5">ID: {company.id.substring(0,12)}</div>
+                          </div>
+                       </div>
+                    </td>
+                    <td className="py-6 px-8">
+                       <div className="flex items-center gap-2">
+                          <Globe className="w-3.5 h-3.5 text-indigo-500/50" />
+                          <span className="text-zinc-400 font-bold tracking-tight">{company.domain || 'Internal Node'}</span>
+                       </div>
+                    </td>
+                    <td className="py-6 px-8">
+                       <div className="flex flex-col">
+                          <span className="text-zinc-400 font-mono text-[11px] uppercase tracking-wider">{company.tax_id || 'NOT_REGISTERED'}</span>
+                          <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest mt-1">Regulatory ID</span>
+                       </div>
+                    </td>
+                    <td className="py-6 px-8 text-right">
+                       <div className="flex items-center justify-end gap-2 pr-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
+                          <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Global Active</span>
+                       </div>
+                    </td>
+                    <td className="py-6 px-8 text-right">
+                       <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                             <Button variant="ghost" size="icon" className="h-10 w-10 border border-transparent hover:border-white/10 rounded-xl transition-all">
+                                <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                             </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56 glass-dashboard border-white/10 p-2">
+                             <DropdownMenuItem 
+                                onClick={() => { setSelectedCompany(company); setIsDialogOpen(true); }}
+                                className="flex items-center gap-3 p-3 rounded-xl focus:bg-indigo-500/10 focus:text-indigo-400 cursor-pointer"
+                             >
+                                <Edit2 className="w-4 h-4" />
+                                <span className="font-bold text-xs uppercase tracking-widest">Edit Payload</span>
+                             </DropdownMenuItem>
+                             <DropdownMenuSeparator className="bg-white/5" />
+                             <DropdownMenuItem 
+                                onClick={() => handleDelete(company)}
+                                className="flex items-center gap-3 p-3 rounded-xl focus:bg-red-500/10 focus:text-red-400 text-red-400 cursor-pointer"
+                             >
+                                <Trash2 className="w-4 h-4" />
+                                <span className="font-bold text-xs uppercase tracking-widest">Terminate Node</span>
+                             </DropdownMenuItem>
+                          </DropdownMenuContent>
+                       </DropdownMenu>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Dialog */}
+      {/* Cluster Configuration Dialog */}
       <FormDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        title={selectedCompany ? "Edit Organization" : "New Organization"}
-        description="Configure organization details and billing information."
+        title={selectedCompany ? "Cluster Configuration" : "Initialize Infrastructure"}
+        description="Modify cluster parameters and deployment identities."
         onSubmit={handleCreateOrUpdate}
       >
-        <div className="space-y-5 pt-3">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Organization Name
-              </Label>
-              <Input id="name" name="name" defaultValue={selectedCompany?.name} placeholder="Acme Corp" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="domain" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Domain
-              </Label>
-              <Input id="domain" name="domain" defaultValue={selectedCompany?.domain} placeholder="acme.io" required />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="tax_id" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Tax ID
-            </Label>
-            <Input id="tax_id" name="tax_id" defaultValue={selectedCompany?.tax_id} placeholder="TAX-009-887" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="billing_email" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Billing Email
-            </Label>
-            <Input id="billing_email" name="billing_email" defaultValue={selectedCompany?.billing_email} placeholder="billing@acme.io" type="email" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="website" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Website
-            </Label>
-            <Input id="website" name="website" defaultValue={selectedCompany?.website} placeholder="https://acme.io" />
-          </div>
-          <div className="flex items-center gap-2.5 p-3.5 bg-amber-500/5 rounded-lg border border-amber-500/20">
-            <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
-            <p className="text-xs text-amber-600 font-medium">
-              Modifying organization details may affect associated user access and billing cycles.
-            </p>
-          </div>
+        <div className="space-y-6 pt-5">
+           <div className="grid grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Cluster Name</Label>
+                <Input id="name" name="name" defaultValue={selectedCompany?.name ?? ''} placeholder="Acme Global" className="h-12 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-bold" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="domain" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Assigned Domain</Label>
+                <Input id="domain" name="domain" defaultValue={selectedCompany?.domain ?? ''} placeholder="acme.com" className="h-12 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-bold" />
+              </div>
+           </div>
+
+           <div className="grid grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <Label htmlFor="tax_id" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Fiscal ID</Label>
+                <Input id="tax_id" name="tax_id" defaultValue={selectedCompany?.tax_id ?? ''} placeholder="TX-123456" className="h-12 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-mono" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="billing_email" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Finance Node</Label>
+                <Input id="billing_email" name="billing_email" type="email" defaultValue={selectedCompany?.billing_email ?? ''} placeholder="finance@acme.com" className="h-12 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-bold" />
+              </div>
+           </div>
+
+           <div className="space-y-2">
+              <Label htmlFor="website" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Control Website</Label>
+              <Input id="website" name="website" defaultValue={selectedCompany?.website ?? ''} placeholder="https://acme.com" className="h-12 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-bold" />
+           </div>
+
+           <div className="p-6 rounded-3xl bg-indigo-500/5 border border-indigo-500/10 flex items-start gap-4">
+              <Zap className="w-5 h-5 text-indigo-400 mt-1 shrink-0 animate-pulse" />
+              <div className="space-y-1">
+                 <p className="text-[11px] font-black text-white uppercase tracking-wider">Protocol Integrity Verified</p>
+                 <p className="text-[11px] text-muted-foreground font-medium leading-relaxed">System state synchronization will propagate across all decentralized nodes instantly upon validation.</p>
+              </div>
+           </div>
+           
+           <div className="flex justify-end gap-3 pt-4">
+              <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 px-6 rounded-2xl font-black uppercase tracking-widest text-[10px] text-muted-foreground">Abort</Button>
+              <Button type="submit" className="h-12 px-8 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-indigo-600/20">Commit Changes</Button>
+           </div>
         </div>
       </FormDialog>
     </div>
-  );
+  )
 }

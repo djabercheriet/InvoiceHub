@@ -117,7 +117,7 @@ export function useSubscription() {
 
         if (usageData) {
           const usageMap = Object.fromEntries(
-            usageData.map((u) => [u.metric_name, u.current_usage])
+            (usageData as { metric_name: string; current_usage: number }[]).map((u) => [u.metric_name, u.current_usage])
           )
           setUsage({
             invoices: usageMap.invoices || 0,

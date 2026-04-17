@@ -139,7 +139,7 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div className="space-y-8 page-fade-in px-4 lg:px-0">
+    <div className="space-y-8 page-fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/60 pb-8">
         <div className="space-y-1">
           <h1 className="text-4xl font-bold tracking-tight text-foreground flex items-center gap-3">
@@ -151,10 +151,11 @@ export default function InvoicesPage() {
           </p>
         </div>
 
-        <Button onClick={() => setViewMode("new")} size="lg" className="gap-2 font-bold tracking-tight shadow-lg shadow-primary/10">
-          <Plus className="w-5 h-5" /> Generate Document
+        <Button onClick={() => setViewMode("new")} size="lg" className="h-10 px-6 rounded-xl font-bold tracking-tight shadow-lg shadow-primary/10 bg-primary hover:bg-primary/90">
+          <Plus className="w-4 h-4 mr-2" /> Generate Document
         </Button>
       </div>
+Line 156: 
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
          <Card className="glass-card">
@@ -171,7 +172,7 @@ export default function InvoicesPage() {
             </CardHeader>
             <CardContent>
                 <div className="text-3xl font-bold tracking-tight text-emerald-600">
-                    ${invoices.filter(i => i.status === 'paid').reduce((acc, i) => acc + (i.total || 0), 0).toLocaleString()}
+                    ${(invoices as any[]).filter(i => i.status === 'paid').reduce((acc: number, i) => acc + (i.total || 0), 0).toLocaleString()}
                 </div>
             </CardContent>
          </Card>
@@ -181,7 +182,7 @@ export default function InvoicesPage() {
             </CardHeader>
             <CardContent>
                 <div className="text-3xl font-bold tracking-tight text-amber-600">
-                    ${invoices.filter(i => i.status !== 'paid').reduce((acc, i) => acc + (i.total || 0), 0).toLocaleString()}
+                    ${(invoices as any[]).filter(i => i.status !== 'paid').reduce((acc: number, i) => acc + (i.total || 0), 0).toLocaleString()}
                 </div>
             </CardContent>
          </Card>

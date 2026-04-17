@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from "next/font/google"
-import { Analytics } from '@vercel/analytics/next'
+import localFont from 'next/font/local'
 import '../globals.css'
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from '@/components/theme-provider'
@@ -11,9 +10,39 @@ import { notFound } from 'next/navigation';
 import { locales } from '@/i18n/config';
 import { ScrollToTop } from '@/components/scroll-to-top'
 
-const inter = Inter({
-  subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+const inter = localFont({
+  src: [
+    {
+      path: "../../public/fonts/inter/Inter-Light.woff2",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/inter/Inter-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/inter/Inter-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/inter/Inter-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/inter/Inter-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/inter/Inter-ExtraBold.woff2",
+      weight: "800",
+      style: "normal",
+    },
+  ],
   variable: "--font-sans",
   display: "swap",
 })
@@ -26,19 +55,10 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
+        url: '/Icon.png',
       },
     ],
-    apple: '/apple-icon.png',
+    apple: '/Icon.png',
   },
 }
 
@@ -68,19 +88,18 @@ export default async function RootLayout({
         )}
         suppressHydrationWarning
       >
-        <NextIntlClientProvider messages={messages} locale={locale}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NextIntlClientProvider messages={messages} locale={locale}>
             {children}
             <Toaster position="top-right" />
             <ScrollToTop />
-          </ThemeProvider>
-        </NextIntlClientProvider>
-        <Analytics />
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

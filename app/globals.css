@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: 'Inter', 'system-ui', 'sans-serif';
+  --font-sans: 'Outfit', 'Inter', 'system-ui', 'sans-serif';
   --font-mono: 'JetBrains Mono', 'monospace';
 
   --color-background: var(--background);
@@ -81,6 +81,10 @@
     transition: background-color 0.2s ease, border-color 0.2s ease;
   }
 
+  input, textarea, select, button, option {
+    font-family: inherit;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-weight: 400;
@@ -91,30 +95,30 @@
 
   /* ── Typography Scale — Inter ── */
   h1 {
-    font-size: 1.875rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    line-height: 1.2;
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 1.1;
     color: var(--foreground);
   }
   h2 {
-    font-size: 1.375rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    letter-spacing: -0.025em;
-    line-height: 1.3;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
     color: var(--foreground);
   }
   h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.4;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.3;
     color: var(--foreground);
   }
   h4 {
-    font-size: 0.9375rem;
+    font-size: 1rem;
     font-weight: 600;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.02em;
     line-height: 1.4;
     color: var(--foreground);
   }
@@ -127,17 +131,27 @@
   }
 
   p {
-    font-size: 0.875rem;
-    font-weight: 400;
+    font-size: 0.9375rem;
+    font-weight: 500;
     line-height: 1.6;
     color: var(--muted-foreground);
+    letter-spacing: -0.01em;
   }
 
   label {
     font-size: 0.8125rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    color: var(--foreground);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  input, textarea, select {
+    @apply bg-background border-border/50 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-sans font-medium;
+  }
+
+  button {
+    @apply font-sans font-bold tracking-tight;
   }
 
   /* No italic anywhere — Simple & Clean standard */
@@ -160,7 +174,39 @@
   }
 
   .glass-card {
-    @apply bg-card/95 border border-border/40 shadow-xl;
+    @apply bg-card/85 backdrop-blur-lg border border-border/40 shadow-xl;
+  }
+
+  .glass-dashboard {
+    @apply bg-background/60 border-foreground/5 backdrop-blur-3xl border shadow-2xl;
+    @apply dark:bg-[#11141b]/40 dark:border-white/5;
+  }
+
+  button, a, [role="button"] {
+    cursor: pointer;
+  }
+
+  .neon-glow-primary {
+    @apply shadow-[0_0_15px_rgba(79,70,229,0.2)];
+    @apply dark:shadow-[0_0_20px_rgba(99,102,241,0.4)];
+  }
+
+  .neon-glow-emerald {
+    @apply shadow-[0_0_15px_rgba(5,150,105,0.15)];
+    @apply dark:shadow-[0_0_20px_rgba(16,185,129,0.4)];
+  }
+
+  .neon-blob {
+    @apply absolute rounded-full opacity-20 blur-[100px] animate-pulse pointer-events-none;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
   }
 
   /* Scrollbar */
@@ -175,3 +221,18 @@
     @apply bg-primary/20 text-primary;
   }
 }
+
+
+
+/* ── Light-Mode Compatibility Layer ── */
+/* next-themes adds `.dark` to <html> for dark mode; html:not(.dark) = light mode.
+   These rules correct admin pages still using hardcoded dark-only Tailwind classes. */
+html:not(.dark) .bg-white\/5  { background-color: color-mix(in srgb, var(--secondary) 50%, transparent) !important; }
+html:not(.dark) .bg-white\/2  { background-color: color-mix(in srgb, var(--secondary) 30%, transparent) !important; }
+html:not(.dark) .bg-white\/1  { background-color: color-mix(in srgb, var(--muted) 20%, transparent) !important; }
+html:not(.dark) .bg-black\/40 { background-color: color-mix(in srgb, var(--secondary) 40%, transparent) !important; }
+html:not(.dark) .bg-black\/20 { background-color: color-mix(in srgb, var(--secondary) 30%, transparent) !important; }
+html:not(.dark) .bg-black\/10 { background-color: color-mix(in srgb, var(--secondary) 20%, transparent) !important; }
+html:not(.dark) .border-white\/5  { border-color: var(--border) !important; }
+html:not(.dark) .border-white\/10 { border-color: var(--border) !important; }
+html:not(.dark) .text-white { color: var(--foreground) !important; }

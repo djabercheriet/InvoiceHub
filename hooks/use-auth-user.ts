@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import type { Session, AuthChangeEvent } from '@supabase/supabase-js'
 
 interface User {
   id: string
@@ -21,22 +22,17 @@ export function useAuthUser() {
   useEffect(() => {
     const supabase = createClient()
 
-    // Get initial user
-    supabase.auth.getUser().then(({ data, error }) => {
-      if (error) {
-        setError(error)
-        setLoading(false)
-        return
-      }
-
-      setUser(data.user as User || null)
+    // Use getSession() for initial state: reads from cookie/localStorage cache,
+    // no network lock required — avoids the "lock not released" Strict Mode warning.
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
+      setUser(session?.user as User || null)
       setLoading(false)
     })
 
-    // Subscribe to auth changes
+    // Subscribe to auth changes (handles token refresh, sign-in, sign-out)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       setUser(session?.user as User || null)
       setLoading(false)
     })

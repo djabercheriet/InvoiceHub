@@ -1,6 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
+import { DashboardHeader } from "@/components/dashboard-header";
+import { CommandPalette } from "@/components/ui/command-palette";
+import { DashboardShell } from "@/components/dashboard-shell";
 
 async function handleSignOut() {
   "use server";
@@ -27,19 +30,15 @@ export default async function DashboardLayout({
   const isSuperAdmin = user.email === process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
 
   return (
-    <div className="flex h-screen bg-background text-foreground overflow-hidden">
-      {/* New Collapsible Sidebar */}
-      <DashboardSidebar 
-        isSuperAdmin={isSuperAdmin} 
-        signOutAction={handleSignOut} 
-      />
-
-      {/* Main Content Area */}
-      <main className="flex-1 h-screen overflow-y-auto page-fade-in relative">
-        <div className="p-4 lg:p-8 animate-in fade-in duration-500">
-          {children}
-        </div>
-      </main>
-    </div>
+    <>
+      <CommandPalette />
+      <DashboardShell
+        isSuperAdmin={isSuperAdmin}
+        userEmail={user.email}
+        signOutAction={handleSignOut}
+      >
+        {children}
+      </DashboardShell>
+    </>
   );
 }

@@ -10,8 +10,24 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  experimental: {
-    authInterrupts: true,
+  async redirects() {
+    return [
+      {
+        source: '/:locale/dashboard/invoices',
+        destination: '/:locale/dashboard/sales/invoices',
+        permanent: true,
+      },
+      {
+        source: '/:locale/dashboard/customers',
+        destination: '/:locale/dashboard/sales/customers',
+        permanent: true,
+      },
+      {
+        source: '/:locale/dashboard/inventory',
+        destination: '/:locale/dashboard/inventory/products',
+        permanent: true,
+      },
+    ]
   },
 }
 

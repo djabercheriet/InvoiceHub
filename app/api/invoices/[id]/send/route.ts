@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { renderToBuffer } from '@react-pdf/renderer';
-import { InvoicePDF } from '@/components/invoices/invoice-pdf';
-import { sendInvoiceEmail } from '@/lib/email';
-import React from 'react';
+import { enqueue } from '@/lib/jobs/queue';
 
 export async function POST(
   req: NextRequest,
@@ -13,10 +10,10 @@ export async function POST(
     const supabase = await createClient();
     const { id } = await params;
 
-    // 1. Fetch full invoice manifest
+    // 1. Fetch metadata to verify existence and get company/user context
     const { data: invoice, error: invErr } = await supabase
       .from('invoices')
-      .select('*, customers(*), companies(*)')
+      .select('id, company_id, created_by')
       .eq('id', id)
       .single();
 
@@ -24,45 +21,21 @@ export async function POST(
         return NextResponse.json({ error: "Manifest index not found." }, { status: 404 });
     }
 
-    const { data: items, error: itmErr } = await supabase
-      .from('invoice_items')
-      .select('*, products(name, sku)')
-      .eq('invoice_id', id);
-
-    if (itmErr) throw itmErr;
-
-    // 2. Generate PDF Buffer
-    // Note: React.createElement is used here because we are in a non-JSX environment during the renderToBuffer call if not careful.
-    const pdfBuffer = await renderToBuffer(
-        React.createElement(InvoicePDF, {
-            invoice,
-            customer: invoice.customers,
-            items: items || [],
-            company: invoice.companies
-        })
-    );
-
-    // 3. Dispatch via protocol
-    const result = await sendInvoiceEmail({
-      to: invoice.customers?.email || 'customer@example.com',
-      invoiceNumber: invoice.invoice_number,
-      amount: invoice.total,
-      customerName: invoice.customers?.name || 'Valued Customer',
-      pdfBuffer: Buffer.from(pdfBuffer)
+    // 2. Queue for background processing
+    await enqueue('INVOICE_PROCESS', {
+      invoiceId: invoice.id,
+      companyId: invoice.company_id,
+      userId: invoice.created_by,
+      shouldSendEmail: true
     });
-
-    if (!result.success) {
-        throw new Error(result.error || "Mail relay failure.");
-    }
 
     return NextResponse.json({ 
         success: true, 
-        message: "Financial dispatch successful.",
-        previewUrl: result.previewUrl 
-    });
+        message: "Dispatch request accepted. Processing in background.",
+    }, { status: 202 });
 
   } catch (error: any) {
-    console.error("[DISPATCH ERROR]", error);
+    console.error("[DISPATCH QUEUE ERROR]", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

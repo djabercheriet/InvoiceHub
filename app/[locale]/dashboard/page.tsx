@@ -21,14 +21,17 @@ import {
   AlertCircle,
   Zap,
   ShieldCheck,
-  FileText
+  FileText,
+  ArrowUpRight
 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { useEffect, useState } from 'react'
 import { useAuthUser } from '@/hooks/use-auth-user'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { AIAdvisor } from '@/components/dashboard/ai-advisor'
 
 interface Stats {
   totalRevenue: number
@@ -53,10 +56,11 @@ interface LowStockProduct {
 
 interface ActivityEntry {
   id: string
-  type: 'invoice' | 'customer' | 'product'
+  entity_type: string
   title: string
   detail: string
-  date: string
+  created_at: string
+  activity_type: string
 }
 
 const getCurrencySymbol = (currencyCode: string) => {
@@ -121,7 +125,7 @@ export default function DashboardPage() {
           supabase.from('invoices').select('total, status, issue_date, invoice_number').eq('company_id', companyId).order('issue_date', { ascending: true }),
           supabase.from('customers').select('id', { count: 'exact', head: true }).eq('company_id', companyId),
           supabase.from('products').select('id', { count: 'exact', head: true }).eq('company_id', companyId).eq('is_active', true),
-          supabase.from('customers').select('id, name, created_at').eq('company_id', companyId).order('created_at', { ascending: false }).limit(3),
+          supabase.from('activities').select('*').eq('company_id', companyId).order('created_at', { ascending: false }).limit(6),
           supabase.from('products').select('id, name, quantity, min_stock_level').eq('company_id', companyId).eq('is_active', true).gt('min_stock_level', 0).order('quantity', { ascending: true }).limit(5)
         ])
 
@@ -155,26 +159,25 @@ export default function DashboardPage() {
         }
 
         // 6. Generate Activity Logs (Real Multi-table feed)
-        const activities: ActivityEntry[] = []
-        invoices?.slice(-3).reverse().forEach(inv => {
-          activities.push({
-            id: `inv-${inv.invoice_number}`,
-            type: 'invoice',
-            title: `Invoice Generated: ${inv.invoice_number}`,
-            detail: `Total: ${(inv.total || 0).toLocaleString('en-US', { style: 'currency', currency: userCurrency })}`,
-            date: inv.issue_date
-          })
-        })
-        recentCustomers?.forEach(cust => {
-          activities.push({
-            id: `cust-${cust.id}`,
-            type: 'customer',
-            title: `New Client Registered`,
-            detail: cust.name,
-            date: new Date(cust.created_at).toLocaleDateString()
-          })
-        })
-        setRecentActivities(activities.sort((a,b) => b.id.localeCompare(a.id)).slice(0, 5))
+        const activitiesList: ActivityEntry[] = (recentCustomers || []).map((act: any) => {
+          let title = act.activity_type.replace('_', ' ').replace('.', ' ');
+          let detail = "";
+          
+          if(act.activity_type === 'invoice.created') detail = `Invoice generated`;
+          if(act.activity_type === 'customer.created') detail = `Customer profile created`;
+          if(act.activity_type === 'payment.recorded') detail = `Payment recorded`;
+
+          return {
+            id: act.id,
+            entity_type: act.entity_type,
+            title: title.toUpperCase(),
+            detail: detail,
+            created_at: new Date(act.created_at).toLocaleDateString(),
+            activity_type: act.activity_type
+          };
+        });
+        
+        setRecentActivities(activitiesList);
 
         // 7. Graph data
         if (invoices) {
@@ -225,78 +228,115 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 p-4 lg:p-0">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-8">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">Workspace Intelligence</h1>
-          <p className="text-muted-foreground mt-2 font-medium">
-            Real-time business performance & resource tracking.
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+      {/* Executive Command Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/60 pb-8">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground flex items-center gap-3">
+            <TrendingUp className="w-8 h-8 text-primary" />
+            Workspace Intelligence
+          </h1>
+          <p className="text-muted-foreground font-medium">
+            Consolidated real-time monitoring of sales trajectory and inventory health.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-full border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
-            MARKET LIVE
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-end gap-1">
+             <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold rounded-xl border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
+              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+              SYSTEMS OPTIMAL
+            </div>
+            <span className="text-[10px] font-bold text-muted-foreground opacity-60">Sync: Just now</span>
           </div>
         </div>
       </div>
 
-      {/* 4 KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-bold tracking-wider text-muted-foreground">Total Revenue</CardTitle>
-            <div className="p-2 bg-emerald-500/10 rounded-full">
-              <DollarSign className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+      {/* AI Advisor Context Widget */}
+      <AIAdvisor />
+
+      {/* Consolidated Domain KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Sales Domain Card */}
+        <Card className="border-border/50 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-500 overflow-hidden group">
+          <div className="h-1.5 w-full bg-primary/20 group-hover:bg-primary transition-colors" />
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-bold tracking-widest text-muted-foreground uppercase">Sales Revenue</CardTitle>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <DollarSign className="h-4 w-4 text-primary" />
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold tracking-tight text-foreground">
-              {stats.totalRevenue.toLocaleString('en-US', { style: 'currency', currency: currencyCode, minimumFractionDigits: 2 })}
+            <div className="text-3xl font-extrabold tracking-tight">
+              {stats.totalRevenue.toLocaleString('en-US', { style: 'currency', currency: currencyCode, minimumFractionDigits: 0 })}
             </div>
-            <p className="text-xs text-muted-foreground mt-1 font-medium">All time generated</p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline" className="text-[9px] font-bold bg-primary/5 border-primary/10 px-1 font-mono">{stats.totalInvoices} INVOICES</Badge>
+              <span className="text-[10px] text-muted-foreground font-medium italic">All-time volume</span>
+            </div>
           </CardContent>
+          <CardFooter className="pt-0 pb-4">
+             <Link href="/dashboard/sales/overview" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
+               Sales Intelligence <ArrowUpRight className="w-3 h-3" />
+             </Link>
+          </CardFooter>
         </Card>
 
-        <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-bold tracking-wider text-muted-foreground">Total Invoices</CardTitle>
-            <div className="p-2 bg-blue-500/10 rounded-full">
-              <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        {/* Inventory Domain Card */}
+        <Card className="border-border/50 shadow-sm hover:shadow-xl hover:border-amber-500/20 transition-all duration-500 overflow-hidden group">
+          <div className="h-1.5 w-full bg-amber-500/20 group-hover:bg-amber-500 transition-colors" />
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-bold tracking-widest text-muted-foreground uppercase">Inventory Health</CardTitle>
+              <div className="p-2 bg-amber-500/10 rounded-lg">
+                <Package className="h-4 w-4 text-amber-600" />
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold tracking-tight text-foreground">{stats.totalInvoices}</div>
-            <p className="text-xs text-muted-foreground mt-1 font-medium">Issued across platform</p>
+            <div className={cn("text-3xl font-extrabold tracking-tight", lowStockProducts.length > 0 ? "text-amber-600" : "text-foreground")}>
+              {stats.productCount} <span className="text-sm font-bold text-muted-foreground">SKUs</span>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant={lowStockProducts.length > 0 ? "destructive" : "outline"} className="text-[9px] font-bold px-1 font-mono">
+                {lowStockProducts.length > 0 ? `${lowStockProducts.length} AT RISK` : 'OPTIMAL'}
+              </Badge>
+              <span className="text-[10px] text-muted-foreground font-medium italic">Active registry</span>
+            </div>
           </CardContent>
+           <CardFooter className="pt-0 pb-4">
+             <Link href="/dashboard/inventory/products" className="text-[10px] font-bold text-amber-600 hover:underline flex items-center gap-1">
+               Restock Desk <ArrowUpRight className="w-3 h-3" />
+             </Link>
+          </CardFooter>
         </Card>
 
-        <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-bold tracking-wider text-muted-foreground">Low Stock Items</CardTitle>
-            <div className="p-2 bg-amber-500/10 rounded-full">
-              <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+        {/* Enterprise Domain Card */}
+        <Card className="border-border/50 shadow-sm hover:shadow-xl hover:border-indigo-500/20 transition-all duration-500 overflow-hidden group">
+          <div className="h-1.5 w-full bg-indigo-500/20 group-hover:bg-indigo-500 transition-colors" />
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-bold tracking-widest text-muted-foreground uppercase">Enterprise Relations</CardTitle>
+              <div className="p-2 bg-indigo-500/10 rounded-lg">
+                <Users className="h-4 w-4 text-indigo-600" />
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold tracking-tight text-amber-600">{lowStockProducts.length}</div>
-            <p className="text-xs text-muted-foreground mt-1 font-medium">Items require restock</p>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-bold tracking-wider text-muted-foreground">Active Customers</CardTitle>
-            <div className="p-2 bg-indigo-500/10 rounded-full">
-              <Users className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+            <div className="text-3xl font-extrabold tracking-tight">
+              {stats.customerCount} <span className="text-sm font-bold text-muted-foreground">Accounts</span>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold tracking-tight text-foreground">{stats.customerCount}</div>
-            <p className="text-xs text-muted-foreground mt-1 font-medium">Client relations</p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline" className="text-[9px] font-bold bg-indigo-500/5 border-indigo-500/10 px-1 font-mono">STABLE</Badge>
+              <span className="text-[10px] text-muted-foreground font-medium italic">CRM Sync active</span>
+            </div>
           </CardContent>
+           <CardFooter className="pt-0 pb-4">
+             <Link href="/dashboard/sales/customers" className="text-[10px] font-bold text-indigo-600 hover:underline flex items-center gap-1">
+               Client Relations <ArrowUpRight className="w-3 h-3" />
+             </Link>
+          </CardFooter>
         </Card>
       </div>
 
@@ -359,20 +399,22 @@ export default function DashboardPage() {
                   <div key={activity.id} className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors group">
                     <div className={cn(
                       "mt-1 p-2 rounded-lg",
-                      activity.type === 'invoice' ? "bg-blue-500/10" : "bg-indigo-500/10"
+                      activity.entity_type === 'invoice' ? "bg-blue-500/10" : "bg-indigo-500/10"
                     )}>
-                      {activity.type === 'invoice' ? (
+                      {activity.entity_type === 'invoice' ? (
                         <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      ) : (
+                      ) : activity.entity_type === 'customer' ? (
                         <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                      ) : (
+                        <Zap className="w-4 h-4 text-amber-500" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold truncate group-hover:text-primary transition-colors text-foreground">{activity.title}</p>
+                      <p className="text-sm font-bold truncate group-hover:text-primary transition-colors text-foreground tracking-widest">{activity.title}</p>
                       <p className="text-xs text-muted-foreground truncate">{activity.detail}</p>
                     </div>
                     <div className="text-[10px] font-bold text-muted-foreground whitespace-nowrap bg-muted/50 dark:bg-muted/20 px-2 py-1 rounded">
-                      {activity.date}
+                      {activity.created_at}
                     </div>
                   </div>
                 ))
