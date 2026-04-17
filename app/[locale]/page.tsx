@@ -1,6 +1,7 @@
 import { Sparkles, BarChart3, Package, FileText, Users, ArrowRight, Check, Zap, Shield, Globe, TrendingUp, Star, ChevronRight } from 'lucide-react'
 import { LandingNavbar } from '@/components/landing-navbar'
 import { LandingFooter } from '@/components/landing-footer'
+import { DashboardPreview } from '@/components/landing/dashboard-preview'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -128,16 +129,16 @@ export default async function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-indigo-500/30">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-primary/30">
       <LandingNavbar />
 
       {/* Hero */}
       <section className="relative pt-32 pb-24 px-6 text-center overflow-hidden">
         {/* Ambient glow blobs */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-indigo-600/10 blur-[120px]" />
-          <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] rounded-full bg-purple-600/10 blur-[100px]" />
-          <div className="absolute top-1/3 right-1/4 w-[400px] h-[300px] rounded-full bg-blue-600/10 blur-[100px]" />
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-primary/5 blur-[120px] dark:bg-primary/10" />
+          <div className="absolute top-1/3 left-1/4 w-[400px] h-[300px] rounded-full bg-primary/5 blur-[100px] dark:bg-purple-600/10" />
+          <div className="absolute top-1/3 right-1/4 w-[400px] h-[300px] rounded-full bg-primary/5 blur-[100px] dark:bg-blue-600/10" />
         </div>
 
         {/* Grid overlay */}
@@ -149,34 +150,33 @@ export default async function Home() {
             backgroundSize: "60px 60px",
           }}
         />
-
-        <div className="relative max-w-5xl mx-auto">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 text-sm font-medium mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-sm font-medium mb-8 animate-in fade-in slide-in-from-top-4 duration-700">
             <Sparkles className="w-3.5 h-3.5" />
-            Trusted by 12,000+ businesses worldwide
+            Empowering 12,000+ businesses globally
           </div>
 
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
-            Invoice & Inventory
+          <h1 className="text-6xl sm:text-7xl md:text-8xl font-black font-sans leading-none tracking-tight mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 uppercase">
+            Executive Control.
             <br />
-            <span className="bg-linear-to-r from-indigo-600 via-purple-600 to-blue-600 dark:from-indigo-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
-              Built for Growth
+            <span className="bg-linear-to-r from-primary via-indigo-500 to-blue-500 bg-clip-text text-transparent">
+              Operational Scale.
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
-            Stop juggling spreadsheets. Bntec gives your business a unified
-            platform to manage invoices, inventory, and clients — beautifully.
+          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed font-semibold animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            Unify your invoices, inventory, and customers in a single crystalline interface. 
+            Bntec is the high-performance operating system your business deserves.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-in fade-in slide-in-from-bottom-4 duration-1200">
             <Link href="/auth/sign-up">
               <Button
                 size="lg"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold h-12 px-8 shadow-xl shadow-indigo-600/25 hover:shadow-indigo-600/40 transition-all"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-13 px-10 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all rounded-xl transform hover:-translate-y-1 cursor-pointer"
               >
-                Start Free Trial
+                Launch Your Workspace
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
@@ -184,19 +184,28 @@ export default async function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 px-8 font-semibold transition-all"
+                className="h-13 px-10 font-bold border-border bg-secondary/30 backdrop-blur-sm transition-all rounded-xl hover:bg-secondary/50 cursor-pointer"
               >
-                Sign In to Dashboard
+                Enter Dashboard
               </Button>
             </Link>
           </div>
 
+          {/* Real Dashboard Preview Component */}
+          <div className="animate-in fade-in zoom-in-95 duration-1000 delay-300">
+            <DashboardPreview />
+          </div>
+
           {/* Social proof strip */}
-          <div className="mt-14 flex flex-wrap justify-center gap-8 md:gap-16">
-            {stats.map((s) => (
+          <div className="mt-20 flex flex-wrap justify-center gap-10 md:gap-20 opacity-50 contrast-125 grayscale hover:grayscale-0 transition-all duration-700">
+            {[
+               { label: "Daily Transactions", value: "2M+" },
+               { label: "Active Nodes", value: "48" },
+               { label: "Uptime SLA", value: "99.9%" }
+            ].map((s) => (
               <div key={s.label} className="text-center">
-                <div className="text-3xl font-bold tracking-tight text-foreground">{s.value}</div>
-                <div className="text-sm text-muted-foreground font-medium mt-0.5">{s.label}</div>
+                <div className="text-4xl font-black tracking-tighter text-foreground">{s.value}</div>
+                <div className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.2em] mt-1">{s.label}</div>
               </div>
             ))}
           </div>
@@ -225,7 +234,7 @@ export default async function Home() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="group relative p-6 rounded-2xl border border-border bg-card hover:border-indigo-500/50 transition-all duration-300 cursor-default shadow-sm"
+                className="group relative p-6 rounded-2xl border border-border bg-card hover:border-primary/50 transition-all duration-300 cursor-default shadow-sm"
               >
                 <div className={`w-10 h-10 rounded-xl ${f.bg} border ${f.border} flex items-center justify-center mb-4`}>
                   <f.icon className={`w-5 h-5 ${f.color}`} />
@@ -250,7 +259,7 @@ export default async function Home() {
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 leading-tight">
                 Built for the way
                 <br />
-                <span className="text-indigo-600 dark:text-indigo-500 font-extrabold">modern teams work</span>
+                <span className="text-primary font-extrabold">modern teams work</span>
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed font-medium mb-8">
                 We obsess over performance, simplicity, and reliability. Bntec
@@ -292,7 +301,7 @@ export default async function Home() {
                   {/* Fake bar chart */}
                   <div className="flex items-end gap-2 h-20 mt-4">
                     {[40, 65, 45, 80, 55, 90, 70, 95, 60, 85, 75, 100].map((h, i) => (
-                      <div key={i} className="flex-1 rounded-t-sm bg-indigo-500/20" style={{ height: `${h}%` }} />
+                      <div key={i} className="flex-1 rounded-t-sm bg-primary/20" style={{ height: `${h}%` }} />
                     ))}
                   </div>
 
@@ -343,7 +352,7 @@ export default async function Home() {
               >
                 {plan.highlighted && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-primary text-primary-foreground shadow-lg shadow-primary/30">
                       Most Popular
                     </span>
                   </div>
@@ -370,9 +379,9 @@ export default async function Home() {
 
                 <Link href={plan.price === "Custom" ? "/auth/login" : "/auth/sign-up"}>
                   <Button
-                    className={`w-full font-semibold ${
+                    className={`w-full font-semibold cursor-pointer ${
                       plan.highlighted
-                        ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20"
+                        ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
                         : "bg-secondary hover:bg-secondary/80 text-secondary-foreground"
                     } transition-all`}
                   >
@@ -388,11 +397,11 @@ export default async function Home() {
       {/* CTA Banner */}
       <section className="py-24 px-6 border-t border-border/50">
         <div className="max-w-4xl mx-auto relative">
-          <div className="absolute inset-0 bg-indigo-600/5 rounded-3xl blur-3xl opacity-50" />
-          <div className="relative rounded-3xl border border-indigo-500/20 bg-indigo-600/5 p-12 text-center overflow-hidden shadow-2xl">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-px bg-linear-to-r from-transparent via-indigo-500 to-transparent" />
-            <div className="w-14 h-14 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center mx-auto mb-6">
-              <Zap className="w-7 h-7 text-indigo-500" />
+          <div className="absolute inset-0 bg-primary/5 rounded-3xl blur-3xl opacity-50" />
+          <div className="relative rounded-3xl border border-primary/20 bg-primary/5 p-12 text-center overflow-hidden shadow-2xl">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-px bg-linear-to-r from-transparent via-primary to-transparent" />
+            <div className="w-14 h-14 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center mx-auto mb-6">
+              <Zap className="w-7 h-7 text-primary" />
             </div>
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               Ready to get started?
@@ -403,7 +412,7 @@ export default async function Home() {
             <Link href="/auth/sign-up">
               <Button
                 size="lg"
-                className="bg-indigo-600 hover:bg-indigo-700 h-13 px-10 text-white font-semibold shadow-xl shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all"
+                className="bg-primary hover:bg-primary/90 h-13 px-10 text-primary-foreground font-semibold shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all cursor-pointer"
               >
                 Start for Free
                 <ArrowRight className="w-4 h-4 ml-2" />

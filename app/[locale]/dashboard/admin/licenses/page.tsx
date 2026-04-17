@@ -6,7 +6,27 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { Key, Trash2, PowerOff, ShieldCheck, Loader2, Plus, MonitorSmartphone, CalendarClock } from 'lucide-react'
+import { 
+  Key, 
+  Trash2, 
+  PowerOff, 
+  ShieldCheck, 
+  Loader2, 
+  Plus, 
+  MonitorSmartphone, 
+  CalendarClock,
+  Fingerprint,
+  Zap,
+  Globe,
+  Database,
+  Cpu,
+  History,
+  Activity,
+  Terminal,
+  Lock,
+  Unlock
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 // Define types based on DB schema
 type Activation = {
@@ -57,7 +77,7 @@ export default function AdminLicensesPage() {
   }
 
   const handleRevokeDevice = async (activationId: string) => {
-    if (!confirm('Are you sure you want to unlink this device?')) return
+    if (!confirm('AUTHORIZED ACTION: Deactivate this hardware signature from the network?')) return
     setActionLoading(`revoke-${activationId}`)
     try {
       const res = await fetch('/api/admin/licenses/revoke', {
@@ -67,8 +87,8 @@ export default function AdminLicensesPage() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success('Device revoked successfully')
-        fetchLicenses() // refresh
+        toast.success('Hardware signature revoked.')
+        fetchLicenses()
       } else {
         toast.error(json.error)
       }
@@ -93,7 +113,7 @@ export default function AdminLicensesPage() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success(`License marked as ${newStatus}`)
+        toast.success(`Access level set to: ${newStatus.toUpperCase()}`)
         fetchLicenses()
       } else {
         toast.error(json.error)
@@ -106,7 +126,7 @@ export default function AdminLicensesPage() {
   }
 
   const handleDeleteLicense = async (licenseId: string) => {
-    if (!confirm('Are you absolutely sure you want to delete this license and all its activations? This action cannot be undone.')) return
+    if (!confirm('PROTOCOL OVERRIDE: Permanently purge this authorization key and all linked telemetry records?')) return
     setActionLoading(`delete-${licenseId}`)
     try {
       const res = await fetch(`/api/admin/licenses?id=${licenseId}`, {
@@ -114,7 +134,7 @@ export default function AdminLicensesPage() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success('License deleted')
+        toast.success('Authorization key purged from registry.')
         fetchLicenses()
       } else {
         toast.error(json.error)
@@ -127,7 +147,7 @@ export default function AdminLicensesPage() {
   }
 
   const handleCreateLicense = async () => {
-    if (!newKeyInput) return toast.error('Key cannot be empty')
+    if (!newKeyInput) return toast.error('Encryption key signature required.')
     setActionLoading('create')
     try {
       const res = await fetch('/api/admin/licenses', {
@@ -143,7 +163,7 @@ export default function AdminLicensesPage() {
       })
       const json = await res.json()
       if (json.success) {
-        toast.success('License created!')
+        toast.success('New authorization key issued.')
         setNewKeyInput('')
         setNewKeyDevices(1)
         fetchLicenses()
@@ -158,151 +178,220 @@ export default function AdminLicensesPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">License Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Super Admin center for controlling POS client activations and keys.
+    <div className="space-y-10">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+             <div className="p-2.5 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
+                <ShieldCheck className="w-6 h-6 text-indigo-400" />
+             </div>
+             <h1 className="text-4xl font-black tracking-tighter text-white uppercase italic">Access <span className="text-indigo-500">Control</span></h1>
+          </div>
+          <p className="text-muted-foreground font-medium flex items-center gap-2">
+            <Key className="w-4 h-4 text-indigo-500" />
+            Managing hardware authentication and platform licensing protocols.
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/20">
-          <ShieldCheck className="w-3 h-3 inline mr-1" /> Super Admin Only
+
+        <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-2xl">
+           <Fingerprint className="w-5 h-5 text-indigo-400 animate-pulse" />
+           <p className="text-[10px] font-black tracking-widest text-white/40 uppercase">Root Security Mode Active</p>
         </div>
       </div>
 
-      {/* Creation Tools */}
-      <Card className="border-border/50 shadow-sm border-t-indigo-500 border-t-4">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Key className="w-5 h-5 text-indigo-500" /> Generate New License</CardTitle>
-          <CardDescription>Manually issue a new POS license key. You can link it to a company later.</CardDescription>
+      {/* Issuance Deck */}
+      <Card className="glass-dashboard border-white/5 bg-linear-to-br from-indigo-500/3 to-transparent overflow-hidden">
+        <CardHeader className="p-8 pb-4">
+           <div className="flex items-center gap-3">
+              <Plus className="w-5 h-5 text-indigo-500" />
+              <CardTitle className="text-xl font-black tracking-tight text-white uppercase italic">Issue Authorization Key</CardTitle>
+           </div>
+           <CardDescription className="text-muted-foreground font-medium mt-1">Generate authoritative keys for network-wide device activation.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 items-end">
-            <div className="space-y-1.5 flex-1 max-w-sm">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">License Key</label>
-              <Input
-                placeholder="e.g. BNT-1234-ABCD"
-                value={newKeyInput}
-                onChange={(e) => setNewKeyInput(e.target.value.toUpperCase())}
-                className="font-mono"
-              />
+        <CardContent className="p-8 pt-4">
+          <div className="flex flex-col md:flex-row gap-6 items-end">
+            <div className="space-y-2 flex-1 group">
+               <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 group-focus-within:text-indigo-400 transition-colors">Key Signature (Uppercase)</label>
+               <Input
+                 placeholder="BNT-PRTO-XXXX"
+                 value={newKeyInput}
+                 onChange={(e) => setNewKeyInput(e.target.value.toUpperCase())}
+                 className="h-14 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-mono text-lg font-bold tracking-widest transition-all"
+               />
             </div>
-            <div className="space-y-1.5 w-32">
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Max Devices</label>
-              <Input
-                type="number"
-                min={1}
-                value={newKeyDevices}
-                onChange={(e) => setNewKeyDevices(parseInt(e.target.value) || 1)}
-              />
+            <div className="space-y-2 w-full md:w-32">
+               <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Volume Cap</label>
+               <Input
+                 type="number"
+                 min={1}
+                 value={newKeyDevices}
+                 onChange={(e) => setNewKeyDevices(parseInt(e.target.value) || 1)}
+                 className="h-14 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-black text-center text-lg"
+               />
             </div>
-            <Button onClick={handleCreateLicense} disabled={actionLoading === 'create'}>
-              {actionLoading === 'create' ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
-              Issue Key
+            <Button 
+              onClick={handleCreateLicense} 
+              disabled={actionLoading === 'create'}
+              className="h-14 px-10 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
+            >
+              {actionLoading === 'create' ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Terminal className="w-4 h-4 mr-2" />}
+              Deploy Protocol
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* License List */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-bold tracking-tight">Active Licenses</h3>
+      {/* Registry Grid */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 flex items-center gap-2">
+               <History className="w-3.5 h-3.5" /> Registry Feed
+            </h3>
+            <div className="flex items-center gap-2">
+               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+               <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Real-time sync</span>
+            </div>
+        </div>
 
         {loading ? (
-          <div className="flex items-center justify-center p-12 text-muted-foreground">
-            <Loader2 className="w-6 h-6 animate-spin" />
-          </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[1,2,3,4].map(i => (
+                  <div key={i} className="h-64 bg-white/5 rounded-[32px] animate-pulse" />
+                ))}
+             </div>
         ) : licenses.length === 0 ? (
-          <div className="text-center p-12 border border-dashed rounded-lg bg-muted/20">
-            <Key className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
-            <p className="text-muted-foreground text-sm">No licenses found in the system.</p>
+          <div className="flex flex-col items-center justify-center p-20 border border-dashed border-white/5 rounded-[32px] bg-white/1">
+            <Key className="w-12 h-12 text-muted-foreground/20 mb-4" />
+            <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">No authorization protocols found.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             {licenses.map(license => (
-              <Card key={license.id} className="border-border/50 shadow-sm flex flex-col justify-between">
-                <CardHeader className="pb-3 border-b border-border/40">
+              <Card key={license.id} className="glass-dashboard border-white/5 flex flex-col group overflow-hidden transition-all duration-500 hover:border-indigo-500/30">
+                <CardHeader className="p-8 pb-6 border-b border-white/5 bg-white/1">
                   <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge variant={license.status === 'active' ? 'default' : license.status === 'expired' ? 'destructive' : 'secondary'} className="uppercase">
-                          {license.status}
-                        </Badge>
-                        <span className="font-mono text-sm tracking-wider font-bold bg-muted px-2 rounded">{license.license_key}</span>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                         <Badge 
+                           className={cn(
+                             "font-black uppercase tracking-widest text-[9px] px-3 py-1 rounded-full",
+                             license.status === 'active' ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"
+                           )}
+                         >
+                           {license.status}
+                         </Badge>
+                         <span className="font-mono text-sm tracking-[0.2em] font-black bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1 rounded-xl">
+                            {license.license_key}
+                         </span>
                       </div>
+                      
                       {license.company ? (
-                        <p className="text-sm font-medium text-muted-foreground mt-2 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                          {license.company.name}
-                        </p>
+                         <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-xs uppercase italic drop-shadow-[0_0_8px_rgba(99,102,241,0.3)]">
+                               {license.company.name.substring(0,2)}
+                            </div>
+                            <div className="flex flex-col">
+                               <span className="text-sm font-black text-white tracking-tight">{license.company.name}</span>
+                               <span className="text-[10px] font-medium text-muted-foreground/60">{license.company.email}</span>
+                            </div>
+                         </div>
                       ) : (
-                        <p className="text-xs text-muted-foreground mt-2 italic bg-yellow-500/10 dark:text-yellow-400 max-w-fit px-2 py-0.5 rounded">Unassigned / Global</p>
+                         <div className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500/5 border border-yellow-500/20 rounded-xl w-fit">
+                            <Globe className="w-3 h-3 text-yellow-500" />
+                            <span className="text-[10px] font-black text-yellow-500/80 uppercase tracking-widest">Universal Node Pool</span>
+                         </div>
                       )}
                     </div>
-                    <div className="text-right">
-                      <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Slots Used</div>
-                      <div className="text-xl font-black">
-                        <span className={license.used_devices >= license.max_devices ? "text-red-500" : "text-emerald-500"}>{license.used_devices}</span>
-                        <span className="text-muted-foreground/50">/{license.max_devices}</span>
-                      </div>
+                    
+                    <div className="text-right flex flex-col items-end">
+                       <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5 justify-end">
+                          <Cpu className="w-3 h-3" /> Activation Lattice
+                       </span>
+                       <div className="text-4xl font-black tracking-tighter flex items-baseline gap-1">
+                          <span className={cn(
+                            license.used_devices >= license.max_devices ? "text-red-500" : "text-emerald-500"
+                          )}>{license.used_devices}</span>
+                          <span className="text-xl text-muted-foreground/30">/</span>
+                          <span className="text-white/40">{license.max_devices}</span>
+                       </div>
                     </div>
                   </div>
                 </CardHeader>
 
-                <CardContent className="pt-4 py-2 grow">
-                  <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5"><MonitorSmartphone className="w-3.5 h-3.5" /> Registered Devices</h4>
-                  {license.activations && license.activations.length > 0 ? (
-                    <ul className="space-y-2">
-                      {license.activations.map((act) => (
-                        <li key={act.id} className="flex items-center justify-between bg-muted/40 p-2 rounded-md border border-border/50 text-sm">
-                          <div>
-                            <p className="font-mono text-xs font-medium">{act.device_id}</p>
-                            <p className="text-[10px] text-muted-foreground mt-0.5" title={new Date(act.activated_at).toLocaleString()}>A: {new Date(act.activated_at).toLocaleDateString()}</p>
+                <CardContent className="p-8 pt-6 grow bg-black/20">
+                  <div className="space-y-4">
+                    <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2 opacity-60">
+                       <MonitorSmartphone className="w-3.5 h-3.5" /> Hardware Vector Register
+                    </h4>
+                    {license.activations && license.activations.length > 0 ? (
+                      <div className="grid grid-cols-1 gap-3">
+                        {license.activations.map((act) => (
+                          <div key={act.id} className="flex items-center justify-between bg-white/3 p-4 rounded-2xl border border-white/5 hover:bg-white/5 hover:border-indigo-500/20 transition-all group/item">
+                            <div className="flex items-center gap-4">
+                               <div className="p-2 bg-indigo-500/5 rounded-xl border border-indigo-500/10 group-hover/item:border-indigo-500/30 transition-colors">
+                                  <MonitorSmartphone className="w-4 h-4 text-indigo-400" />
+                               </div>
+                               <div className="flex flex-col">
+                                  <span className="font-mono text-xs font-black text-white/80 group-hover/item:text-indigo-400 transition-colors">{act.device_id}</span>
+                                  <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest mt-1">Identified: {new Date(act.activated_at).toLocaleDateString()}</span>
+                               </div>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-10 w-10 text-red-500/40 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all"
+                              onClick={() => handleRevokeDevice(act.id)}
+                              disabled={actionLoading === `revoke-${act.id}`}
+                            >
+                              {actionLoading === `revoke-${act.id}` ? <Loader2 className="w-4 h-4 animate-spin" /> : <PowerOff className="w-4 h-4" />}
+                            </Button>
                           </div>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            className="h-7 w-7 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500"
-                            onClick={() => handleRevokeDevice(act.id)}
-                            disabled={actionLoading === `revoke-${act.id}`}
-                          >
-                            {actionLoading === `revoke-${act.id}` ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                            <span className="sr-only">Revoke</span>
-                          </Button>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-xs text-muted-foreground italic border border-dashed rounded p-2 text-center">No devices activated yet.</p>
-                  )}
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center p-8 border border-dashed border-white/5 rounded-[24px] bg-black/10">
+                        <MonitorSmartphone className="w-6 h-6 text-muted-foreground/10 mb-2" />
+                        <p className="text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest italic">No hardware instances active.</p>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
 
-                <CardFooter className="pt-4 border-t border-border/40 bg-muted/10 flex justify-between">
-                  <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                    <CalendarClock className="w-3.5 h-3.5" />
-                    {license.expiry_date ? `Expires: ${new Date(license.expiry_date).toLocaleDateString()}` : 'Lifetime License'}
-                  </span>
-                  <div className="flex gap-2">
+                <CardFooter className="p-8 pt-6 border-t border-white/5 bg-white/1 flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div className="flex items-center gap-3">
+                     <div className="p-2 bg-indigo-500/5 rounded-xl">
+                        <CalendarClock className="w-4 h-4 text-indigo-400" />
+                     </div>
+                     <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                       Protocol Horizon: <span className="text-white ml-2">{license.expiry_date ? new Date(license.expiry_date).toLocaleDateString() : 'LIFETIME INFINTY'}</span>
+                     </span>
+                  </div>
+                  
+                  <div className="flex gap-3 w-full md:w-auto">
                     <Button
-                      variant={license.status === 'active' ? 'outline' : 'default'}
-                      size="sm"
-                      className="h-8 text-xs font-semibold"
+                      variant="ghost"
                       onClick={() => handleUpdateStatus(license.id, license.status)}
                       disabled={actionLoading === `status-${license.id}`}
+                      className={cn(
+                        "h-12 px-6 rounded-2xl font-black uppercase tracking-widest text-[10px] border transition-all flex-1 md:flex-none",
+                        license.status === 'active' 
+                          ? "border-red-500/20 text-red-400 hover:bg-red-500/10" 
+                          : "border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+                      )}
                     >
-                      {actionLoading === `status-${license.id}` ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <PowerOff className="w-3.5 h-3.5 mr-1.5" />}
-                      {license.status === 'active' ? 'Suspend' : 'Activate'}
+                      {actionLoading === `status-${license.id}` ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" /> : 
+                        license.status === 'active' ? <Lock className="w-3.5 h-3.5 mr-2" /> : <Unlock className="w-3.5 h-3.5 mr-2" />}
+                      {license.status === 'active' ? 'Suspend Access' : 'Restore Matrix'}
                     </Button>
+                    
                     <Button
-                      variant="destructive"
-                      size="sm"
-                      className="h-8 px-2 text-xs font-semibold bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border-none"
+                      variant="ghost"
+                      className="h-12 w-12 rounded-2xl text-red-500/40 hover:text-red-400 hover:bg-red-400/10 border border-transparent hover:border-red-500/20 transition-all flex-none"
                       onClick={() => handleDeleteLicense(license.id)}
                       disabled={actionLoading === `delete-${license.id}`}
                     >
-                      {actionLoading === `delete-${license.id}` ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      {actionLoading === `delete-${license.id}` ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                     </Button>
                   </div>
                 </CardFooter>

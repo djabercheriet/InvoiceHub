@@ -48,9 +48,9 @@ export function LandingFooter() {
         <div className="grid grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] gap-12 mb-20 animate-in fade-in duration-500">
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2.5 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/20">
-                <FileText className="w-[18px] h-[18px] text-white" />
-              </div>
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-indigo-600/20 shrink-0">
+              <img src="/Icon.png" alt="Bntec Logo" className="w-full h-full object-cover" />
+            </div>
               <span className="text-lg font-bold tracking-tight text-foreground">Bntec</span>
             </div>
             <p className="text-sm text-muted-foreground font-medium leading-relaxed">
@@ -61,23 +61,23 @@ export function LandingFooter() {
           <div className="flex flex-col gap-5">
             <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">Product</h4>
             <div className="flex flex-col gap-3">
-              <Link href="#features" className="text-sm text-muted-foreground hover:text-indigo-500 hover:translate-x-1 transition-all">Features</Link>
-              <Link href="#pricing" className="text-sm text-muted-foreground hover:text-indigo-500 hover:translate-x-1 transition-all">Pricing</Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-indigo-500 hover:translate-x-1 transition-all">Changelog</Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-indigo-500 hover:translate-x-1 transition-all">Documentation</Link>
+              <Link href="#features" className="text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all cursor-pointer">Features</Link>
+              <Link href="#pricing" className="text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all cursor-pointer">Pricing</Link>
+              <Link href="#" className="text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all cursor-pointer">Changelog</Link>
+              <Link href="#" className="text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all cursor-pointer">Documentation</Link>
             </div>
           </div>
 
           <div className="flex flex-col gap-5">
             <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">Company</h4>
             <div className="flex flex-col gap-3">
-              <Link href="#about" className="text-sm text-muted-foreground hover:text-indigo-500 hover:translate-x-1 transition-all">About</Link>
-              <Link href="/contact" className="text-sm text-muted-foreground hover:text-indigo-500 hover:translate-x-1 transition-all">Contact</Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-indigo-500 hover:translate-x-1 transition-all">Careers</Link>
+              <Link href="#about" className="text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all cursor-pointer">About</Link>
+              <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all cursor-pointer">Contact</Link>
+              <Link href="#" className="text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all cursor-pointer">Careers</Link>
               <div className="flex items-center gap-4 mt-2">
-                <Link href="#" className="text-muted-foreground hover:text-indigo-500 transition-colors"><Twitter className="w-4 h-4" /></Link>
-                <Link href="#" className="text-muted-foreground hover:text-indigo-500 transition-colors"><Linkedin className="w-4 h-4" /></Link>
-                <Link href="#" className="text-muted-foreground hover:text-indigo-500 transition-colors"><Github className="w-4 h-4" /></Link>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"><Twitter className="w-4 h-4" /></Link>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"><Linkedin className="w-4 h-4" /></Link>
+                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"><Github className="w-4 h-4" /></Link>
               </div>
             </div>
           </div>
@@ -85,10 +85,10 @@ export function LandingFooter() {
           <div className="flex flex-col gap-5">
             <h4 className="text-xs font-bold uppercase tracking-widest text-foreground">Legal</h4>
             <div className="flex flex-col gap-3">
-              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-indigo-500 hover:translate-x-1 transition-all">Privacy Policy</Link>
-              <Link href="/terms" className="text-sm text-muted-foreground hover:text-indigo-500 hover:translate-x-1 transition-all">Terms of Service</Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-indigo-500 hover:translate-x-1 transition-all">Cookie Policy</Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-indigo-500 hover:translate-x-1 transition-all">SLA</Link>
+              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all cursor-pointer">Privacy Policy</Link>
+              <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all cursor-pointer">Terms of Service</Link>
+              <Link href="#" className="text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all cursor-pointer">Cookie Policy</Link>
+              <Link href="#" className="text-sm text-muted-foreground hover:text-primary hover:translate-x-1 transition-all cursor-pointer">SLA</Link>
             </div>
           </div>
         </div>
@@ -98,9 +98,9 @@ export function LandingFooter() {
             &copy; {currentYear} Bntec Dynamics. Built for power and precision.
           </p>
           <div className="flex items-center gap-8">
-            <Link href="/privacy" className="text-xs text-muted-foreground hover:text-indigo-400 transition-colors">Privacy</Link>
-            <Link href="/terms" className="text-xs text-muted-foreground hover:text-indigo-400 transition-colors">Terms</Link>
-            <Link href="/contact" className="text-xs text-muted-foreground hover:text-indigo-400 transition-colors">Contact</Link>
+            <Link href="/privacy" className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer">Privacy</Link>
+            <Link href="/terms" className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer">Terms</Link>
+            <Link href="/contact" className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer">Contact</Link>
           </div>
         </div>
       </div>

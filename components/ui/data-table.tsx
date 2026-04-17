@@ -30,6 +30,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+import { EmptyState } from '@/components/ui/empty-state'
 
 interface DataTableProps<T> {
  data: T[]
@@ -119,10 +120,14 @@ export function DataTable<T extends { id: string }>({
  ) : filteredData.length === 0 ? (
  <TableRow>
  <TableCell
- colSpan={columns.length + 1}
- className="h-32 text-center text-muted-foreground font-medium"
+ colSpan={columns.length + (actions || onEdit || onDelete ? 1 : 0)}
+ className="p-0 border-0"
  >
- No results found matching your search pulse.
+   <EmptyState 
+     title="No Record Found" 
+     description={searchTerm ? "No results found matching your search pulse. Try adjusting your query." : "There is no data to display here yet."}
+     icon={Search}
+   />
  </TableCell>
  </TableRow>
  ) : (

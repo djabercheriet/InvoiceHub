@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from"react";
 import { useForm, useFieldArray } from"react-hook-form";
 import { zodResolver } from"@hookform/resolvers/zod";
 import * as z from"zod";
+import { invoiceSchema, itemSchema } from "@/lib/domain/invoices/invoice.schema";
 import { createClient } from"@/lib/supabase/client";
 import { toast } from"sonner";
 import {
@@ -50,29 +51,8 @@ function convertUnit(value: number, from: UnitType, to: UnitType): number {
  return inKg / (toKg[to] || 1);
 }
 
-// ── Zod Schema ─────────────────────────────────────────────────────────────────
-const itemSchema = z.object({
- productId: z.string().optional(),
- designation: z.string().min(1,"Description required"),
- quantity: z.coerce.number().min(0.01,"Min 0.01"),
- unitType: z.enum(["unit","kg","lb","ln","m","L","ton"]).default("unit"),
- unitPrice: z.coerce.number().min(0,"Invalid price"),
- discount: z.coerce.number().min(0).max(100).default(0),
- taxRate: z.coerce.number().min(0).max(100).default(0),
-});
-
-const invoiceSchema = z.object({
- invoiceType: z.enum(["sale","purchase"]).default("sale"),
- customerName: z.string().optional(),
- supplierName: z.string().optional(),
- issueDate: z.string(),
- dueDate: z.string(),
- notes: z.string().optional(),
- currency: z.string().default("USD"),
- items: z.array(itemSchema).min(1,"At least one line item required"),
-});
-
-type InvoiceFormValues = z.infer<typeof invoiceSchema>;
+// Types are now inferred from centralized schema in invoice.types.ts
+import { InvoiceSchema as InvoiceFormValues } from "@/lib/domain/invoices/invoice.types";
 
 // ── Currencies ────────────────────────────────────────────────────────────────
 const CURRENCIES = ["USD","EUR","GBP","DZD","MAD","TND","SAR","AED","CAD","CHF"];

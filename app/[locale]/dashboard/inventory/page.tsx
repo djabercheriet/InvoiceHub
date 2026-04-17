@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { productSchema } from "@/lib/domain/inventory/inventory.schema";
 import { 
   Plus, Package, Search, Edit, Trash2, Image as ImageIcon, 
   Loader2, AlertCircle, TrendingUp, TrendingDown, History,
@@ -21,20 +22,9 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { FormDialog } from "@/components/ui/form-dialog";
 import { cn } from "@/lib/utils";
+import LowStockAlert from "@/components/inventory/low-stock-alert";
 
-const productSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(2, "Name is required"),
-  sku: z.string().min(2, "SKU is required"),
-  category: z.string().min(2, "Category is required"),
-  buy_price: z.coerce.number().min(0, "Buy price must be >= 0"),
-  unit_price: z.coerce.number().min(0, "Retail price must be >= 0"),
-  quantity: z.coerce.number().min(0, "Quantity cannot be negative"),
-  min_stock_level: z.coerce.number().min(0, "Min stock cannot be negative"),
-  unit_type: z.string().default("unit"),
-  image_url: z.string().optional(),
-});
-
+// Types are now inferred from centralized schema
 type ProductFormValues = z.infer<typeof productSchema>;
 
 export default function InventoryPage() {
@@ -45,6 +35,8 @@ export default function InventoryPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [companyId, setCompanyId] = useState<string | null>(null);
   
   const supabase = createClient();
   const t = useTranslations('Inventory');
@@ -52,7 +44,7 @@ export default function InventoryPage() {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      name: "", sku: "", category: "", buy_price: 0, unit_price: 0, quantity: 0, min_stock_level: 0, unit_type: "unit", image_url: ""
+      name: "", sku: "", category: "", buy_price: 0, unit_price: 0, quantity: 0, min_stock_level: 0, unit_type: "unit", image_url: "", supplier_id: null
     },
   });
 
@@ -68,17 +60,34 @@ export default function InventoryPage() {
 
         const { data: profile } = await supabase.from('profiles').select('company_id').eq('id', user.id).single();
         if (!profile?.company_id) return;
+        const companyId = profile.company_id;
+        setCompanyId(companyId);
 
-        const [prodRes, moveRes] = await Promise.all([
-          supabase.from("products").select("*, categories:category_id(name)").eq("company_id", profile.company_id).order('created_at', { ascending: false }),
-          supabase.from("stock_movements").select("*, products(name, sku)").eq("company_id", profile.company_id).order('created_at', { ascending: false }).limit(50)
+        const [prodRes, moveRes, supRes] = await Promise.all([
+          supabase.from("products").select("*, categories:category_id(name)").eq("company_id", companyId).order('created_at', { ascending: false }),
+          supabase.from("stock_movements").select("*, products(name, sku)").eq("company_id", companyId).order('created_at', { ascending: false }).limit(50),
+          supabase.from("suppliers").select("id, name").eq("company_id", companyId)
         ]);
 
         if (prodRes.error) throw prodRes.error;
-        setProducts(prodRes.data.map((p: any) => ({
-          ...p,
-          categoryName: p.categories?.name || "Uncategorized"
-        })));
+        if (supRes.data) setSuppliers(supRes.data);
+        
+        // Fetch forecasts in parallel for all products
+        const productsWithForecast = await Promise.all(prodRes.data.map(async (p: any) => {
+          try {
+            const res = await fetch(`/api/inventory/forecast?productId=${p.id}&companyId=${companyId}`);
+            const { data: forecast } = await res.json();
+            return {
+              ...p,
+              categoryName: p.categories?.name || "Uncategorized",
+              forecast
+            };
+          } catch (e) {
+            return { ...p, categoryName: p.categories?.name || "Uncategorized" };
+          }
+        }));
+
+        setProducts(productsWithForecast);
         if (moveRes.data) setMovements(moveRes.data);
     } catch (err: any) {
         toast.error("Data synchronization failed: " + err.message);
@@ -115,7 +124,8 @@ export default function InventoryPage() {
         unit_type: values.unit_type,
         company_id: profile.company_id,
         category_id: catId,
-        image_url: values.image_url
+        image_url: values.image_url,
+        supplier_id: values.supplier_id
       };
 
       if (editingProduct) {
@@ -147,6 +157,7 @@ export default function InventoryPage() {
       min_stock_level: product.min_stock_level,
       unit_type: product.unit_type || "unit",
       image_url: product.image_url || "",
+      supplier_id: product.supplier_id || null,
     });
     setIsDialogOpen(true);
   };
@@ -216,14 +227,39 @@ export default function InventoryPage() {
         accessorKey: "quantity",
         cell: (row: any) => {
             const isLow = row.quantity <= row.min_stock_level;
+            const health = row.forecast?.status || 'healthy';
             return (
                 <div className="flex flex-col">
                     <div className={cn("text-base font-bold tracking-tight", isLow ? "text-amber-500" : "text-foreground")}>
                         {row.quantity} <span className="text-[10px] opacity-60">{row.unit_type || 'units'}</span>
                     </div>
+                    {row.forecast && (
+                      <Badge className={cn(
+                        "text-[8px] font-bold px-1 py-0 w-fit mt-1",
+                        health === 'healthy' ? "bg-emerald-500/10 text-emerald-600" :
+                        health === 'warning' ? "bg-amber-500/10 text-amber-600" :
+                        "bg-red-500/10 text-red-600"
+                      )}>
+                        {health === 'healthy' ? 'OPTIMAL' : health === 'warning' ? 'LOW' : 'CRITICAL'}
+                      </Badge>
+                    )}
                 </div>
             )
         }
+    },
+    {
+        header: "Forecast",
+        accessorKey: "forecast",
+        cell: (row: any) => (
+            <div className="flex flex-col">
+                <div className="text-xs font-bold tracking-tight">
+                  {row.forecast?.daysRemaining} <span className="text-[9px] opacity-60">days left</span>
+                </div>
+                <div className="text-[9px] text-muted-foreground font-medium flex items-center gap-1">
+                  <TrendingDown className="w-2.5 h-2.5" /> {row.forecast?.dailyBurnRate}/day
+                </div>
+            </div>
+        )
     },
     { 
         header: "Valuation", 
@@ -268,11 +304,17 @@ export default function InventoryPage() {
               <CardHeader className="pb-2"><CardTitle className="text-[10px] font-bold tracking-widest text-muted-foreground">Stock Value</CardTitle></CardHeader>
               <CardContent><div className="text-3xl font-bold tracking-tight">${products.reduce((a,b)=>a+(b.quantity*b.unit_price),0).toLocaleString()}</div></CardContent>
             </Card>
-            <Card className={cn("glass-card border-none shadow-xl", products.filter(p=>p.quantity <= p.min_stock_level).length > 0 ? "bg-amber-500/10 border-amber-500/20" : "")}>
-              <CardHeader className="pb-2"><CardTitle className={cn("text-[10px] font-bold tracking-widest", products.filter(p=>p.quantity <= p.min_stock_level).length > 0 ? "text-amber-600" : "text-muted-foreground")}>Low Stock Alerts</CardTitle></CardHeader>
-              <CardContent><div className={cn("text-3xl font-bold tracking-tight", products.filter(p=>p.quantity <= p.min_stock_level).length > 0 ? "text-amber-600" : "")}>{products.filter(p=>p.quantity <= p.min_stock_level).length}</div></CardContent>
+            <Card className={cn("glass-card border-none shadow-xl", products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length > 0 ? "bg-amber-500/10 border-amber-500/20" : "")}>
+              <CardHeader className="pb-2"><CardTitle className={cn("text-[10px] font-bold tracking-widest", products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length > 0 ? "text-amber-600" : "text-muted-foreground")}>Low Stock Alerts</CardTitle></CardHeader>
+              <CardContent><div className={cn("text-3xl font-bold tracking-tight", products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length > 0 ? "text-amber-600" : "")}>{products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length}</div></CardContent>
+            </Card>
+            <Card className="glass-card border-none shadow-xl">
+              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-bold tracking-widest text-muted-foreground">Out of Stock</CardTitle></CardHeader>
+              <CardContent><div className="text-3xl font-bold tracking-tight text-destructive">{products.filter(p=>p.quantity === 0).length}</div></CardContent>
             </Card>
           </div>
+          {companyId && <LowStockAlert companyId={companyId} />}
+
           <DataTable data={products} columns={columns} loading={loading} onEdit={handleEdit} onDelete={handleDelete} searchPlaceholder="Search asset index..." />
         </>
       ) : (
@@ -291,7 +333,7 @@ export default function InventoryPage() {
               <tbody>
                 {movements.map(m => (
                   <tr key={m.id} className="border-b border-border/10 hover:bg-muted/20 transition-colors">
-                    <td className="p-4 text-xs font-mono opacity-60">{new Date(m.created_at).toLocaleString()}</td>
+                    <td className="p-4 text-xs font-mono opacity-60" suppressHydrationWarning>{new Date(m.created_at).toLocaleString()}</td>
                     <td className="p-4"><div className="flex flex-col"><span className="font-bold tracking-tight text-xs">{m.products?.name}</span><span className="text-[9px] font-mono opacity-50">{m.products?.sku}</span></div></td>
                     <td className="p-4 text-center">
                       <Badge className={cn("text-[9px] font-bold", m.movement_type === 'in' ? "bg-emerald-500/10 text-emerald-600" : "bg-blue-500/10 text-blue-600")}>{m.movement_type}</Badge>
@@ -356,6 +398,23 @@ export default function InventoryPage() {
                 <FormItem><FormLabel className="text-[10px] font-bold text-muted-foreground tracking-widest">Alert Threshold</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>
               )} />
             </div>
+            <FormField control={form.control} name="supplier_id" render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-[10px] font-bold text-muted-foreground tracking-widest">Primary Supplier (For Smart Reorder)</FormLabel>
+                <FormControl>
+                  <select 
+                    {...field} 
+                    className="w-full bg-background border border-border rounded-md p-2 text-sm"
+                    value={field.value || ""}
+                  >
+                    <option value="">No Supplier Linked</option>
+                    {suppliers.map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </FormControl>
+              </FormItem>
+            )} />
           </div>
         </Form>
       </FormDialog>

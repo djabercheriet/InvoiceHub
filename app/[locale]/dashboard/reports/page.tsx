@@ -16,12 +16,23 @@ import {
   ShoppingBag, ShoppingCart, Star, AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { RevenueTrendChart } from "@/lib/domain/analytics/components/revenue-trend-chart";
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const COLORS  = ["#6366f1","#10b981","#f59e0b","#ef4444","#3b82f6","#a855f7"];
 
 // ── KPI Card ──────────────────────────────────────────────────────────────────
-function KPI({ label, value, sub, icon: Icon, color, trend, trendLabel }: any) {
+interface KPIProps {
+  label: string;
+  value: string | number;
+  sub: string;
+  icon: any;
+  color: string;
+  trend?: number;
+  trendLabel?: string;
+}
+
+function KPI({ label, value, sub, icon: Icon, color, trend, trendLabel }: KPIProps) {
   return (
     <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -62,6 +73,7 @@ export default function ReportsPage() {
   const [invoiceStats,   setInvoiceStats]   = useState<any>({});
   const [profitData,     setProfitData]     = useState<any[]>([]);
   const [paymentDist,    setPaymentDist]    = useState<any[]>([]);
+  const [companyId,      setCompanyId]      = useState<string | null>(null);
 
   useEffect(() => { fetchAll(); }, [period]);
 
@@ -73,6 +85,7 @@ export default function ReportsPage() {
       const { data: profile } = await supabase.from("profiles").select("company_id").eq("id", user.id).single();
       if (!profile?.company_id) return;
       const cId = profile.company_id;
+      setCompanyId(cId);
 
       // Load company prefs for currency
       const { data: co } = await supabase.from("companies").select("preferences, currency").eq("id", cId).single();
@@ -98,10 +111,20 @@ export default function ReportsPage() {
         .eq("is_active", true);
 
       // ── Invoice Stats ─────────────────────────────────────
-      const totalRevenue    = invoices?.filter(i => i.invoice_type !== "purchase").reduce((s, i) => s + (i.total || 0), 0) || 0;
-      const totalExpenses   = invoices?.filter(i => i.invoice_type === "purchase").reduce((s, i) => s + (i.total || 0), 0) || 0;
-      const totalPaid       = invoices?.filter(i => i.status === "paid").reduce((s, i) => s + (i.total || 0), 0) || 0;
-      const totalOutstanding = invoices?.filter(i => i.status !== "paid" && i.status !== "draft").reduce((s, i) => s + (i.total || 0), 0) || 0;
+      interface InvoiceRow {
+        total: number | null;
+        status: string | null;
+        invoice_type: string | null;
+        issue_date: string | null;
+        created_at: string;
+      }
+
+      const invs = (invoices as unknown as InvoiceRow[]) || [];
+
+      const totalRevenue    = invs.filter(i => i.invoice_type !== "purchase").reduce((s, i) => s + (i.total || 0), 0) || 0;
+      const totalExpenses   = invs.filter(i => i.invoice_type === "purchase").reduce((s, i) => s + (i.total || 0), 0) || 0;
+      const totalPaid       = invs.filter(i => i.status === "paid").reduce((s, i) => s + (i.total || 0), 0) || 0;
+      const totalOutstanding = invs.filter(i => i.status !== "paid" && i.status !== "draft").reduce((s, i) => s + (i.total || 0), 0) || 0;
       const profit          = totalRevenue - totalExpenses;
 
       setInvoiceStats({
@@ -110,9 +133,9 @@ export default function ReportsPage() {
         totalPaid,
         totalOutstanding,
         profit,
-        totalCount: invoices?.length || 0,
-        paidCount:  invoices?.filter(i => i.status === "paid").length || 0,
-        overdueCount: invoices?.filter(i => i.status === "overdue").length || 0,
+        totalCount: invs.length,
+        paidCount:  invs.filter(i => i.status === "paid").length,
+        overdueCount: invs.filter(i => i.status === "overdue").length,
       });
 
       // ── Monthly trend ─────────────────────────────────────
@@ -125,7 +148,7 @@ export default function ReportsPage() {
           const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,"0")}`;
           trendMap[key] = { month: MONTHS[d.getMonth()], revenue: 0, expenses: 0, count: 0 };
         }
-        invoices?.forEach(inv => {
+        invs.forEach(inv => {
           const d   = new Date(inv.issue_date || inv.created_at);
           const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,"0")}`;
           if (trendMap[key]) {
@@ -138,7 +161,7 @@ export default function ReportsPage() {
 
       if (period === "annual") {
         const yearMap: Record<string, any> = {};
-        invoices?.forEach(inv => {
+        invs.forEach(inv => {
           const y = String(new Date(inv.issue_date || inv.created_at).getFullYear());
           if (!yearMap[y]) yearMap[y] = { month: y, revenue: 0, expenses: 0, count: 0 };
           if (inv.invoice_type === "purchase") yearMap[y].expenses += inv.total || 0;
@@ -150,7 +173,7 @@ export default function ReportsPage() {
       if (period === "daily") {
         const dayMap: Record<string, any> = {};
         const last30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        invoices?.filter(inv => new Date(inv.issue_date || inv.created_at) >= last30).forEach(inv => {
+        invs.filter(inv => new Date(inv.issue_date || inv.created_at) >= last30).forEach(inv => {
           const d   = new Date(inv.issue_date || inv.created_at);
           const key = `${d.getMonth() + 1}/${d.getDate()}`;
           if (!dayMap[key]) dayMap[key] = { month: key, revenue: 0, expenses: 0, count: 0 };
@@ -161,12 +184,20 @@ export default function ReportsPage() {
       }
 
       // ── Product analytics ─────────────────────────────────
+      interface InvoiceItemRow {
+        quantity: number | null;
+        total: number | null;
+        product_id: string | null;
+        products: { name: string; buy_price: number | null; unit_price: number | null } | null;
+      }
+      const itemRows = (items as unknown as InvoiceItemRow[]) || [];
+
       const productRevMap: Record<string, { name: string; revenue: number; qty: number; cost: number }> = {};
-      items?.forEach(item => {
+      itemRows.forEach(item => {
         const pid = item.product_id;
         if (!pid) return;
-        const name = (item.products as any)?.name || "Unknown";
-        const cost = ((item.products as any)?.buy_price || 0) * Number(item.quantity || 0);
+        const name = item.products?.name || "Unknown";
+        const cost = (item.products?.buy_price || 0) * Number(item.quantity || 0);
         if (!productRevMap[pid]) productRevMap[pid] = { name, revenue: 0, qty: 0, cost: 0 };
         productRevMap[pid].revenue += Number(item.total || 0);
         productRevMap[pid].qty     += Number(item.quantity || 0);
@@ -191,7 +222,7 @@ export default function ReportsPage() {
 
       // ── Payment distribution ──────────────────────────────
       const statusGroups: Record<string, number> = {};
-      invoices?.forEach(inv => {
+      invs.forEach(inv => {
         const s = inv.status || "unknown";
         statusGroups[s] = (statusGroups[s] || 0) + 1;
       });
@@ -214,7 +245,7 @@ export default function ReportsPage() {
   );
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4 lg:px-0">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60 pb-7">
         <div className="space-y-1">
@@ -265,6 +296,11 @@ export default function ReportsPage() {
         <KPI label="Paid Invoices"   value={invoiceStats.paidCount || 0}    sub="Completed payments"   icon={ShoppingBag} color="emerald" />
         <KPI label="Overdue"         value={invoiceStats.overdueCount || 0} sub="Require attention"   icon={AlertCircle} color="red" />
         <KPI label="Cash Collected"  value={fmt(invoiceStats.totalPaid || 0)} sub="Payments received"  icon={DollarSign} color="emerald" />
+      </div>
+
+      {/* ── Revenue Trend Chart ──────────────────────────────────── */}
+      <div className="grid grid-cols-1 gap-6">
+        {companyId && <RevenueTrendChart companyId={companyId} />}
       </div>
 
       {/* ── Revenue vs Expenses Chart ──────────────────────────────────── */}

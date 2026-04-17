@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { customerSchema } from "@/lib/domain/customers/customer.schema";
 import { Plus, Users, Mail, Phone, MapPin, Trash2, Edit } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -17,16 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/ui/data-table";
 import { FormDialog } from "@/components/ui/form-dialog";
 
-const customerSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(2, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(6, "Phone is required"),
-  address: z.string().optional(),
-  tax_number: z.string().optional(),
-});
-
-type CustomerFormValues = z.infer<typeof customerSchema>;
+// Types are now inferred from centralized schema
+import { CustomerSchema as CustomerFormValues } from "@/lib/domain/customers/customer.types";
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -184,7 +177,7 @@ export default function CustomersPage() {
   ];
 
   return (
-    <div className="space-y-8 page-fade-in px-4 lg:px-0">
+    <div className="space-y-8 page-fade-in">
       {/* Header section with refined Vercel look */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/60 pb-8">
         <div className="space-y-1">
@@ -215,7 +208,7 @@ export default function CustomersPage() {
               <FormField control={form.control} name="name" render={({ field }) => (
                 <FormItem><FormLabel className="text-xs font-bold text-muted-foreground">Full Name / Organization</FormLabel><FormControl><Input {...field} className="glass-card" /></FormControl><FormMessage /></FormItem>
               )} />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField control={form.control} name="email" render={({ field }) => (
                   <FormItem><FormLabel className="text-xs font-bold text-muted-foreground">Email Protocol</FormLabel><FormControl><Input type="email" {...field} className="glass-card" /></FormControl><FormMessage /></FormItem>
                 )} />

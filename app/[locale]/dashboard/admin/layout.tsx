@@ -1,13 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { AdminSidebar } from "@/components/admin-sidebar";
-
-async function handleSignOut() {
-  "use server";
-  const supabase = await createClient();
-  await supabase.auth.signOut();
-  redirect("/auth/login");
-}
 
 export default async function AdminLayout({
   children,
@@ -28,16 +20,10 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen bg-background text-foreground overflow-hidden">
-      {/* Refined Client-Side Admin Sidebar */}
-      <AdminSidebar signOutAction={handleSignOut} />
-
-      {/* Main Admin Content */}
-      <main className="flex-1 overflow-auto bg-background selection:bg-indigo-100 selection:text-indigo-900">
-        <div className="p-6 lg:p-14 w-full animate-in fade-in slide-in-from-right-4 duration-700">
-            {children}
-        </div>
-      </main>
+    <div className="relative flex-1 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+      {/* Subtle Global Glow */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
+      {children}
     </div>
   );
 }

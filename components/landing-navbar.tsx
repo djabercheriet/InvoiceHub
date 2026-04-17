@@ -26,14 +26,14 @@ export function LandingNavbar() {
           "w-full max-w-7xl px-4 md:px-8 py-3 flex items-center transition-all duration-500 relative",
           scrolled 
             ? "bg-background/80 backdrop-blur-xl border border-border/50 shadow-2xl rounded-full max-w-4xl mt-3 mx-4" 
-            : "bg-transparent border-b border-white/5"
+            : "bg-transparent border-b border-foreground/5"
         )}
       >
         {/* Left: Logo */}
         <div className="flex-1 flex items-center">
           <Link href="/" className="flex items-center gap-2.5 group transition-transform hover:scale-105 active:scale-95">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/30">
-              <FileText className="w-[18px] h-[18px] text-white" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-indigo-600/30 shrink-0">
+              <img src="/Icon.png" alt="Bntec Logo" className="w-full h-full object-cover" />
             </div>
             <span className="text-lg font-bold tracking-tight text-foreground">
               Bntec
@@ -46,9 +46,9 @@ export function LandingNavbar() {
           "hidden md:flex items-center justify-center gap-10 text-sm font-bold transition-all absolute left-1/2 -translate-x-1/2",
           scrolled ? "text-foreground/80" : "text-foreground/90"
         )}>
-          <a href="#features" className="hover:text-indigo-400 dark:hover:text-indigo-300 transition-colors">Features</a>
-          <a href="#pricing" className="hover:text-indigo-400 dark:hover:text-indigo-300 transition-colors">Pricing</a>
-          <a href="#about" className="hover:text-indigo-400 dark:hover:text-indigo-300 transition-colors">About</a>
+          <a href="#features" className="hover:text-primary transition-colors cursor-pointer">Features</a>
+          <a href="#pricing" className="hover:text-primary transition-colors cursor-pointer">Pricing</a>
+          <a href="#about" className="hover:text-primary transition-colors cursor-pointer">About</a>
         </div>
 
         {/* Right: Actions */}
@@ -71,7 +71,7 @@ export function LandingNavbar() {
           <Link href="/auth/sign-up">
             <Button
               size="sm"
-              className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-lg shadow-indigo-600/20 transition-all hover:shadow-indigo-600/40 px-5"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/40 px-5 cursor-pointer"
             >
               Get Started <ChevronRight className="w-4 h-4 ml-1" />
             </Button>

@@ -1,16 +1,19 @@
 <div align="center">
 
-# ⬡ Bntec Protocol
+<img src="public/Icon.png" alt="Bntec Logo" width="80" height="80" />
 
-**Enterprise-Grade SaaS for Financial Operations & Inventory Intelligence**
+# ⬡ Bntec
 
-*Built on Next.js 16 · Supabase · Tailwind CSS 4 · React PDF*
+**Enterprise-Grade Financial Operations Platform**
+
+*Next.js 16 · Supabase · Tailwind CSS 4 · TypeScript 5 · React 19*
 
 ---
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.2-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?style=flat-square&logo=supabase)](https://supabase.com)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript)](https://typescriptlang.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6?style=flat-square&logo=typescript)](https://typescriptlang.org)
+[![Tailwind](https://img.shields.io/badge/Tailwind_CSS-4.2-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-6366f1?style=flat-square)](LICENSE)
 
 </div>
@@ -19,7 +22,9 @@
 
 ## What is Bntec?
 
-Bntec is a production-ready, multi-tenant SaaS platform for businesses that demand precision in financial operations. From invoice creation to PDF dispatch, from real-time inventory to customer analytics — everything lives in one unified protocol.
+Bntec is a production-ready, multi-tenant SaaS platform for businesses that demand precision in financial operations. From professional invoice creation to PDF dispatch, from real-time inventory intelligence to CRM analytics — everything lives in one unified, premium experience.
+
+> Fully operational in **light and dark mode**, with RTL support (Arabic) and multi-language localization.
 
 ---
 
@@ -27,135 +32,221 @@ Bntec is a production-ready, multi-tenant SaaS platform for businesses that dema
 
 ### 🧾 Financial Operations
 - **Invoice Builder** — Create sale invoices & purchase orders with line-item granularity
+- **Quote Management** — Generate and convert quotes to invoices seamlessly
 - **Multi-Status Tracking** — Draft → Sent → Paid → Overdue with visual indicators
 - **Discount & Tax Engine** — Per-line and invoice-level financial metrics
-- **PDF Generation** — Professional A4 manifests via `@react-pdf/renderer` (Helvetica, zero CDN dependency)
-- **Email Dispatch** — Send invoices directly to customers with embedded PDF attachments
-- **Print Protocol** — Clean print-only view, no UI chrome included
+- **PDF Generation** — Professional A4 documents via `@react-pdf/renderer` (zero CDN, Helvetica)
+- **Email Dispatch** — Send invoices directly to customers with embedded PDF attachments via Resend or SMTP
 
 ### 📦 Inventory Intelligence
 - **Real-Time Stock Tracking** — Live quantity monitoring with SKU management
-- **Low-Stock Alerts** — Automated threshold notifications on the client dashboard
-- **Product Catalog** — Purchase price, retail price, and unit type management
-- **Multi-Company Isolation** — Each tenant has fully isolated product data via RLS
+- **Product Catalog** — Purchase price, retail price, unit type, and category management
+- **Supplier Management** — Full supplier records with purchase order tracking
+- **Purchase Orders** — Create and track POs linked to inventory movements
+- **Stock Movement History** — Full audit trail of inventory changes
+- **Low-Stock Alerts** — Automated threshold notifications
 
 ### 👥 Customer Relationship Management
-- **Customer Database** — Name, email, phone, address, and VAT registry
+- **Customer Database** — Name, email, phone, address, VAT registry
 - **Spending Analytics** — Revenue attribution per customer
 - **Invoice History** — Full transaction timeline per stakeholder
+- **Customer Portal** — Self-service portal for customers to view their invoices
+
+### 💰 Finance & Reporting
+- **Expense Tracking** — Log and categorize operational expenses
+- **Finance Dashboard** — Revenue vs. expenses, profit margins
+- **Sales Reports** — Detailed revenue breakdowns by period and category
+- **Inventory Reports** — Stock valuation and movement analytics
 
 ### 🏢 Multi-Tenant Architecture
-- **Client Dashboard** — Personalized revenue, invoice, and inventory overview per company
-- **Admin Console** — Platform-wide control panel for system administrators
-- **Nuclear Reset** — Full data seed/wipe via Admin Console for demo environments
-- **Company Management** — Multi-company support with per-company financial isolation
+- **Dashboard** — Personalized company revenue, invoice, and inventory overview
+- **Admin Console** — Platform-wide control panel for super administrators
+- **Company Management** — Multi-company support with per-company financial isolation via RLS
+- **User Identity Management** — Role-based access: Member / Admin / Super Admin
 
 ### 🛡️ Security & Access Control
-- **Row-Level Security (RLS)** — Supabase enforced data isolation at the database layer
-- **Server-Side Auth** — Secure session management via Next.js middleware
-- **Role-Based Access** — Owner / Admin / Super Admin role hierarchy
-- **Audit Integrity** — Financial schema designed for idempotent migrations
+- **Row-Level Security (RLS)** — Supabase-enforced data isolation at the database layer
+- **Server-Side Auth** — Secure session management via `@supabase/ssr`
+- **Role-Based Access** — Granular permission hierarchy
+- **License System** — Software activation and device revocation for POS integrations
 
 ### 🌐 Internationalization
-- **Multi-Language Support** — Arabic (RTL), English, French, German
-- **Inter Typeface** — Full weight range (300–800) with Latin Extended support
+- **Multi-Language** — Arabic (RTL), English, French, German via `next-intl`
 - **RTL Layout** — Automatic direction switching for Arabic locale
+- **Localized Routing** — SEO-friendly `/{locale}/` URL structure
 
-### 📊 Business Intelligence
-- **Revenue Dynamics** — Monthly growth and collections trajectory charts
-- **Invoice Analytics** — Status distribution and financial aggregates
-- **Inventory Dashboard** — Stock level monitoring and reorder indicators
+### ⚙️ Automation & AI
+- **Workflow Automations** — Rule-based triggers for recurring operations
+- **AI-Assisted Features** — Google AI SDK integration for intelligent suggestions
+- **Background Jobs** — Upstash QStash for reliable async task processing
+- **Caching** — Upstash Redis for performance-critical paths
+
+### 🎨 Premium UI/UX
+- **Light & Dark Mode** — Full theme-aware design, no hardcoded dark colors
+- **Command Palette** — Global ⌘K search across all documents and actions
+- **Glassmorphism** — Premium `.glass-card` and `.glass-dashboard` utilities
+- **Micro-animations** — Smooth transitions, floating badges, and hover effects
+- **Responsive** — Mobile-first, fully adaptive layouts
 
 ---
 
 ## 🚀 Quick Setup
 
-### 1. Environment Configuration
+### 1. Clone & Install
 
-Create a `.env.local` file:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="your-anon-key"
-NEXT_PUBLIC_SUPER_ADMIN_EMAIL="admin@yourdomain.com"
+```bash
+git clone https://github.com/your-org/invoiceshub-nexxt.git
+cd invoiceshub-nexxt
+pnpm install
 ```
 
-### 2. Database Initialization
+### 2. Environment Configuration
+
+Create `.env.local`:
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Admin
+NEXT_PUBLIC_SUPER_ADMIN_EMAIL=admin@yourdomain.com
+
+# Email (Resend recommended)
+RESEND_API_KEY=re_...
+
+# Optional: dev redirect after email confirmation
+NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/dashboard
+```
+
+### 3. Database Initialization
 
 Run in your **Supabase SQL Editor**:
 
 ```sql
-scripts/enterprise_upgrade.sql   ← Master schema, default settings, and RLS
+-- Master schema with all tables, RLS, and default settings
+scripts/enterprise_upgrade.sql
+
+-- Additional feature migrations (run in order)
+scripts/010_create_quotes.sql
+scripts/011_enhance_invoice_lifecycle.sql
+scripts/012_create_suppliers.sql
+scripts/013_create_purchase_orders.sql
+scripts/014_create_finance_expenses.sql
+scripts/015_create_automations.sql
+scripts/activities.sql
 ```
 
-### 3. Local Development
+### 4. Local Development
 
 ```bash
-npm install
-npm run dev
+pnpm dev
 ```
 
-Then open [http://localhost:3000](http://localhost:3000) and log in with your Super Admin email.
+Open [http://localhost:3000](http://localhost:3000) and sign in with your super admin email.
 
-### 4. Seed the Platform
+### 5. Seed Demo Data
 
-In the **Admin Console → System Controls**, click **"Seed Platform"** to populate the dashboard with realistic demo data including invoices, customers, inventory, and line items.
+In the **Admin Console → Operations**, use the seed controls to populate the platform with realistic demo data.
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture Overview
 
 | Layer | Technology |
 |---|---|
-| **Framework** | Next.js 16 (App Router, Turbopack) |
-| **Language** | TypeScript 5, React 19 |
-| **Styling** | Tailwind CSS 4, shadcn/ui |
-| **Database** | Supabase (PostgreSQL + RLS) |
-| **Auth** | Supabase Auth + Next.js Middleware |
-| **PDF Engine** | @react-pdf/renderer (Helvetica — zero CDN) |
-| **Email** | Nodemailer / Resend (configurable) |
-| **Charts** | Recharts |
-| **Fonts** | Inter (300–800) via next/font/google |
-| **i18n** | next-intl (AR, EN, FR, DE) |
+| **Framework** | Next.js 16.2 (App Router, Webpack) |
+| **Language** | TypeScript 5.7 + React 19.2 |
+| **Styling** | Tailwind CSS 4.2 + shadcn/ui + Radix UI |
+| **Database** | Supabase PostgreSQL + Row-Level Security |
+| **Auth** | Supabase Auth + `@supabase/ssr` |
+| **PDF Engine** | `@react-pdf/renderer` v4 (Helvetica, zero CDN) |
+| **Email** | Resend / Nodemailer (configurable) |
+| **Charts** | Recharts 2.15 |
+| **i18n** | next-intl v4 (AR, EN, FR, DE) |
+| **Theme** | next-themes (CSS variable tokens) |
+| **Caching** | Upstash Redis |
+| **Jobs** | Upstash QStash |
+| **AI** | Google AI SDK + Vercel AI SDK |
+| **Fonts** | Inter (300–800, local WOFF2) |
 
 ---
 
 ## 📂 Project Structure
 
 ```
-Chr0xD/
+InvoicesHub Nexxt/
 ├── app/
-│   ├── [locale]/
-│   │   ├── dashboard/        # Client dashboard routes
-│   │   ├── admin/            # Admin console routes
-│   │   └── auth/             # Auth pages
-│   └── api/
-│       ├── invoices/         # Invoice CRUD & PDF dispatch
-│       └── debug/seed/       # Platform seeding endpoint
+│   ├── globals.css               # Design tokens, theme vars, light-mode compat
+│   └── [locale]/
+│       ├── page.tsx              # Landing page
+│       ├── auth/login/           # Login (theme-aware split-panel)
+│       ├── auth/sign-up/         # Registration (theme-aware split-panel)
+│       ├── dashboard/            # Main client dashboard
+│       │   ├── invoices/         # Invoicing module
+│       │   ├── customers/        # CRM module
+│       │   ├── inventory/        # Inventory + products/suppliers/POs
+│       │   ├── sales/            # Sales tracking
+│       │   ├── finance/          # Expenses & finance
+│       │   ├── reports/          # Analytics reports
+│       │   ├── automation/       # Workflow rules
+│       │   ├── settings/         # User/company settings
+│       │   ├── subscription/     # Billing & plans
+│       │   └── admin/            # Super admin console
+│       └── portal/               # Customer self-service portal
 ├── components/
-│   ├── invoices/             # InvoiceBuilder, InvoicePDF, InvoiceDetail
-│   ├── admin/                # Admin console components
-│   └── ui/                   # shadcn/ui primitives (zero italic)
-├── lib/                      # Supabase client, email, utilities
-├── scripts/                  # SQL migrations (consolidated)
-│   ├── enterprise_upgrade.sql # Master setup script
-│   ├── archive/              # Legacy migrations
-│   └── ...                   # Seed & utility scripts
-├── hooks/                    # Custom React hooks
-└── public/                   # Icons & static assets
+│   ├── dashboard-header.tsx      # Sticky header (search, Bell, avatar)
+│   ├── dashboard-sidebar.tsx     # Client nav sidebar
+│   ├── admin-sidebar.tsx         # Admin nav sidebar
+│   ├── landing-navbar.tsx        # Landing navigation
+│   ├── landing-footer.tsx        # Landing footer
+│   ├── landing/                  # Landing page sections
+│   └── ui/                       # shadcn/ui primitives
+├── lib/
+│   ├── supabase/                 # client, server, admin, database, middleware
+│   ├── domain/                   # Business logic entities
+│   ├── events/                   # Domain event system
+│   └── jobs/                     # Background job definitions
+├── hooks/                        # use-auth-user, use-subscription, use-export
+├── scripts/                      # SQL migrations (000–015+)
+├── i18n/ & messages/             # Localization config and translations
+└── public/                       # Static assets, fonts
 ```
+
+> See [ARCHITECTURE.md](./ARCHITECTURE.md) for the complete, detailed reference.
 
 ---
 
-## 📐 Design Standards
+## 🎨 Design System
 
-- **Typography**: Inter — clean, geometric, no italic anywhere
-- **Font Weights**: `700/800` headings · `600` subheadings · `400` body · `500` labels
-- **Overlays**: Solid `bg-black/60`, zero backdrop blur — sharp, professional modals
-- **Color System**: Indigo primary (`#4f46e5`) · Slate foreground · No pure red/green/blue
+| Token | Value |
+|---|---|
+| **Primary (light)** | `#4f46e5` — Indigo 600 |
+| **Primary (dark)** | `#6366f1` — Indigo 500 |
+| **Background (light)** | `#fbfbfe` |
+| **Background (dark)** | `#0b0e14` |
+| **Typography** | Inter, geometric, no italic |
+| **Heading weights** | `800` h1 · `700` h2/h3 · `600` h4 |
+| **Border radius** | `0.75rem` base (`--radius`) |
+| **Theme** | CSS variables via `@theme inline`, switched by `.dark` class |
+
+**Key rules for contributors:**
+- ✅ Use `text-foreground`, `bg-card`, `border-border`, `text-primary`
+- ❌ Never use `text-white`, `bg-[#030303]`, `border-white/5` in shared components
+- ✅ Interactive elements automatically receive `cursor-pointer` globally
+- ✅ Auth pages use split-panel: left = theme-aware form, right = dark hero panel
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **MIT License** — see [LICENSE](./LICENSE) for details.
+
+---
+
+<div align="center">
+
+Built with precision by **Bntec Engineering** · April 2026
+
+</div>
