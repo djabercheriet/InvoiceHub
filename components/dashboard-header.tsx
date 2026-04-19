@@ -32,7 +32,7 @@ export function DashboardHeader({ signOutAction, userEmail }: DashboardHeaderPro
   const initials = userEmail?.substring(0, 2).toUpperCase() ?? "U";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border/50 bg-background/60 px-4 backdrop-blur-xl lg:px-8">
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border/50 bg-background/60 px-8 backdrop-blur-xl">
       {/* Search Trigger (MacOS Style) */}
       <div className="flex flex-1 items-center">
         <button 

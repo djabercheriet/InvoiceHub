@@ -194,7 +194,7 @@ export default function AdminLicensesPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-2xl">
+        <div className="flex items-center gap-3 p-3 bg-surface-alpha border border-white/10 rounded-2xl">
            <Fingerprint className="w-5 h-5 text-indigo-400 animate-pulse" />
            <p className="text-[10px] font-black tracking-widest text-white/40 uppercase">Root Security Mode Active</p>
         </div>
@@ -217,7 +217,7 @@ export default function AdminLicensesPage() {
                  placeholder="BNT-PRTO-XXXX"
                  value={newKeyInput}
                  onChange={(e) => setNewKeyInput(e.target.value.toUpperCase())}
-                 className="h-14 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-mono text-lg font-bold tracking-widest transition-all"
+                 className="h-14 bg-surface-alpha border-white/5 focus:border-indigo-500/50 rounded-2xl font-mono text-lg font-bold tracking-widest transition-all"
                />
             </div>
             <div className="space-y-2 w-full md:w-32">
@@ -227,7 +227,7 @@ export default function AdminLicensesPage() {
                  min={1}
                  value={newKeyDevices}
                  onChange={(e) => setNewKeyDevices(parseInt(e.target.value) || 1)}
-                 className="h-14 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-black text-center text-lg"
+                 className="h-14 bg-surface-alpha border-white/5 focus:border-indigo-500/50 rounded-2xl font-black text-center text-lg"
                />
             </div>
             <Button 
@@ -257,7 +257,7 @@ export default function AdminLicensesPage() {
         {loading ? (
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[1,2,3,4].map(i => (
-                  <div key={i} className="h-64 bg-white/5 rounded-[32px] animate-pulse" />
+                  <div key={i} className="h-64 bg-surface-alpha rounded-[32px] animate-pulse" />
                 ))}
              </div>
         ) : licenses.length === 0 ? (
@@ -327,7 +327,7 @@ export default function AdminLicensesPage() {
                     {license.activations && license.activations.length > 0 ? (
                       <div className="grid grid-cols-1 gap-3">
                         {license.activations.map((act) => (
-                          <div key={act.id} className="flex items-center justify-between bg-white/3 p-4 rounded-2xl border border-white/5 hover:bg-white/5 hover:border-indigo-500/20 transition-all group/item">
+                          <div key={act.id} className="flex items-center justify-between bg-white/3 p-4 rounded-2xl border border-white/5 hover:bg-surface-alpha hover:border-indigo-500/20 transition-all group/item">
                             <div className="flex items-center gap-4">
                                <div className="p-2 bg-indigo-500/5 rounded-xl border border-indigo-500/10 group-hover/item:border-indigo-500/30 transition-colors">
                                   <MonitorSmartphone className="w-4 h-4 text-indigo-400" />

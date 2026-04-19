@@ -11,33 +11,34 @@ import {
   Zap, 
   Trash2, 
   Edit2, 
-  ShieldCheck, 
-  DollarSign, 
-  Crown, 
-  Activity,
+  ShieldCheck,
   Layers,
+  Globe,
+  Fingerprint,
+  Crown,
+  Settings2,
   Terminal,
   Cpu,
-  Fingerprint,
-  Globe,
   Database,
-  Lock,
-  History,
-  Settings2
+  Timer,
+  DollarSign
 } from "lucide-react";
-import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { DataTable } from "@/components/ui/data-table";
-import { FormDialog } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { FormDialog } from "@/components/ui/form-dialog";
+import { DataTable } from "@/components/ui/data-table";
+import { toast } from "sonner";
 
 export default function AdminPlansPage() {
   const [plans, setPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [newPlan, setNewPlan] = useState<any>({ name: "", description: "", monthly_price: 0, yearly_price: 0, max_invoices: 0, max_customers: 0, max_products: 0, max_users: 0, is_active: true, features: {} });
   const supabase = createClient();
 
   useEffect(() => { fetchPlans(); }, []);
@@ -61,23 +62,26 @@ export default function AdminPlansPage() {
   const handleCreateOrUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const data = {
-      name: formData.get("name"),
-      description: formData.get("description"),
-      monthly_price: parseFloat(formData.get("monthly_price") as string),
-      yearly_price: parseFloat(formData.get("yearly_price") as string),
-      max_invoices: parseInt(formData.get("max_invoices") as string),
-      max_customers: parseInt(formData.get("max_customers") as string),
-      max_products: parseInt(formData.get("max_products") as string),
-      max_users: parseInt(formData.get("max_users") as string),
+    const planData = {
+      name: formData.get("name") as string,
+      description: formData.get("description") as string,
+      monthly_price: Number(formData.get("monthly_price")),
+      yearly_price: Number(formData.get("yearly_price")),
+      max_invoices: Number(formData.get("max_invoices")),
+      max_customers: Number(formData.get("max_customers")),
+      max_products: Number(formData.get("max_products")),
+      max_users: Number(formData.get("max_users")),
+      is_active: formData.get("is_active") === "on",
+      features: selectedPlan?.features || {}
     };
+
     try {
       if (selectedPlan) {
-        const { error } = await supabase.from("subscription_plans").update(data).eq("id", selectedPlan.id);
+        const { error } = await supabase.from("subscription_plans").update(planData).eq("id", selectedPlan.id);
         if (error) throw error;
         toast.success("Tier configuration updated.");
       } else {
-        const { error } = await supabase.from("subscription_plans").insert(data);
+        const { error } = await supabase.from("subscription_plans").insert(planData);
         if (error) throw error;
         toast.success("New tier initialized.");
       }
@@ -89,11 +93,11 @@ export default function AdminPlansPage() {
   };
 
   const handleDelete = async (plan: any) => {
-    if (!confirm(`AUTHORIZED ACTION: Permanently retire the "${plan.name}" plan? This impacts active billing cycles.`)) return;
+    if (!confirm(`AUTHORIZED ACTION: Permanently retire the ${plan.name} protocol?`)) return;
     try {
       const { error } = await supabase.from("subscription_plans").delete().eq("id", plan.id);
       if (error) throw error;
-      toast.success("Tier retired from global catalog.");
+      toast.success("Tier retired.");
       fetchPlans();
     } catch (err: any) {
       toast.error("Retirement failed.");
@@ -101,87 +105,45 @@ export default function AdminPlansPage() {
   };
 
   const columns = [
-    {
-      header: "Tier Authority",
-      accessorKey: "name",
-      cell: (row: any) => (
-        <div className="flex items-center gap-4">
-          <div className={cn(
-            "w-12 h-12 rounded-2xl flex items-center justify-center border shrink-0 transition-transform group-hover:scale-110",
-            row.name === "Free" ? "bg-white/5 border-white/10" : row.name === "Pro" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.2)]" : "bg-primary/20 text-primary border-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.2)]"
-          )}>
-            {row.name === "Free" ? <CreditCard className="w-5 h-5" /> : row.name === "Pro" ? <Zap className="w-5 h-5" /> : <Crown className="w-5 h-5" />}
-          </div>
-          <div className="flex flex-col">
-            <span className="font-black tracking-tight text-white uppercase italic text-sm">{row.name} Tier</span>
-            <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mt-1 opacity-60 truncate max-w-[200px]">{row.description}</span>
-          </div>
-        </div>
-      ),
-    },
-    {
-      header: "Valuation",
-      accessorKey: "monthly_price",
-      cell: (row: any) => (
-        <div className="flex flex-col">
-            <span className="font-black tracking-tighter text-white text-lg">${row.monthly_price}</span>
-            <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Base / Month</span>
-        </div>
-      ),
-    },
-    {
-      header: "Resource Grid",
-      accessorKey: "max_users",
-      cell: (row: any) => (
-        <div className="flex items-center gap-2">
-            <Badge variant="outline" className="font-black text-[9px] tracking-widest bg-white/5 border-white/5 px-3 py-1 rounded-lg">
-                <Cpu className="w-3 h-3 mr-1.5 opacity-60" /> {row.max_users === 0 ? "∞" : row.max_users} U
-            </Badge>
-            <Badge variant="outline" className="font-black text-[9px] tracking-widest bg-white/5 border-white/5 px-3 py-1 rounded-lg">
-                <Database className="w-3 h-3 mr-1.5 opacity-60" /> {row.max_invoices === 0 ? "∞" : row.max_invoices} I
-            </Badge>
-        </div>
-      ),
-    },
-    {
-      header: "Protocol",
-      accessorKey: "is_active",
-      cell: () => (
-        <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-            <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Active</span>
-        </div>
-      ),
-    },
+    { header: "Protocol", accessorKey: "name" },
+    { header: "Monthly", accessorKey: "monthly_price", cell: (row: any) => `$${row.monthly_price}` },
+    { header: "Invoices", accessorKey: "max_invoices", cell: (row: any) => row.max_invoices === 0 ? "∞" : row.max_invoices },
+    { header: "Status", accessorKey: "is_active", cell: (row: any) => (
+      <Badge className={cn(
+        "font-black uppercase tracking-widest text-[9px] px-2 py-0.5 rounded-full",
+        row.is_active ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-destructive/10 text-destructive border border-destructive/20"
+      )}>
+        {row.is_active ? "ACTIVE" : "OFFLINE"}
+      </Badge>
+    )},
   ];
 
   return (
     <div className="space-y-12 pb-12">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-             <div className="p-2.5 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
-                <Layers className="w-6 h-6 text-indigo-400" />
+             <div className="p-2.5 bg-primary/10 rounded-2xl border border-primary/20">
+                <Layers className="w-6 h-6 text-primary" />
              </div>
-             <h1 className="text-4xl font-black tracking-tighter text-white uppercase italic">Tier <span className="text-indigo-500">Architecture</span></h1>
+             <h1 className="text-4xl font-black tracking-tighter text-white uppercase italic">Tier <span className="text-primary">Architecture</span></h1>
           </div>
           <p className="text-muted-foreground font-medium flex items-center gap-2">
-            <Globe className="w-4 h-4 text-indigo-500" />
+            <Globe className="w-4 h-4 text-primary" />
             Global subscription protocols and platform resource allocation.
           </p>
         </div>
 
         <div className="flex items-center gap-4">
            <Button 
-             onClick={() => { setSelectedPlan(null); setIsDialogOpen(true); }}
-             className="h-14 px-8 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+             onClick={() => { setSelectedPlan(null); setNewPlan({ name: "", description: "", monthly_price: 0, yearly_price: 0, max_invoices: 0, max_customers: 0, max_products: 0, max_users: 0, is_active: true, features: {} }); setIsDialogOpen(true); }}
+             className="h-14 px-8 bg-primary hover:bg-primary/90 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 active:scale-95 transition-all"
            >
              <Plus className="w-4 h-4 mr-2" /> Initialize Tier
            </Button>
-           <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-2xl">
-              <Fingerprint className="w-5 h-5 text-indigo-400 animate-pulse" />
-              <p className="text-[10px] font-black tracking-widest text-white/40 uppercase">Root Authority</p>
+           <div className="flex items-center gap-3 p-3 bg-muted/30 border border-border/40 rounded-2xl">
+              <Fingerprint className="w-5 h-5 text-primary animate-pulse" />
+              <p className="text-[10px] font-black tracking-widest text-muted-foreground uppercase">Root Authority</p>
            </div>
         </div>
       </div>
@@ -201,7 +163,7 @@ export default function AdminPlansPage() {
               <div className="flex items-center justify-between mb-8">
                  <Badge className={cn(
                    "font-black uppercase tracking-widest text-[9px] px-3 py-1 rounded-full",
-                   p.name === "Free" ? "bg-white/5 text-white/40 border border-white/10" : p.name === "Pro" ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" : "bg-primary/10 text-primary border-primary/20"
+                   p.name === "Free" ? "bg-surface-alpha text-white/40 border border-white/10" : p.name === "Pro" ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" : "bg-primary/10 text-primary border-primary/20"
                  )}>
                    {p.name} Protocol
                  </Badge>
@@ -234,7 +196,7 @@ export default function AdminPlansPage() {
             </CardContent>
 
             <CardFooter className="p-8 pt-6 border-t border-white/5 bg-white/1">
-               <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+               <div className="w-full h-1 bg-surface-alpha rounded-full overflow-hidden">
                   <div className={cn(
                     "h-full transition-all duration-1000",
                     p.name === "Free" ? "w-1/3 bg-white/20" : p.name === "Pro" ? "w-2/3 bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" : "w-full bg-primary shadow-[0_0_10px_rgba(var(--primary),0.5)]"
@@ -249,11 +211,11 @@ export default function AdminPlansPage() {
       <div className="space-y-6 mt-20">
         <div className="flex items-center justify-between">
             <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60 flex items-center gap-2">
-               <History className="w-3.5 h-3.5" /> Registry Feed
+               <Timer className="w-3.5 h-3.5" /> Registry Feed
             </h3>
             <div className="flex items-center gap-2">
-               <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-               <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Protocol Matrix Sync</span>
+               <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.8)]" />
+               <span className="text-[10px] font-black text-primary uppercase tracking-widest">Protocol Matrix Sync</span>
             </div>
         </div>
 
@@ -300,11 +262,11 @@ export default function AdminPlansPage() {
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2 group">
               <Label htmlFor="name" className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 group-focus-within:text-indigo-400 transition-colors">Protocol ID</Label>
-              <Input id="name" name="name" defaultValue={selectedPlan?.name} className="h-14 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-black italic tracking-tight" placeholder="e.g. ULTRA" required />
+              <Input id="name" name="name" defaultValue={selectedPlan?.name} className="h-14 bg-surface-alpha border-white/5 focus:border-indigo-500/50 rounded-2xl font-black italic tracking-tight" placeholder="e.g. ULTRA" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="description" className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Operational Metadata</Label>
-              <Input id="description" name="description" defaultValue={selectedPlan?.description} className="h-14 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl" placeholder="System capabilities..." />
+              <Input id="description" name="description" defaultValue={selectedPlan?.description} className="h-14 bg-surface-alpha border-white/5 focus:border-indigo-500/50 rounded-2xl" placeholder="System capabilities..." />
             </div>
           </div>
           
@@ -334,9 +296,17 @@ export default function AdminPlansPage() {
             ].map(f => (
               <div key={f.id} className="space-y-2">
                 <Label className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">{f.label}</Label>
-                <Input name={f.id} type="number" defaultValue={selectedPlan?.[f.id]} className="h-14 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-black text-center text-lg" placeholder="0 = ∞" />
+                <Input name={f.id} type="number" defaultValue={selectedPlan?.[f.id]} className="h-14 bg-surface-alpha border-white/5 focus:border-indigo-500/50 rounded-2xl font-black text-center text-lg" placeholder="0 = ∞" />
               </div>
             ))}
+          </div>
+
+          <div className="flex items-center justify-between p-6 bg-white/2 rounded-2xl border border-white/5">
+            <div className="space-y-1">
+              <Label className="text-[10px] font-black text-white uppercase tracking-widest">Active Status</Label>
+              <p className="text-[9px] text-muted-foreground font-medium uppercase">Toggle public availability of this protocol</p>
+            </div>
+            <Switch name="is_active" defaultChecked={selectedPlan?.is_active ?? true} />
           </div>
         </div>
       </FormDialog>

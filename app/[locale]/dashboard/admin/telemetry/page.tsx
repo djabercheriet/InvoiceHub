@@ -97,7 +97,7 @@ export default function AdminTelemetryPage() {
              variant="ghost" 
              onClick={fetchTelemetry} 
              disabled={loading}
-             className="h-12 px-6 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-[10px] transition-all"
+             className="h-12 px-6 rounded-2xl bg-surface-alpha border border-white/5 hover:bg-surface-alpha text-white font-black uppercase tracking-widest text-[10px] transition-all"
            >
              {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className={cn("w-4 h-4 mr-2", loading && "animate-spin")} />}
              Rescan Network
@@ -134,13 +134,13 @@ export default function AdminTelemetryPage() {
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground/60">Lattice Registry</h3>
-          <div className="h-px flex-1 bg-white/5" />
+          <div className="h-px flex-1 bg-surface-alpha" />
         </div>
 
         {loading ? (
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[1,2,3,4].map(i => (
-                  <div key={i} className="h-64 bg-white/5 rounded-[32px] animate-pulse" />
+                  <div key={i} className="h-64 bg-surface-alpha rounded-[32px] animate-pulse" />
                 ))}
              </div>
         ) : telemetry.length === 0 ? (
@@ -189,7 +189,7 @@ export default function AdminTelemetryPage() {
                         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2 opacity-60"><Cpu className="w-3 h-3" /> CPU</p>
                         <div className="space-y-1.5">
                            <div className="text-xl font-black text-white">{data.metrics.cpuUsage.toFixed(1)}%</div>
-                           <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                           <div className="h-1 w-full bg-surface-alpha rounded-full overflow-hidden">
                               <div 
                                 className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] transition-all duration-1000" 
                                 style={{ width: `${data.metrics.cpuUsage}%` }} 
@@ -202,7 +202,7 @@ export default function AdminTelemetryPage() {
                         <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2 opacity-60"><Cpu className="w-3 h-3" /> RAM</p>
                         <div className="space-y-1.5">
                            <div className="text-xl font-black text-white">{Math.round(data.metrics.memUsage)}%</div>
-                           <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                           <div className="h-1 w-full bg-surface-alpha rounded-full overflow-hidden">
                               <div 
                                 className="h-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)] transition-all duration-1000" 
                                 style={{ width: `${data.metrics.memUsage}%` }} 

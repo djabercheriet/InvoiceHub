@@ -185,7 +185,7 @@ export default function SettingsSuite() {
         <div className="flex items-center gap-2">
            <Button
              variant="outline"
-             className="h-10 px-4 rounded-xl font-bold border-white/10 bg-white/5 text-xs text-muted-foreground hover:text-foreground"
+             className="h-10 px-4 rounded-xl font-bold border-white/10 bg-surface-alpha text-xs text-muted-foreground hover:text-foreground"
            >
              Reset Default
            </Button>
@@ -236,7 +236,7 @@ export default function SettingsSuite() {
                              <Input 
                                 value={companyName} 
                                 onChange={e => setCompanyName(e.target.value)} 
-                                className="h-14 rounded-2xl bg-white/5 border-white/5 focus:border-primary/50 font-black text-lg px-6" 
+                                className="h-14 rounded-2xl bg-surface-alpha border-white/5 focus:border-primary/50 font-black text-lg px-6" 
                              />
                           </div>
                           <div className="space-y-3">
@@ -244,7 +244,7 @@ export default function SettingsSuite() {
                              <Input 
                                 value={taxId} 
                                 onChange={e => setTaxId(e.target.value)} 
-                                className="h-14 rounded-2xl bg-white/5 border-white/5 focus:border-primary/50 font-mono font-black text-lg px-6" 
+                                className="h-14 rounded-2xl bg-surface-alpha border-white/5 focus:border-primary/50 font-mono font-black text-lg px-6" 
                              />
                           </div>
                           <div className="space-y-3">
@@ -253,7 +253,7 @@ export default function SettingsSuite() {
                                 type="email"
                                 value={companyEmail} 
                                 onChange={e => setCompanyEmail(e.target.value)} 
-                                className="h-14 rounded-2xl bg-white/5 border-white/5 focus:border-primary/50 font-black text-lg px-6" 
+                                className="h-14 rounded-2xl bg-surface-alpha border-white/5 focus:border-primary/50 font-black text-lg px-6" 
                              />
                           </div>
                           <div className="space-y-3">
@@ -261,7 +261,7 @@ export default function SettingsSuite() {
                              <Input 
                                 value={companyPhone} 
                                 onChange={e => setCompanyPhone(e.target.value)} 
-                                className="h-14 rounded-2xl bg-white/5 border-white/5 focus:border-primary/50 font-mono font-black text-lg px-6" 
+                                className="h-14 rounded-2xl bg-surface-alpha border-white/5 focus:border-primary/50 font-mono font-black text-lg px-6" 
                              />
                           </div>
                           <div className="space-y-3 md:col-span-2">
@@ -269,7 +269,7 @@ export default function SettingsSuite() {
                              <Input 
                                 value={companyAddr} 
                                 onChange={e => setCompanyAddr(e.target.value)} 
-                                className="h-14 rounded-2xl bg-white/5 border-white/5 focus:border-primary/50 font-black text-lg px-6" 
+                                className="h-14 rounded-2xl bg-surface-alpha border-white/5 focus:border-primary/50 font-black text-lg px-6" 
                              />
                           </div>
                        </div>
@@ -291,7 +291,7 @@ export default function SettingsSuite() {
                              { label: 'Uptime', value: '99.99%', icon: ShieldCheck },
                              { label: 'Storage', value: '8.4 GB', icon: Database },
                           ].map((item, i) => (
-                             <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10">
+                             <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-surface-alpha border border-white/10">
                                 <div className="flex items-center gap-3">
                                    <item.icon className="w-4 h-4 text-muted-foreground" />
                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{item.label}</span>
@@ -322,7 +322,7 @@ export default function SettingsSuite() {
                     </div>
                  </CardHeader>
                  <CardContent className="p-8 space-y-10">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between p-6 rounded-3xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all gap-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between p-6 rounded-3xl bg-surface-alpha border border-white/5 hover:border-primary/20 transition-all gap-6">
                        <div className="space-y-2">
                           <Label className="font-black text-base">Elastic Sidebar Navigation</Label>
                           <p className="text-xs text-muted-foreground font-semibold max-w-sm">Automatically collapse navigation on smaller viewports to prioritize data canvas.</p>
@@ -333,7 +333,7 @@ export default function SettingsSuite() {
                     <div className="space-y-4">
                        <Label className="text-[10px] font-black text-muted-foreground tracking-[0.2em] uppercase">Interface Density Pattern</Label>
                        <Select value={layoutDensity} onValueChange={(val: any) => setLayoutDensity(val)}>
-                          <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/5 focus:border-primary/50 font-black text-lg px-6">
+                          <SelectTrigger className="h-14 rounded-2xl bg-surface-alpha border-white/5 focus:border-primary/50 font-black text-lg px-6">
                              <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="rounded-2xl border-white/10 bg-background/95 backdrop-blur-xl shadow-2xl">
@@ -360,7 +360,7 @@ export default function SettingsSuite() {
                  </CardHeader>
                  <CardContent className="p-8 space-y-8 relative z-10">
                     <div className="grid grid-cols-2 gap-4">
-                       <div className="p-6 rounded-3xl bg-white/5 border-2 border-primary shadow-2xl shadow-primary/10 relative">
+                       <div className="p-6 rounded-3xl bg-surface-alpha border-2 border-primary shadow-2xl shadow-primary/10 relative">
                           <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-primary" />
                           <h4 className="font-black mb-1">Deep Carbon</h4>
                           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Active</p>
@@ -394,7 +394,7 @@ export default function SettingsSuite() {
                     <div className="space-y-4">
                        <Label className="text-[10px] font-black text-muted-foreground tracking-[0.2em] uppercase">Functional Currency</Label>
                        <Select value={currency} onValueChange={setCurrency}>
-                          <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/5 font-black text-lg px-6"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="h-14 rounded-2xl bg-surface-alpha border-white/5 font-black text-lg px-6"><SelectValue /></SelectTrigger>
                           <SelectContent className="rounded-2xl border-white/10 bg-background/95 backdrop-blur-xl shadow-2xl">
                              {CURRENCIES.map(c => <SelectItem key={c.code} value={c.code} className="rounded-xl px-4 py-3 font-black text-sm">{c.label}</SelectItem>)}
                           </SelectContent>
@@ -404,7 +404,7 @@ export default function SettingsSuite() {
                     <div className="space-y-4">
                        <Label className="text-[10px] font-black text-muted-foreground tracking-[0.2em] uppercase">Chronos Format</Label>
                        <Select value={dateFormat} onValueChange={setDateFormat}>
-                          <SelectTrigger className="h-14 rounded-2xl bg-white/5 border-white/5 font-black text-lg px-6"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="h-14 rounded-2xl bg-surface-alpha border-white/5 font-black text-lg px-6"><SelectValue /></SelectTrigger>
                           <SelectContent className="rounded-2xl border-white/10 bg-background/95 backdrop-blur-xl shadow-2xl">
                              {DATE_FORMATS.map(d => <SelectItem key={d.value} value={d.value} className="rounded-xl px-4 py-3 font-black text-sm">{d.label}</SelectItem>)}
                           </SelectContent>
@@ -420,7 +420,7 @@ export default function SettingsSuite() {
                           value={invPrefix} 
                           maxLength={6} 
                           onChange={e => setInvPrefix(e.target.value.toUpperCase())} 
-                          className="h-14 rounded-2xl bg-white/5 border-white/5 font-mono font-black text-2xl tracking-[0.2em] px-6 text-center" 
+                          className="h-14 rounded-2xl bg-surface-alpha border-white/5 font-mono font-black text-2xl tracking-[0.2em] px-6 text-center" 
                        />
                     </div>
                  </div>
@@ -441,7 +441,7 @@ export default function SettingsSuite() {
                                 type="number" 
                                 value={parallelRates.EUR_DZD} 
                                 onChange={e => setParallelRates({...parallelRates, EUR_DZD: parseFloat(e.target.value) || 0})} 
-                                className="h-14 rounded-2xl bg-white/10 border-white/5 focus:border-primary/50 font-black text-2xl px-12 pl-14 transition-all" 
+                                className="h-14 rounded-2xl bg-surface-alpha border-white/5 focus:border-primary/50 font-black text-2xl px-12 pl-14 transition-all" 
                              />
                              <span className="absolute left-6 top-1/2 -translate-y-1/2 font-black text-xl text-primary/50 group-focus-within/input:text-primary transition-colors">€</span>
                           </div>
@@ -453,7 +453,7 @@ export default function SettingsSuite() {
                                 type="number" 
                                 value={parallelRates.USD_DZD} 
                                 onChange={e => setParallelRates({...parallelRates, USD_DZD: parseFloat(e.target.value) || 0})} 
-                                className="h-14 rounded-2xl bg-white/10 border-white/5 focus:border-primary/50 font-black text-2xl px-12 pl-14 transition-all" 
+                                className="h-14 rounded-2xl bg-surface-alpha border-white/5 focus:border-primary/50 font-black text-2xl px-12 pl-14 transition-all" 
                              />
                              <span className="absolute left-6 top-1/2 -translate-y-1/2 font-black text-xl text-primary/50 group-focus-within/input:text-primary transition-colors">$</span>
                           </div>
@@ -499,7 +499,7 @@ export default function SettingsSuite() {
                     </div>
                  ))}
               </CardContent>
-              <CardFooter className="p-8 bg-white/5 border-t border-white/5">
+              <CardFooter className="p-8 bg-surface-alpha border-t border-white/5">
                  <div className="flex items-center gap-3 text-muted-foreground font-bold text-xs uppercase tracking-[0.2em]">
                     <ShieldCheck className="w-4 h-4 text-primary" />
                     Governed by Role-Based Access Control

@@ -103,7 +103,7 @@ export default function AutomationHub() {
               </h3>
               <div className="relative w-72 group">
                  <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                 <Input placeholder="Search workflows..." className="pl-11 h-12 bg-white/5 border-white/5 focus:border-primary/50 rounded-2xl transition-all" />
+                 <Input placeholder="Search workflows..." className="pl-11 h-12 bg-surface-alpha border-white/5 focus:border-primary/50 rounded-2xl transition-all" />
               </div>
            </div>
 
@@ -111,14 +111,14 @@ export default function AutomationHub() {
               {rules.length > 0 ? rules.map(rule => (
                  <Card key={rule.id} className={cn("transition-all duration-500 border-2", rule.is_active ? "border-white/10 glass-dashboard shadow-xl hover:border-primary/40" : "border-white/5 opacity-40 grayscale")}>
                     <CardContent className="p-6 flex items-start gap-8">
-                       <div className={cn("p-5 rounded-3xl bg-white/5 border border-white/10 group-hover:scale-110 transition-transform")}>
+                       <div className={cn("p-5 rounded-3xl bg-surface-alpha border border-white/10 group-hover:scale-110 transition-transform")}>
                           <Zap className={cn("w-8 h-8", rule.is_active ? "text-amber-500 fill-amber-500/10" : "text-muted-foreground")} />
                        </div>
                        <div className="flex-1 space-y-2 mt-1">
                           <div className="flex items-center justify-between">
                              <div className="flex items-center gap-3">
                                 <h4 className="font-black text-xl tracking-tight">{rule.name}</h4>
-                                <Badge variant="outline" className="text-[10px] font-black uppercase tracking-widest bg-white/5 border-white/10">{rule.trigger_event}</Badge>
+                                <Badge variant="outline" className="text-[10px] font-black uppercase tracking-widest bg-surface-alpha border-white/10">{rule.trigger_event}</Badge>
                              </div>
                              <Switch checked={rule.is_active} onCheckedChange={(val) => handleToggle(rule.id, val)} className="data-[state=checked]:bg-primary" />
                           </div>
@@ -138,7 +138,7 @@ export default function AutomationHub() {
                  </Card>
               )) : (
                 <div className="p-20 text-center border-2 border-dashed border-white/5 rounded-3xl bg-white/2">
-                   <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                   <div className="w-20 h-20 bg-surface-alpha rounded-3xl flex items-center justify-center mx-auto mb-6">
                       <Zap className="w-10 h-10 text-muted-foreground/30" />
                    </div>
                    <h3 className="text-xl font-black mb-2 opacity-40">No Workflows Configured</h3>

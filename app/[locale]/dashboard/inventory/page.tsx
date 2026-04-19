@@ -272,45 +272,88 @@ export default function InventoryPage() {
         )
     }
   ];
-
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/60 pb-8">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-bold tracking-tight text-foreground flex items-center gap-3">
-            <Package className="w-8 h-8 text-primary" />
-            Inventory Hub
-          </h1>
-          <p className="text-muted-foreground font-medium">Manage physical assets, track stock levels, and monitor movements.</p>
+    <div className="space-y-10 animate-in fade-in duration-700">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/60 pb-8">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-xl border border-primary/20">
+              <Package className="w-5 h-5 text-primary" />
+            </div>
+            <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase italic leading-none">
+              Inventory <span className="text-primary">Hub</span>
+            </h1>
+          </div>
+          <p className="text-muted-foreground font-medium flex items-center gap-2">
+            <Info className="w-4 h-4 text-primary" />
+            Manage physical assets, track stock levels, and monitor movements.
+          </p>
         </div>
         
-        <div className="flex items-center gap-3">
-          <div className="bg-muted p-1 rounded-xl flex gap-1">
-            <button onClick={() => setActiveTab("inventory")} className={cn("px-4 py-2 rounded-lg text-[10px] font-bold tracking-tight transition-all", activeTab === "inventory" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground")}>Index</button>
-            <button onClick={() => setActiveTab("movements")} className={cn("px-4 py-2 rounded-lg text-[10px] font-bold tracking-tight transition-all", activeTab === "movements" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground")}>Movements</button>
+        <div className="flex items-center gap-4">
+          <div className="bg-muted/30 p-1.5 rounded-2xl flex gap-1 border border-border/40 backdrop-blur-sm">
+            <button 
+              onClick={() => setActiveTab("inventory")} 
+              className={cn(
+                "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300", 
+                activeTab === "inventory" ? "bg-background shadow-xl text-primary border border-border/40" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Master Index
+            </button>
+            <button 
+              onClick={() => setActiveTab("movements")} 
+              className={cn(
+                "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300", 
+                activeTab === "movements" ? "bg-background shadow-xl text-primary border border-border/40" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Telemetry
+            </button>
           </div>
-          <Button onClick={() => { setEditingProduct(null); form.reset(); setIsDialogOpen(true); }} className="gap-2 font-bold tracking-tight shadow-lg shadow-primary/20"><Plus className="w-4 h-4" /> Register Asset</Button>
+          <Button 
+            onClick={() => { setEditingProduct(null); form.reset(); setIsDialogOpen(true); }} 
+            className="h-12 px-6 gap-3 font-black uppercase tracking-widest shadow-2xl shadow-primary/20 rounded-2xl"
+          >
+            <Plus className="w-4 h-4" /> Register Asset
+          </Button>
         </div>
       </div>
 
       {activeTab === "inventory" ? (
         <>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="glass-card border-none shadow-xl bg-primary/5">
-              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-bold tracking-widest text-primary">Total SKU</CardTitle></CardHeader>
-              <CardContent><div className="text-3xl font-bold tracking-tight">{products.length}</div></CardContent>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="glass-card border-border/40 shadow-xl bg-primary/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Master Index SKU</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-black tracking-tighter text-foreground">{products.length}</div>
+              </CardContent>
             </Card>
-            <Card className="glass-card border-none shadow-xl">
-              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-bold tracking-widest text-muted-foreground">Stock Value</CardTitle></CardHeader>
-              <CardContent><div className="text-3xl font-bold tracking-tight">${products.reduce((a,b)=>a+(b.quantity*b.unit_price),0).toLocaleString()}</div></CardContent>
+            <Card className="glass-card border-border/40 shadow-xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60">Global Asset Value</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-black tracking-tighter text-foreground">${products.reduce((a,b)=>a+(b.quantity*b.unit_price),0).toLocaleString()}</div>
+              </CardContent>
             </Card>
-            <Card className={cn("glass-card border-none shadow-xl", products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length > 0 ? "bg-amber-500/10 border-amber-500/20" : "")}>
-              <CardHeader className="pb-2"><CardTitle className={cn("text-[10px] font-bold tracking-widest", products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length > 0 ? "text-amber-600" : "text-muted-foreground")}>Low Stock Alerts</CardTitle></CardHeader>
-              <CardContent><div className={cn("text-3xl font-bold tracking-tight", products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length > 0 ? "text-amber-600" : "")}>{products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length}</div></CardContent>
+            <Card className={cn("glass-card border-border/40 shadow-xl", products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length > 0 ? "bg-amber-500/10 border-amber-500/30" : "")}>
+              <CardHeader className="pb-2">
+                <CardTitle className={cn("text-[10px] font-black uppercase tracking-[0.25em]", products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length > 0 ? "text-amber-600" : "text-muted-foreground/60")}>Critical Thresholds</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className={cn("text-3xl font-black tracking-tighter", products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length > 0 ? "text-amber-600" : "text-foreground")}>{products.filter(p=>p.quantity <= p.min_stock_level && p.min_stock_level > 0).length}</div>
+              </CardContent>
             </Card>
-            <Card className="glass-card border-none shadow-xl">
-              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-bold tracking-widest text-muted-foreground">Out of Stock</CardTitle></CardHeader>
-              <CardContent><div className="text-3xl font-bold tracking-tight text-destructive">{products.filter(p=>p.quantity === 0).length}</div></CardContent>
+            <Card className="glass-card border-border/40 shadow-xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60">Zero-Balance Stock</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-black tracking-tighter text-destructive">{products.filter(p=>p.quantity === 0).length}</div>
+              </CardContent>
             </Card>
           </div>
           {companyId && <LowStockAlert companyId={companyId} />}
@@ -318,37 +361,53 @@ export default function InventoryPage() {
           <DataTable data={products} columns={columns} loading={loading} onEdit={handleEdit} onDelete={handleDelete} searchPlaceholder="Search asset index..." />
         </>
       ) : (
-        <Card className="glass-card border-none shadow-2xl overflow-hidden">
+        <Card className="glass-card border-border/40 shadow-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
-              <thead className="bg-muted/50 border-b border-border/40">
+              <thead className="bg-muted/30 border-b border-border/40">
                 <tr>
-                  <th className="p-4 text-[10px] font-bold tracking-widest">Timestamp</th>
-                  <th className="p-4 text-[10px] font-bold tracking-widest">Asset</th>
-                  <th className="p-4 text-[10px] font-bold tracking-widest text-center">Type</th>
-                  <th className="p-4 text-[10px] font-bold tracking-widest text-right">Quantity</th>
-                  <th className="p-4 text-[10px] font-bold tracking-widest">Note</th>
+                  <th className="py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px]">Event Horizon</th>
+                  <th className="py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px]">Asset Node</th>
+                  <th className="py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px] text-center">Protocol</th>
+                  <th className="py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px] text-right">Delta</th>
+                  <th className="py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px]">Annotation</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-border/20">
                 {movements.map(m => (
-                  <tr key={m.id} className="border-b border-border/10 hover:bg-muted/20 transition-colors">
-                    <td className="p-4 text-xs font-mono opacity-60" suppressHydrationWarning>{new Date(m.created_at).toLocaleString()}</td>
-                    <td className="p-4"><div className="flex flex-col"><span className="font-bold tracking-tight text-xs">{m.products?.name}</span><span className="text-[9px] font-mono opacity-50">{m.products?.sku}</span></div></td>
-                    <td className="p-4 text-center">
-                      <Badge className={cn("text-[9px] font-bold", m.movement_type === 'in' ? "bg-emerald-500/10 text-emerald-600" : "bg-blue-500/10 text-blue-600")}>{m.movement_type}</Badge>
+                  <tr key={m.id} className="hover:bg-muted/20 transition-colors border-none group">
+                    <td className="py-6 px-8 text-[11px] font-bold text-muted-foreground/60 tracking-tighter" suppressHydrationWarning>
+                      {new Date(m.created_at).toLocaleString()}
                     </td>
-                    <td className="p-4 text-right">
-                      <div className={cn("font-bold tracking-tight", m.movement_type === 'in' ? "text-emerald-500" : "text-blue-500")}>
+                    <td className="py-6 px-8">
+                      <div className="flex flex-col">
+                        <span className="font-black tracking-tighter text-sm uppercase text-foreground">{m.products?.name}</span>
+                        <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">{m.products?.sku}</span>
+                      </div>
+                    </td>
+                    <td className="py-6 px-8 text-center">
+                      <Badge className={cn(
+                        "text-[9px] font-black tracking-widest px-3 py-1 rounded-xl border", 
+                        m.movement_type === 'in' ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-primary/10 text-primary border-primary/20"
+                      )}>
+                        {m.movement_type.toUpperCase()}
+                      </Badge>
+                    </td>
+                    <td className="py-6 px-8 text-right">
+                      <div className={cn("text-base font-black tracking-tighter", m.movement_type === 'in' ? "text-emerald-500" : "text-primary")}>
                         {m.movement_type === 'in' ? '+' : '-'}{m.quantity}
                       </div>
                     </td>
-                    <td className="p-4 text-xs text-muted-foreground">{m.note || '—'}</td>
+                    <td className="py-6 px-8 text-xs font-medium text-muted-foreground italic">{m.note || 'SYSTEM_LOG'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            {movements.length === 0 && <div className="p-20 text-center text-muted-foreground text-sm">No recorded stock movements in history.</div>}
+            {movements.length === 0 && (
+              <div className="py-24 text-center">
+                <div className="text-sm font-black uppercase tracking-[0.3em] text-muted-foreground/30">No recorded telemetry.</div>
+              </div>
+            )}
           </div>
         </Card>
       )}

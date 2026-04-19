@@ -173,7 +173,7 @@ async function sendRawEmail({ to, subject, html, attachments = [] }: {
   if (resend) {
     try {
       const { data, error } = await resend.emails.send({
-        from: 'Bntec Dynamics <onboarding@resend.dev>',
+        from: `${process.env.RESEND_FROM_NAME ?? 'Bntec Dynamics'} <${process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev'}>`,
         to: [to],
         subject,
         html,

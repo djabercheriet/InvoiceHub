@@ -45,6 +45,7 @@ interface DataTableProps<T> {
  onDelete?: (row: T) => void
  loading?: boolean
  actions?: (row: T) => React.ReactNode
+ className?: string
 }
 
 export function DataTable<T extends { id: string }>({
@@ -54,7 +55,8 @@ export function DataTable<T extends { id: string }>({
  onEdit,
  onDelete,
  loading = false,
- actions
+ actions,
+ className
 }: DataTableProps<T>) {
  const [searchTerm, setSearchTerm] = React.useState("")
 
@@ -87,94 +89,96 @@ export function DataTable<T extends { id: string }>({
  </div>
  </div>
 
- <div className="rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm overflow-hidden shadow-sm">
- <Table>
- <TableHeader className="bg-muted/30">
- <TableRow className="hover:bg-transparent border-border/50">
- {columns.map((col, i) => (
- <TableHead key={i} className={cn("text-xs font-bold tracking-widest text-muted-foreground py-4", col.className)}>
- {col.header}
- </TableHead>
- ))}
- {(onEdit || onDelete || actions) && (
- <TableHead className="w-[80px] text-right py-4"></TableHead>
- )}
- </TableRow>
- </TableHeader>
- <TableBody>
- {loading ? (
- Array.from({ length: 5 }).map((_, i) => (
- <TableRow key={i} className="border-border/40">
- {columns.map((_, j) => (
- <TableCell key={j} className="py-4">
- <Skeleton className="h-4 w-full opacity-40" />
- </TableCell>
- ))}
- {(onEdit || onDelete || actions) && (
- <TableCell className="py-4">
- <Skeleton className="h-8 w-8 rounded-md mx-auto opacity-40" />
- </TableCell>
- )}
- </TableRow>
- ))
- ) : filteredData.length === 0 ? (
- <TableRow>
- <TableCell
- colSpan={columns.length + (actions || onEdit || onDelete ? 1 : 0)}
- className="p-0 border-0"
- >
-   <EmptyState 
-     title="No Record Found" 
-     description={searchTerm ? "No results found matching your search pulse. Try adjusting your query." : "There is no data to display here yet."}
-     icon={Search}
-   />
- </TableCell>
- </TableRow>
- ) : (
- filteredData.map((row) => (
- <TableRow key={row.id} className="group border-border/40 hover:bg-muted/20 transition-colors">
- {columns.map((col, i) => (
- <TableCell key={i} className={cn("py-4 text-sm font-medium", col.className)}>
- {col.cell ? col.cell(row) : String(row[col.accessorKey as keyof T] ||"-")}
- </TableCell>
- ))}
- {(onEdit || onDelete || actions) && (
- <TableCell className="text-right py-2">
- {actions ? (
- actions(row)
- ) : (
- <DropdownMenu>
- <DropdownMenuTrigger asChild>
- <Button variant="ghost" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
- <span className="sr-only">Open menu</span>
- <MoreHorizontal className="h-4 w-4" />
- </Button>
- </DropdownMenuTrigger>
- <DropdownMenuContent align="end" className="w-40 glass-card">
- <DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground">Actions</DropdownMenuLabel>
- {onEdit && (
- <DropdownMenuItem onClick={() => onEdit(row)} className="gap-2">
- <Edit className="h-4 w-4" /> Edit
- </DropdownMenuItem>
- )}
- <DropdownMenuSeparator />
- {onDelete && (
- <DropdownMenuItem 
- onClick={() => onDelete(row)} 
- className="gap-2 text-destructive focus:text-destructive focus:bg-destructive/10"
- >
- <Trash2 className="h-4 w-4" /> Delete
- </DropdownMenuItem>
- )}
- </DropdownMenuContent>
- </DropdownMenu>
- )}
- </TableCell>
- )}
- </TableRow>
- ))
- )}
- </TableBody>
+  <div className={cn("rounded-2xl border border-border/40 bg-card/30 backdrop-blur-md overflow-hidden shadow-2xl", className)}>
+    <Table>
+      <TableHeader className="bg-muted/30 border-b border-border/40">
+        <TableRow className="hover:bg-transparent border-none">
+          {columns.map((col, i) => (
+            <TableHead key={i} className={cn("py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px] h-auto whitespace-nowrap", col.className)}>
+              {col.header}
+            </TableHead>
+          ))}
+          {(onEdit || onDelete || actions) && (
+            <TableHead className="w-[100px] text-right py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px] h-auto whitespace-nowrap">Control</TableHead>
+          )}
+        </TableRow>
+      </TableHeader>
+        <TableBody className="divide-y divide-border/20">
+          {loading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <TableRow key={i} className="border-none">
+                {columns.map((_, j) => (
+                  <TableCell key={j} className="py-8 px-8">
+                    <Skeleton className="h-4 w-full bg-muted/40 rounded-lg" />
+                  </TableCell>
+                ))}
+                {(onEdit || onDelete || actions) && (
+                  <TableCell className="py-8 px-8">
+                    <Skeleton className="h-8 w-8 rounded-xl mx-auto bg-muted/40" />
+                  </TableCell>
+                )}
+              </TableRow>
+            ))
+          ) : filteredData.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={columns.length + (actions || onEdit || onDelete ? 1 : 0)}
+                className="p-0 border-0"
+              >
+                <EmptyState 
+                  title="No Record Found" 
+                  description={searchTerm ? "No results found matching your search pulse. Try adjusting your query." : "There is no data to display here yet."}
+                  icon={Search}
+                />
+              </TableCell>
+            </TableRow>
+          ) : (
+            filteredData.map((row) => (
+              <tr key={row.id} className="group hover:bg-muted/20 transition-colors border-none">
+                {columns.map((col, i) => (
+                  <td key={i} className={cn("py-6 px-8 text-sm font-medium text-foreground tracking-tight", col.className)}>
+                    {col.cell ? col.cell(row) : String(row[col.accessorKey as keyof T] || "-")}
+                  </td>
+                ))}
+                {(onEdit || onDelete || actions) && (
+                  <td className="text-right py-6 px-8">
+                    {actions ? (
+                      actions(row)
+                    ) : (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-10 w-10 p-0 border border-transparent hover:border-border/40 rounded-xl transition-all">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56 glass-card border-border/50 p-2 shadow-2xl">
+                          <DropdownMenuLabel className="p-3 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Node Operations</DropdownMenuLabel>
+                          {onEdit && (
+                            <DropdownMenuItem onClick={() => onEdit(row)} className="flex items-center gap-3 p-3 rounded-xl focus:bg-primary/10 focus:text-primary cursor-pointer transition-colors">
+                              <Edit className="h-4 w-4" /> 
+                              <span className="font-bold text-xs uppercase tracking-widest">Update Data</span>
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator className="bg-border/40 mx-1" />
+                          {onDelete && (
+                            <DropdownMenuItem 
+                              onClick={() => onDelete(row)} 
+                              className="flex items-center gap-3 p-3 rounded-xl focus:bg-destructive/10 focus:text-destructive text-destructive cursor-pointer transition-colors"
+                            >
+                              <Trash2 className="h-4 w-4" /> 
+                              <span className="font-bold text-xs uppercase tracking-widest">Wipe Asset</span>
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </td>
+                )}
+              </tr>
+            ))
+          )}
+        </TableBody>
  </Table>
  </div>
 
