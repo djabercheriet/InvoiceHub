@@ -1,28 +1,31 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: 'Outfit', 'Inter', 'system-ui', 'sans-serif';
+  --font-sans: 'Inter', 'system-ui', 'sans-serif';
+  --font-heading: 'Outfit', 'Inter', 'system-ui', 'sans-serif';
   --font-mono: 'JetBrains Mono', 'monospace';
+  
+  --color-surface-alpha: var(--surface-alpha);
 
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -31,48 +34,72 @@
 }
 
 :root {
-  --background: #fbfbfe;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #4f46e5;
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #1e293b;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #4f46e5;
+  /* Vercel/Stripe Inspired Light Theme */
+  --background: 0 0% 98%;        /* Pure Off-white */
+  --foreground: 0 0% 0%;         /* Pure Black */
+  
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 9%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 9%;
+  
+  /* Primary matching Logo (Cyan/Sky Blue) */
+  --primary: 195 85% 50%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 30%; /* Even darker for professional contrast (was 35%) */
+  
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 195 85% 50%;
+  
   --radius: 0.75rem;
+  
+  --surface-alpha: rgba(0, 0, 0, 0.04); /* Slightly subtler */
 }
 
 .dark {
-  --background: #0b0e14;
-  --foreground: #f8fafc;
-  --card: #11141b;
-  --card-foreground: #f8fafc;
-  --popover: #11141b;
-  --popover-foreground: #f8fafc;
-  --primary: #6366f1;
-  --primary-foreground: #ffffff;
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
-  --accent-foreground: #f8fafc;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #1e293b;
-  --input: #1e293b;
-  --ring: #6366f1;
+  /* Vercel-like Premium Dark Mode */
+  --background: 0 0% 0%;         /* True black background */
+  --foreground: 0 0% 98%;        /* Crisp white text */
+  
+  --card: 0 0% 4%;               /* Very dark card */
+  --card-foreground: 0 0% 98%;
+  
+  --popover: 0 0% 4%;
+  --popover-foreground: 0 0% 98%;
+  
+  --primary: 195 85% 50%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 0 0% 9%;
+  --secondary-foreground: 0 0% 98%;
+  
+  --muted: 0 0% 12%;
+  --muted-foreground: 215 20.2% 65.1%;
+  
+  --accent: 0 0% 12%;
+  --accent-foreground: 0 0% 98%;
+  
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  
+  --border: 0 0% 15%;
+  --input: 0 0% 15%;
+  --ring: 195 85% 50%;
+  
+  --surface-alpha: rgba(255, 255, 255, 0.05);
 }
 
 @layer base {
@@ -88,62 +115,64 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-weight: 400;
-    font-size: 14px;
-    line-height: 1.6;
-    letter-spacing: -0.013em;
   }
 
-  /* ── Typography Scale — Inter ── */
+  /* ── Typography Scale — Strict 8px Baseline (x of 8) ── */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
   h1 {
-    font-size: 2.5rem;
+    font-size: 2.5rem; /* 40px */
     font-weight: 800;
     letter-spacing: -0.05em;
-    line-height: 1.1;
-    color: var(--foreground);
+    line-height: 3rem; /* 48px */
+    color: hsl(var(--foreground));
   }
   h2 {
-    font-size: 1.75rem;
+    font-size: 1.75rem; /* 28px */
     font-weight: 700;
     letter-spacing: -0.04em;
-    line-height: 1.2;
-    color: var(--foreground);
+    line-height: 2rem; /* 32px */
+    color: hsl(var(--foreground));
   }
   h3 {
-    font-size: 1.25rem;
+    font-size: 1.25rem; /* 20px */
     font-weight: 700;
     letter-spacing: -0.03em;
-    line-height: 1.3;
-    color: var(--foreground);
+    line-height: 1.5rem; /* 24px */
+    color: hsl(var(--foreground));
   }
   h4 {
-    font-size: 1rem;
+    font-size: 1rem; /* 16px */
     font-weight: 600;
     letter-spacing: -0.02em;
-    line-height: 1.4;
-    color: var(--foreground);
+    line-height: 1.5rem; /* 24px */
+    color: hsl(var(--foreground));
   }
   h5, h6 {
-    font-size: 0.875rem;
+    font-size: 0.875rem; /* 14px */
     font-weight: 600;
     letter-spacing: -0.01em;
-    line-height: 1.5;
-    color: var(--foreground);
+    line-height: 1.5rem; /* 24px */
+    color: hsl(var(--foreground));
   }
 
   p {
-    font-size: 0.9375rem;
+    font-size: 0.9375rem; /* 15px */
     font-weight: 500;
-    line-height: 1.6;
-    color: var(--muted-foreground);
+    line-height: 1.5rem; /* 24px */
+    color: hsl(var(--muted-foreground));
     letter-spacing: -0.01em;
   }
 
   label {
-    font-size: 0.8125rem;
+    font-size: 0.75rem; /* 12px */
     font-weight: 600;
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    color: var(--muted-foreground);
+    line-height: 1rem; /* 16px */
+    color: hsl(var(--muted-foreground));
   }
 
   input, textarea, select {
@@ -154,7 +183,6 @@
     @apply font-sans font-bold tracking-tight;
   }
 
-  /* No italic anywhere — Simple & Clean standard */
   *, *::before, *::after {
     font-style: normal !important;
   }
@@ -173,27 +201,29 @@
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  /* Premium Glassmorphism Utility */
   .glass-card {
-    @apply bg-card/85 backdrop-blur-lg border border-border/40 shadow-xl;
+    @apply bg-card/75 backdrop-blur-2xl border border-border/40 shadow-xl;
   }
 
   .glass-dashboard {
-    @apply bg-background/60 border-foreground/5 backdrop-blur-3xl border shadow-2xl;
-    @apply dark:bg-[#11141b]/40 dark:border-white/5;
+    @apply bg-background border-border/30 shadow-2xl;
+    @apply dark:bg-card/40 dark:backdrop-blur-3xl dark:border-white/5;
   }
 
   button, a, [role="button"] {
     cursor: pointer;
   }
 
+  /* Subtle Premium Accents */
   .neon-glow-primary {
     @apply shadow-[0_0_15px_rgba(79,70,229,0.2)];
-    @apply dark:shadow-[0_0_20px_rgba(99,102,241,0.4)];
+    @apply dark:shadow-[0_4px_30px_rgba(99,102,241,0.2)];
   }
 
   .neon-glow-emerald {
     @apply shadow-[0_0_15px_rgba(5,150,105,0.15)];
-    @apply dark:shadow-[0_0_20px_rgba(16,185,129,0.4)];
+    @apply dark:shadow-[0_4px_30px_rgba(16,185,129,0.2)];
   }
 
   .neon-blob {
@@ -206,33 +236,17 @@
 
   @keyframes float {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+    50% { transform: translateY(-8px); }
   }
 
-  /* Scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
     @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40;
   }
 
-  /* Text selection */
   ::selection {
     @apply bg-primary/20 text-primary;
   }
 }
 
-
-
-/* ── Light-Mode Compatibility Layer ── */
-/* next-themes adds `.dark` to <html> for dark mode; html:not(.dark) = light mode.
-   These rules correct admin pages still using hardcoded dark-only Tailwind classes. */
-html:not(.dark) .bg-white\/5  { background-color: color-mix(in srgb, var(--secondary) 50%, transparent) !important; }
-html:not(.dark) .bg-white\/2  { background-color: color-mix(in srgb, var(--secondary) 30%, transparent) !important; }
-html:not(.dark) .bg-white\/1  { background-color: color-mix(in srgb, var(--muted) 20%, transparent) !important; }
-html:not(.dark) .bg-black\/40 { background-color: color-mix(in srgb, var(--secondary) 40%, transparent) !important; }
-html:not(.dark) .bg-black\/20 { background-color: color-mix(in srgb, var(--secondary) 30%, transparent) !important; }
-html:not(.dark) .bg-black\/10 { background-color: color-mix(in srgb, var(--secondary) 20%, transparent) !important; }
-html:not(.dark) .border-white\/5  { border-color: var(--border) !important; }
-html:not(.dark) .border-white\/10 { border-color: var(--border) !important; }
-html:not(.dark) .text-white { color: var(--foreground) !important; }

@@ -113,20 +113,20 @@ export default function AdminUsersPage() {
   )
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 animate-in fade-in duration-700">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/60 pb-8">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
-              <Users className="w-5 h-5 text-indigo-400" />
+            <div className="p-2 bg-primary/10 rounded-xl border border-primary/20">
+              <Users className="w-5 h-5 text-primary" />
             </div>
-            <h1 className="text-4xl font-black tracking-tighter text-white uppercase italic">
-              Operator <span className="text-indigo-500">Base</span>
+            <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase italic">
+              Operator <span className="text-primary">Base</span>
             </h1>
           </div>
           <p className="text-muted-foreground font-medium flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <ShieldCheck className="w-4 h-4 text-primary" />
             Managing global decentralized identities and authorization vectors.
           </p>
         </div>
@@ -135,12 +135,12 @@ export default function AdminUsersPage() {
            <div className="flex flex-col items-end mr-4">
               <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Active Sessions</span>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_rgba(26,178,255,0.5)]" />
                 <span className="text-sm font-bold text-foreground uppercase tracking-tighter">Live Monitor</span>
              </div>
           </div>
-          <Button disabled className="bg-secondary/50 border border-border text-muted-foreground font-black uppercase tracking-widest text-[10px] h-14 px-8 rounded-2xl cursor-not-allowed border-dashed opacity-50">
-             <UserPlus className="w-4 h-4 mr-2" /> Sync Auth Protocol
+          <Button disabled className="bg-secondary/50 border border-border border-dashed text-muted-foreground font-black uppercase tracking-widest text-[10px] h-14 px-8 rounded-2xl opacity-50">
+             <Fingerprint className="w-4 h-4 mr-2" /> Sync Auth Protocol
            </Button>
         </div>
       </div>
@@ -148,11 +148,11 @@ export default function AdminUsersPage() {
       {/* Analytics Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: 'Authorized Personel', value: users.length, icon: Fingerprint, color: 'text-indigo-400' },
+          { label: 'Authorized Personel', value: users.length, icon: Fingerprint, color: 'text-primary' },
           { label: 'High-Level Access', value: users.filter(u => u.role === 'admin').length, icon: ShieldAlert, color: 'text-amber-500' },
-          { label: 'Identity Integrity', value: '100%', icon: ShieldCheck, color: 'text-emerald-400' },
+          { label: 'Identity Integrity', value: '100%', icon: ShieldCheck, color: 'text-primary' },
         ].map((kpi, i) => (
-          <Card key={i} className="glass-card group overflow-hidden">
+          <Card key={i} className="glass-card group overflow-hidden border-border/40 hover:border-primary/30 transition-all duration-500 shadow-xl shadow-black/5">
              <CardHeader className="pb-2">
                <div className="flex items-center justify-between">
                  <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">{kpi.label}</CardDescription>
@@ -165,13 +165,13 @@ export default function AdminUsersPage() {
       </div>
 
       {/* User Matrix Table */}
-      <Card className="glass-card overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between border-b border-border/50 bg-muted/20 p-8">
+      <Card className="glass-card border-border/40 overflow-hidden shadow-2xl">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 bg-muted/20 p-8">
           <div className="relative w-full max-w-md group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input 
               placeholder="Query identity matrix..." 
-              className="h-12 pl-12 bg-secondary/50 border-border focus:border-primary/50 rounded-2xl transition-all text-sm font-medium" 
+              className="h-12 pl-12 bg-background border-border/40 focus:border-primary/50 rounded-2xl transition-all text-sm font-medium" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -180,28 +180,28 @@ export default function AdminUsersPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-muted/50 border-b border-border/50">
+              <thead className="bg-muted/30 border-b border-border/40">
                 <tr>
-                  <th className="text-left py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/40 text-[9px]">Identity Protocol</th>
-                  <th className="text-left py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/40 text-[9px]">Authorization Level</th>
-                  <th className="text-left py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/40 text-[9px]">Assigned Cluster</th>
-                  <th className="text-right py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/40 text-[9px]">Last Pulse</th>
-                  <th className="text-right py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/40 text-[9px]">Override</th>
+                  <th className="text-left py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px]">Identity Protocol</th>
+                  <th className="text-left py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px]">Authorization Level</th>
+                  <th className="text-left py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px]">Assigned Cluster</th>
+                  <th className="text-right py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px]">Last Pulse</th>
+                  <th className="text-right py-6 px-8 font-black uppercase tracking-[0.25em] text-muted-foreground/50 text-[9px]">Override</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-border/20">
                 {loading ? (
                   [1,2,3].map(i => (
                     <tr key={i} className="animate-pulse">
-                      <td colSpan={5} className="py-8 px-8"><div className="h-8 bg-muted rounded-xl w-full" /></td>
+                      <td colSpan={5} className="py-8 px-8"><div className="h-10 bg-muted/40 rounded-xl w-full" /></td>
                     </tr>
                   ))
                 ) : filteredUsers.map((profile) => (
-                  <tr key={profile.id} className="hover:bg-muted/50 transition-colors group">
+                  <tr key={profile.id} className="hover:bg-muted/20 transition-colors group">
                     <td className="py-6 px-8">
                        <div className="flex items-center gap-4">
                           <div className="relative shrink-0">
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs uppercase italic shadow-lg group-hover:scale-110 transition-transform ring-4 ring-background">
+                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs uppercase italic shadow-lg shadow-black/5 group-hover:scale-110 transition-transform ring-4 ring-background">
                               {profile.full_name?.substring(0,2).toUpperCase() || 'OP'}
                             </div>
                             <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-background" />
@@ -209,8 +209,8 @@ export default function AdminUsersPage() {
                           <div>
                             <div className="font-bold text-foreground tracking-tight">{profile.full_name || 'Unknown Operator'}</div>
                             <div className="flex items-center gap-2 mt-0.5">
-                               <Fingerprint className="w-3 h-3 text-muted-foreground opacity-60" />
-                               <span className="text-[10px] font-mono text-muted-foreground/40 tracking-widest">{profile.id.substring(0,16).toUpperCase()}</span>
+                               <Fingerprint className="w-3 h-3 text-muted-foreground opacity-40" />
+                               <span className="text-[10px] font-mono text-muted-foreground/30 tracking-widest">{profile.id.substring(0,16).toUpperCase()}</span>
                             </div>
                           </div>
                        </div>
@@ -219,34 +219,34 @@ export default function AdminUsersPage() {
                        <Badge className={cn(
                          "font-black text-[9px] tracking-widest px-3 py-1.5 border uppercase",
                          profile.role === 'admin' 
-                           ? "bg-primary/10 text-primary border-primary/20" 
-                           : "bg-secondary text-muted-foreground border-border"
+                           ? "bg-primary/5 text-primary border-primary/20" 
+                           : "bg-secondary/40 text-muted-foreground border-border/40"
                        )}>
                          {profile.role}
                        </Badge>
                     </td>
                     <td className="py-6 px-8">
                        <div className="flex items-center gap-2.5">
-                          <div className="p-1.5 bg-secondary/50 rounded-lg border border-border group-hover:border-primary/30 transition-colors">
-                             <Building2 className="w-3.5 h-3.5 text-muted-foreground/40" />
+                          <div className="p-1.5 bg-secondary/50 rounded-lg border border-border/40 group-hover:border-primary/30 transition-colors">
+                             <Building2 className="w-3.5 h-3.5 text-muted-foreground/30" />
                           </div>
-                          <span className="text-muted-foreground font-bold tracking-tight">{profile.companies?.name || 'Isolated Node'}</span>
+                          <span className="text-muted-foreground/80 font-bold tracking-tight">{profile.companies?.name || 'Isolated Node'}</span>
                        </div>
                     </td>
                     <td className="py-6 px-8 text-right">
                        <div className="flex flex-col items-end">
-                          <span className="text-muted-foreground text-xs font-bold tracking-tight">Active Stream</span>
+                          <span className="text-foreground text-xs font-bold tracking-tight">Active Stream</span>
                           <span className="text-[9px] font-black text-muted-foreground/30 uppercase tracking-widest mt-1">Handshake Valid</span>
                        </div>
                     </td>
                     <td className="py-6 px-8 text-right">
                        <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                             <Button variant="ghost" size="icon" className="h-10 w-10 border border-transparent hover:border-border rounded-xl transition-all">
+                             <Button variant="ghost" size="icon" className="h-10 w-10 border border-transparent hover:border-border/40 rounded-xl transition-all">
                                 <MoreVertical className="w-4 h-4 text-muted-foreground" />
                              </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-56 glass-card border-border/50 p-2">
+                          <DropdownMenuContent align="end" className="w-56 glass-card border-border/50 p-2 shadow-2xl">
                              <DropdownMenuItem 
                                 onClick={() => { setSelectedUser(profile); setIsDialogOpen(true); }}
                                 className="flex items-center gap-3 p-3 rounded-xl focus:bg-primary/10 focus:text-primary cursor-pointer"
@@ -254,7 +254,7 @@ export default function AdminUsersPage() {
                                 <Edit2 className="w-4 h-4" />
                                 <span className="font-bold text-xs uppercase tracking-widest">Override Levels</span>
                              </DropdownMenuItem>
-                             <DropdownMenuSeparator className="bg-border" />
+                             <DropdownMenuSeparator className="bg-border/40" />
                              <DropdownMenuItem 
                                 onClick={() => handleDelete(profile)}
                                 className="flex items-center gap-3 p-3 rounded-xl focus:bg-destructive/10 focus:text-destructive text-destructive cursor-pointer"
@@ -283,13 +283,13 @@ export default function AdminUsersPage() {
       >
         <div className="space-y-6 pt-5">
            <div className="space-y-2">
-              <Label htmlFor="full_name" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Identity Signature</Label>
-              <Input id="full_name" name="full_name" defaultValue={selectedUser?.full_name || ''} placeholder="Operator Name" className="h-12 bg-secondary/50 border-border focus:border-primary/50 rounded-2xl font-bold" required />
+              <Label htmlFor="full_name" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Identity Signature</Label>
+              <Input id="full_name" name="full_name" defaultValue={selectedUser?.full_name || ''} placeholder="Operator Name" className="h-12 bg-background border-border/40 focus:border-primary/50 rounded-2xl font-bold" required />
            </div>
 
            <div className="space-y-2">
-              <Label htmlFor="role" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Authorization Vector (admin / member)</Label>
-              <Input id="role" name="role" defaultValue={selectedUser?.role || ''} placeholder="admin" className="h-12 bg-secondary/50 border-border focus:border-primary/50 rounded-2xl font-mono tracking-widest" required />
+              <Label htmlFor="role" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 ml-1">Authorization Level (admin / member)</Label>
+              <Input id="role" name="role" defaultValue={selectedUser?.role || ''} placeholder="admin" className="h-12 bg-background border-border/40 focus:border-primary/50 rounded-2xl font-mono tracking-widest" required />
            </div>
 
            <div className="p-6 rounded-3xl bg-amber-500/5 border border-amber-500/10 flex items-start gap-4">
@@ -300,9 +300,9 @@ export default function AdminUsersPage() {
               </div>
            </div>
            
-           <div className="flex justify-end gap-3 pt-4">
+           <div className="flex justify-end gap-3 pt-4 border-t border-border/20">
               <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 px-6 rounded-2xl font-black uppercase tracking-widest text-[10px] text-muted-foreground">Abort Protocol</Button>
-               <Button type="submit" className="h-12 px-8 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20">Sync Identity</Button>
+               <Button type="submit" className="h-12 px-8 bg-primary hover:bg-primary/90 text-primary-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20">Sync Identity</Button>
            </div>
         </div>
       </FormDialog>

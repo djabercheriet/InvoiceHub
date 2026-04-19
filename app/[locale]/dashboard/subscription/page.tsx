@@ -165,12 +165,12 @@ export default function SubscriptionPage() {
   if (authLoading || loading) {
     return (
       <div className="space-y-8 animate-pulse">
-        <div className="h-10 w-48 bg-white/5 rounded-xl mb-8" />
-        <div className="h-64 bg-white/5 rounded-4xl" />
+        <div className="h-10 w-48 bg-surface-alpha rounded-xl mb-8" />
+        <div className="h-64 bg-surface-alpha rounded-4xl" />
         <div className="grid grid-cols-3 gap-8">
-           <div className="h-96 bg-white/5 rounded-[2.5rem]" />
-           <div className="h-96 bg-white/5 rounded-[2.5rem]" />
-           <div className="h-96 bg-white/5 rounded-[2.5rem]" />
+           <div className="h-96 bg-surface-alpha rounded-[2.5rem]" />
+           <div className="h-96 bg-surface-alpha rounded-[2.5rem]" />
+           <div className="h-96 bg-surface-alpha rounded-[2.5rem]" />
         </div>
       </div>
     )
@@ -203,19 +203,19 @@ export default function SubscriptionPage() {
 
       {/* Hero Status Card */}
       {subscription && (
-        <Card className="glass-dashboard border-2 border-indigo-500/20 overflow-hidden relative group">
+        <Card className="glass-dashboard border-2 border-primary/20 overflow-hidden relative group">
           <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-1000 pointer-events-none">
-            <Crown className="w-64 h-64 text-indigo-500" />
+            <Crown className="w-64 h-64 text-primary" />
           </div>
           <CardHeader className="p-10">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10">
               <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-lg border border-indigo-500/30">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] rounded-lg border border-primary/30">
                   Current Deployment
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-6xl font-black tracking-tighter text-white uppercase italic">
-                    {currentPlan?.name} <span className="text-indigo-500">Tier</span>
+                  <h2 className="text-6xl font-black tracking-tighter text-foreground uppercase italic">
+                    {currentPlan?.name} <span className="text-primary">Tier</span>
                   </h2>
                   <div className="flex items-center gap-4 text-muted-foreground font-bold">
                     {subscription.status === 'trial' ? (
@@ -224,7 +224,7 @@ export default function SubscriptionPage() {
                          Trial period active until {new Date(subscription.trial_end_date).toLocaleDateString()}
                        </span>
                     ) : (
-                      <span className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-lg border border-white/5 text-xs" suppressHydrationWarning>
+                      <span className="flex items-center gap-2 bg-surface-alpha px-3 py-1 rounded-lg border border-white/5 text-xs" suppressHydrationWarning>
                         <Activity className="w-4 h-4 text-emerald-500" />
                         Next cycle synchronizes on {new Date(subscription.current_period_end).toLocaleDateString()}
                       </span>
@@ -233,15 +233,15 @@ export default function SubscriptionPage() {
                 </div>
               </div>
 
-              <div className="w-full lg:w-auto p-8 rounded-4xl bg-white/2 border border-white/5 backdrop-blur-md relative overflow-hidden group/price">
-                <div className="absolute inset-0 bg-linear-to-br from-indigo-500/10 to-transparent opacity-0 group-hover/price:opacity-100 transition-opacity duration-500" />
+              <div className="w-full lg:w-auto p-8 rounded-4xl bg-muted/20 border border-border/40 backdrop-blur-md relative overflow-hidden group/price">
+                <div className="absolute inset-0 bg-linear-to-br from-primary/10 to-transparent opacity-0 group-hover/price:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10 text-center lg:text-right">
                   <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 mb-2">Cycle Contribution</p>
-                  <div className="text-6xl font-black text-white tracking-tighter">
+                  <div className="text-6xl font-black text-foreground tracking-tighter">
                     ${subscription.subscription_type === 'monthly' ? currentPlan?.monthly_price : currentPlan?.yearly_price}
                     <span className="text-lg text-muted-foreground/40 ml-2">/ {subscription.subscription_type === 'monthly' ? 'mo' : 'yr'}</span>
                   </div>
-                  <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-2">{subscription.subscription_type?.toUpperCase()} PROTOCOL</p>
+                  <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-2">{subscription.subscription_type?.toUpperCase()} PROTOCOL</p>
                 </div>
               </div>
             </div>
@@ -277,7 +277,7 @@ export default function SubscriptionPage() {
               <Card key={item.key} className="glass-dashboard border-white/5 hover:border-indigo-500/20 transition-all duration-500 overflow-hidden">
                 <CardContent className="p-6 pt-8">
                   <div className="flex items-center justify-between mb-6">
-                    <div className="p-2 bg-white/5 rounded-xl border border-white/10 text-muted-foreground">
+                    <div className="p-2 bg-surface-alpha rounded-xl border border-white/10 text-muted-foreground">
                       <item.icon className="w-4 h-4" />
                     </div>
                     <div className="flex flex-col items-end">
@@ -312,10 +312,10 @@ export default function SubscriptionPage() {
       {/* Pricing Grid - High End */}
       <div className="space-y-12 pt-10">
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-indigo-500/20 mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20 mb-4">
              Scale your intelligence
           </div>
-          <h2 className="text-6xl font-black tracking-tighter text-white uppercase italic">Available <span className="text-indigo-500">Service Tiers</span></h2>
+          <h2 className="text-6xl font-black tracking-tighter text-foreground uppercase italic leading-none">Available <span className="text-primary">Service Tiers</span></h2>
           <p className="text-lg text-muted-foreground font-bold tracking-tight px-10">Select the cognitive load and resource density required for your organization's objectives.</p>
         </div>
         
@@ -330,35 +330,35 @@ export default function SubscriptionPage() {
                 className={cn(
                   "flex flex-col transition-all duration-700 relative overflow-hidden group/plan border-2",
                   isCurrentPlan 
-                    ? 'bg-indigo-500/5 border-indigo-500/40 shadow-[0_0_50px_rgba(99,102,241,0.15)] scale-105 z-10' 
-                    : 'glass-dashboard border-white/5 hover:border-white/20 hover:-translate-y-2'
+                    ? 'bg-primary/5 border-primary/40 shadow-[0_0_50px_rgba(var(--primary),0.15)] scale-105 z-10' 
+                    : 'glass-card border-border/40 hover:border-primary/20 hover:-translate-y-2'
                 )}
               >
                 {/* Visual Flair */}
                 <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover/plan:opacity-[0.1] transition-opacity duration-700">
-                    <Zap className={cn("w-32 h-32", isCurrentPlan ? "text-indigo-400" : "text-white")} />
+                    <Zap className={cn("w-32 h-32", isCurrentPlan ? "text-primary" : "text-foreground")} />
                 </div>
 
                 {isCurrentPlan && (
-                  <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1 bg-indigo-500 text-white text-[9px] font-black uppercase tracking-widest rounded-lg shadow-xl animate-pulse">
+                  <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1 bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-widest rounded-lg shadow-xl animate-pulse">
                     <Check className="w-3 h-3" /> Active Infrastructure
                   </div>
                 )}
 
                 <CardHeader className="pt-16 pb-10 text-center relative z-10">
-                  <CardTitle className="text-4xl font-black tracking-tighter text-white uppercase italic">{plan.name}</CardTitle>
+                  <CardTitle className="text-4xl font-black tracking-tighter text-foreground uppercase italic">{plan.name}</CardTitle>
                   <CardDescription className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-2">{plan.description}</CardDescription>
                 </CardHeader>
 
                 <CardContent className="space-y-10 flex-1 relative z-10">
                   <div className="text-center">
-                    <div className="text-6xl font-black text-white tracking-tighter inline-flex items-baseline">
+                    <div className="text-6xl font-black text-foreground tracking-tighter inline-flex items-baseline">
                       ${plan.monthly_price}
                       <span className="text-sm text-muted-foreground/40 font-black uppercase tracking-widest ml-3">/mo</span>
                     </div>
                   </div>
 
-                  <div className="space-y-6 pt-10 border-t border-white/5">
+                  <div className="space-y-6 pt-10 border-t border-border/40">
                     <div className="grid gap-4">
                       {[
                         { label: 'Invoices', value: plan.max_invoices, icon: CreditCard },
@@ -367,11 +367,11 @@ export default function SubscriptionPage() {
                         { label: 'Operator Base', value: plan.max_users, icon: ShieldCheck },
                       ].map((limit) => (
                         <div key={limit.label} className="flex items-center gap-4 group/item">
-                          <div className={cn("p-2 rounded-xl border border-white/5 flex items-center justify-center transition-all", isCurrentPlan ? "bg-indigo-500/10 border-indigo-500/20" : "bg-white/5")}>
-                            <Check className={cn("w-3 h-3", isCurrentPlan ? "text-indigo-400" : "text-muted-foreground")} />
+                          <div className={cn("p-2 rounded-xl border border-border/40 flex items-center justify-center transition-all", isCurrentPlan ? "bg-primary/10 border-primary/20" : "bg-muted/30")}>
+                            <Check className={cn("w-3 h-3", isCurrentPlan ? "text-primary" : "text-muted-foreground")} />
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-xs font-black text-white uppercase tracking-tight">{limit.value === 0 ? 'Unlimited Capacity' : `${limit.value} Unit Load`}</span>
+                            <span className="text-xs font-black text-foreground uppercase tracking-tight">{limit.value === 0 ? 'Unlimited Capacity' : `${limit.value} Unit Load`}</span>
                             <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">{limit.label} Allocation</span>
                           </div>
                         </div>
@@ -379,14 +379,14 @@ export default function SubscriptionPage() {
                     </div>
 
                     {Object.entries(plan.features || {}).length > 0 && (
-                      <div className="space-y-4 pt-6 border-t border-white/5">
+                      <div className="space-y-4 pt-6 border-t border-border/40">
                         <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-[0.3em]">Operational Modules</p>
                         <div className="grid gap-3">
                           {Object.entries(plan.features || {}).map(([feature, enabled]) => 
                             enabled && (
                               <div key={feature} className="flex items-center gap-3">
-                                <div className="w-1 h-1 rounded-full bg-indigo-500/40" />
-                                <span className="text-[10px] font-black text-white/60 uppercase tracking-tighter">{feature.replace(/_/g, ' ')}</span>
+                                <div className="w-1 h-1 rounded-full bg-primary/40" />
+                                <span className="text-[10px] font-black text-foreground/60 uppercase tracking-tighter">{feature.replace(/_/g, ' ')}</span>
                               </div>
                             )
                           )}
@@ -398,16 +398,16 @@ export default function SubscriptionPage() {
 
                 <CardFooter className="pt-6 pb-12 px-8 relative z-10">
                   {isCurrentPlan ? (
-                    <Button className="w-full h-16 bg-white/5 text-muted-foreground font-black tracking-[0.2em] text-[10px] rounded-2xl border border-white/5 opacity-50 cursor-not-allowed" disabled>
+                    <Button className="w-full h-16 bg-muted/30 text-muted-foreground font-black tracking-[0.2em] text-[10px] rounded-2xl border border-border/40 opacity-50 cursor-not-allowed" disabled>
                       ESTABLISHED CONNECTION
                     </Button>
                   ) : (
                     <Button
                       className={cn(
-                        "w-full h-16 font-black tracking-[0.2em] text-[10px] rounded-2xl transition-all duration-500 group relative overflow-hidden uppercase",
+                        "w-full h-16 font-black tracking-[0.2em] text-[10px] rounded-2xl transition-all duration-500 group relative overflow-hidden uppercase border border-primary/20",
                         plan.name === 'Enterprise' 
-                          ? 'bg-white text-black hover:bg-white/90 shadow-[0_0_30px_rgba(255,255,255,0.1)]' 
-                          : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-[0_0_30px_rgba(99,102,241,0.2)]'
+                          ? 'bg-foreground text-background hover:bg-foreground/90 shadow-[0_0_30px_rgba(var(--foreground),0.1)]' 
+                          : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_30px_rgba(var(--primary),0.2)]'
                       )}
                       onClick={() => handleUpgrade(plan.id)}
                       disabled={upgrading}

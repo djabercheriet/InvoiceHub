@@ -59,7 +59,7 @@ export function AdminSidebar({ signOutAction }: AdminSidebarProps) {
         >
             {/* Background Grain/Glow */}
             <div className="absolute inset-0 opacity-20 pointer-events-none">
-                <div className="absolute top-0 -left-1/2 w-full h-full bg-indigo-500/10 blur-[120px] rounded-full" />
+                <div className="absolute top-0 -left-1/2 w-full h-full bg-primary/10 blur-[120px] rounded-full" />
             </div>
 
             {/* Toggle Button */}
@@ -75,11 +75,11 @@ export function AdminSidebar({ signOutAction }: AdminSidebarProps) {
             {/* Brand - System Authority */}
             <div className={cn("p-8 flex items-center gap-4 border-b border-border/50 relative z-10", isCollapsed ? "justify-center" : "justify-start")}>
                 <div className="relative group shrink-0">
-                    <div className="absolute -inset-2 bg-indigo-500/20 rounded-2xl blur-lg group-hover:bg-indigo-500/40 transition-all duration-500 opacity-0 group-hover:opacity-100" />
+                    <div className="absolute -inset-2 bg-primary/20 rounded-2xl blur-lg group-hover:bg-primary/40 transition-all duration-500 opacity-0 group-hover:opacity-100" />
                     <img 
                         src="/Icon.png" 
                         alt="InvoicesHub" 
-                        className="w-10 h-10 object-contain relative z-10 brightness-110 drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]" 
+                        className="w-10 h-10 object-contain relative z-10 brightness-110 drop-shadow-[0_0_10px_rgba(var(--primary),0.5)]" 
                     />
                 </div>
                 {!isCollapsed && (
@@ -118,7 +118,7 @@ export function AdminSidebar({ signOutAction }: AdminSidebarProps) {
                             
                             {isActive && (
                                 <>
-                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-primary rounded-r-full shadow-[0_0_15px_rgba(79,70,229,0.8)]" />
+                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full shadow-[0_0_15px_rgba(var(--primary),0.8)]" />
                                     <div className="absolute inset-0 bg-linear-to-r from-primary/10 to-transparent pointer-events-none" />
                                 </>
                             )}
@@ -140,7 +140,7 @@ export function AdminSidebar({ signOutAction }: AdminSidebarProps) {
                             className="flex flex-col items-start gap-1 px-5 py-8 w-full rounded-[24px] border border-border/50 bg-secondary/30 hover:bg-secondary hover:border-primary/30 group transition-all duration-500 relative overflow-hidden text-left cursor-pointer"
                         >
                             <div className="absolute top-0 right-0 p-4 opacity-[0.05] group-hover:opacity-[0.15] transition-opacity">
-                                <Database className="w-12 h-12 text-indigo-500" />
+                                <Database className="w-12 h-12 text-primary" />
                             </div>
                             <div className="flex items-center gap-3 relative z-10">
                                 <Terminal className="w-4 h-4 text-primary group-hover:animate-pulse" />

@@ -49,5 +49,9 @@ tsconfig.tsbuildinfo
 *.sqlite
 *.db
 
+# documentation
+*.md
+!README.md
+
 # Allow specific SQL setup scripts if they exist in the root
 # !supabase_superadmin_setup.sql

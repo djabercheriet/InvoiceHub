@@ -151,7 +151,7 @@ export default function SuperAdminSettingsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-2xl">
+        <div className="flex items-center gap-3 p-3 bg-surface-alpha border border-white/10 rounded-2xl">
            <Fingerprint className="w-5 h-5 text-indigo-400 animate-pulse" />
            <p className="text-[10px] font-black tracking-widest text-white/40 uppercase">Root Authority Verified</p>
         </div>
@@ -160,7 +160,7 @@ export default function SuperAdminSettingsPage() {
       <form onSubmit={handleSave}>
          <Tabs defaultValue="infrastructure" className="w-full">
             <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6 mb-10">
-                <TabsList className="bg-white/5 border border-white/5 p-1 rounded-2xl">
+                <TabsList className="bg-surface-alpha border border-white/5 p-1 rounded-2xl">
                     <TabsTrigger value="infrastructure" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-xl px-6 font-black tracking-widest text-[9px] uppercase transition-all">Infrastructure</TabsTrigger>
                     <TabsTrigger value="mail" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-xl px-6 font-black tracking-widest text-[9px] uppercase transition-all">Transport Layer</TabsTrigger>
                     <TabsTrigger value="templates" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-xl px-6 font-black tracking-widest text-[9px] uppercase transition-all">Visual Scaffolding</TabsTrigger>
@@ -188,11 +188,11 @@ export default function SuperAdminSettingsPage() {
                     <CardContent className="p-8 pt-4 space-y-6">
                       <div className="space-y-2 group">
                         <Label htmlFor="site_name" className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 group-focus-within:text-indigo-400 transition-colors">Operational Brand Name</Label>
-                        <Input id="site_name" name="site_name" defaultValue={settings?.site_name} placeholder="Bntec Platform" className="h-14 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-black italic tracking-tight text-white" />
+                        <Input id="site_name" name="site_name" defaultValue={settings?.site_name} placeholder="Bntec Platform" className="h-14 bg-surface-alpha border-white/5 focus:border-indigo-500/50 rounded-2xl font-black italic tracking-tight text-white" />
                       </div>
                       <div className="space-y-2 group">
                         <Label htmlFor="support_email" className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 group-focus-within:text-indigo-400 transition-colors">Primary Support Node</Label>
-                        <Input id="support_email" name="support_email" defaultValue={settings?.support_email} placeholder="support@bntec.io" className="h-14 bg-white/5 border-white/5 focus:border-indigo-500/50 rounded-2xl font-mono text-sm font-bold tracking-tight text-white" />
+                        <Input id="support_email" name="support_email" defaultValue={settings?.support_email} placeholder="support@bntec.io" className="h-14 bg-surface-alpha border-white/5 focus:border-indigo-500/50 rounded-2xl font-mono text-sm font-bold tracking-tight text-white" />
                       </div>
                       
                       <div className="p-6 bg-red-500/3 rounded-[24px] border border-red-500/10 hover:border-red-500/30 transition-all flex items-center justify-between group/emergency">
@@ -219,11 +219,11 @@ export default function SuperAdminSettingsPage() {
                         <CardContent className="p-8 pt-4 space-y-6">
                           <div className="space-y-2 group">
                             <Label htmlFor="meta_title" className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 group-focus-within:text-sky-400 transition-colors">Global Document Title</Label>
-                            <Input id="meta_title" name="meta_title" defaultValue={settings?.meta_title} placeholder="Bntec Platform" className="h-14 bg-white/5 border-white/5 focus:border-sky-500/50 rounded-2xl font-bold tracking-tight text-white text-sm" />
+                            <Input id="meta_title" name="meta_title" defaultValue={settings?.meta_title} placeholder="Bntec Platform" className="h-14 bg-surface-alpha border-white/5 focus:border-sky-500/50 rounded-2xl font-bold tracking-tight text-white text-sm" />
                           </div>
                           <div className="space-y-2 group">
                             <Label htmlFor="meta_description" className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 group-focus-within:text-sky-400 transition-colors">Global Header Registry</Label>
-                            <Textarea id="meta_description" name="meta_description" defaultValue={settings?.meta_description} className="min-h-[120px] bg-white/5 border-white/5 focus:border-sky-500/50 rounded-2xl font-medium text-white/60 resize-none p-4 text-xs leading-relaxed" placeholder="Default search engine index fallback description." />
+                            <Textarea id="meta_description" name="meta_description" defaultValue={settings?.meta_description} className="min-h-[120px] bg-surface-alpha border-white/5 focus:border-sky-500/50 rounded-2xl font-medium text-white/60 resize-none p-4 text-xs leading-relaxed" placeholder="Default search engine index fallback description." />
                           </div>
                         </CardContent>
                       </Card>
@@ -239,11 +239,11 @@ export default function SuperAdminSettingsPage() {
                           <div className="grid grid-cols-2 gap-8">
                             <div className="space-y-2 group">
                               <Label htmlFor="global_currency" className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 group-focus-within:text-emerald-400 transition-colors">Base Currency Code</Label>
-                              <Input id="global_currency" name="global_currency" defaultValue={settings?.global_currency} placeholder="USD" className="h-14 bg-white/5 border-white/5 focus:border-emerald-500/50 rounded-2xl font-black text-center text-white tracking-widest uppercase italic" />
+                              <Input id="global_currency" name="global_currency" defaultValue={settings?.global_currency} placeholder="USD" className="h-14 bg-surface-alpha border-white/5 focus:border-emerald-500/50 rounded-2xl font-black text-center text-white tracking-widest uppercase italic" />
                             </div>
                             <div className="space-y-2 group">
                               <Label htmlFor="global_tax_rate" className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 group-focus-within:text-emerald-400 transition-colors">Default Tax Vector (%)</Label>
-                              <Input id="global_tax_rate" name="global_tax_rate" type="number" step="0.01" defaultValue={settings?.global_tax_rate} className="h-14 bg-white/5 border-white/5 focus:border-emerald-500/50 rounded-2xl font-black text-center text-white text-lg tracking-widest" />
+                              <Input id="global_tax_rate" name="global_tax_rate" type="number" step="0.01" defaultValue={settings?.global_tax_rate} className="h-14 bg-surface-alpha border-white/5 focus:border-emerald-500/50 rounded-2xl font-black text-center text-white text-lg tracking-widest" />
                             </div>
                           </div>
                         </CardContent>
@@ -306,7 +306,7 @@ export default function SuperAdminSettingsPage() {
                                      <Input type="password" value={smtpPass} onChange={e=>setSmtpPass(e.target.value)} placeholder="••••••••••••••••" className="h-14 bg-black/40 border-white/5 focus:border-indigo-500/50 rounded-2xl font-mono text-white tracking-widest" />
                                    </div>
                                    <div className="pt-6">
-                                       <Button variant="ghost" className="w-full h-14 bg-white/5 border border-white/5 hover:bg-white/10 hover:border-indigo-500/30 rounded-2xl font-black tracking-widest uppercase text-[10px] text-white transition-all flex items-center gap-3">
+                                       <Button variant="ghost" className="w-full h-14 bg-surface-alpha border border-white/5 hover:bg-surface-alpha hover:border-indigo-500/30 rounded-2xl font-black tracking-widest uppercase text-[10px] text-white transition-all flex items-center gap-3">
                                            <Zap className="w-4 h-4 text-amber-500 animate-pulse" /> Ping Transport Node
                                        </Button>
                                    </div>
@@ -338,7 +338,7 @@ export default function SuperAdminSettingsPage() {
                             <div className="space-y-2">
                                 <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Template Hook</Label>
                                 <Select defaultValue="invoice_dispatch">
-                                    <SelectTrigger className="h-14 bg-white/5 border-white/5 rounded-2xl font-black text-white uppercase italic tracking-tight"><SelectValue /></SelectTrigger>
+                                    <SelectTrigger className="h-14 bg-surface-alpha border-white/5 rounded-2xl font-black text-white uppercase italic tracking-tight"><SelectValue /></SelectTrigger>
                                     <SelectContent className="bg-[#0b0e14] border-white/10 rounded-2xl shadow-2xl">
                                         <SelectItem value="invoice_dispatch" className="text-[10px] font-black uppercase tracking-widest focus:bg-indigo-600 focus:text-white rounded-xl py-3">Invoice Dispatch Protocol</SelectItem>
                                         <SelectItem value="magic_link" className="text-[10px] font-black uppercase tracking-widest focus:bg-indigo-600 focus:text-white rounded-xl py-3">Magic Link Logic</SelectItem>
@@ -351,7 +351,7 @@ export default function SuperAdminSettingsPage() {
                                 <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1 group-focus-within:text-purple-400 transition-colors">Primary Branding Hex</Label>
                                 <div className="flex gap-4 items-center">
                                     <div className="w-14 h-14 bg-indigo-500 rounded-2xl border border-white/10 shrink-0 shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
-                                    <Input defaultValue="#6366f1" className="h-14 bg-white/5 border-white/5 focus:border-purple-500/50 rounded-2xl font-mono tracking-widest uppercase text-white font-black" />
+                                    <Input defaultValue="#6366f1" className="h-14 bg-surface-alpha border-white/5 focus:border-purple-500/50 rounded-2xl font-mono tracking-widest uppercase text-white font-black" />
                                 </div>
                             </div>
                             
@@ -374,7 +374,7 @@ export default function SuperAdminSettingsPage() {
                                 <FileCode2 className="w-5 h-5 text-indigo-400" />
                                 <h3 className="text-xs font-black uppercase tracking-[0.3em] text-white italic">Neural Render Simulation</h3>
                             </div>
-                            <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5">
+                            <div className="flex bg-surface-alpha p-1.5 rounded-2xl border border-white/5">
                                 <button type="button" onClick={()=>setPreviewDark(false)} className={cn("px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", !previewDark ? "bg-white text-black shadow-lg" : "text-white/40 hover:text-white")}>Day</button>
                                 <button type="button" onClick={()=>setPreviewDark(true)} className={cn("px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", previewDark ? "bg-indigo-600 text-white shadow-[0_0_15px_rgba(99,102,241,0.5)]" : "text-white/40 hover:text-white")}>Night</button>
                             </div>

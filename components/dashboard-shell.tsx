@@ -40,7 +40,7 @@ export function DashboardShell({
           userEmail={userEmail}
         />
         <main className="flex-1 overflow-y-auto page-fade-in relative">
-          <div className="mx-auto w-full max-w-[1920px] px-4 lg:px-8 py-8 animate-in fade-in duration-500">
+          <div className="mx-auto w-full max-w-[1200px] p-8 animate-in fade-in duration-500">
             {children}
           </div>
         </main>
