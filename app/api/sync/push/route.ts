@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateSyncRequest, SyncAuthError } from '@/lib/sync/auth';
 import { syncService } from '@/lib/sync/sync.service';
+import { handleSyncOptions, withSyncCors } from '@/lib/sync/cors';
 
-export async function POST(request: NextRequest) {
+export async function OPTIONS(request: NextRequest) {
+  return handleSyncOptions(request);
+}
+
+async function handlePost(request: NextRequest) {
   try {
     let body: any;
     try {
@@ -37,3 +42,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: error.message || 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function POST(request: NextRequest) {
+  const response = await handlePost(request);
+  return withSyncCors(response, request);
+}
+

@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateSyncRequest, SyncAuthError } from '@/lib/sync/auth';
 import { syncService } from '@/lib/sync/sync.service';
+import { handleSyncOptions, withSyncCors } from '@/lib/sync/cors';
 
-export async function GET(request: NextRequest) {
+export async function OPTIONS(request: NextRequest) {
+  return handleSyncOptions(request);
+}
+
+async function handleGet(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const storeId = searchParams.get('storeId')?.trim();
@@ -33,3 +38,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ success: false, error: error.message || 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function GET(request: NextRequest) {
+  const response = await handleGet(request);
+  return withSyncCors(response, request);
+}
+
